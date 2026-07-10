@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Moka United — Ödeme Altyapısı (Demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#0E1A2B; --paper:#EEF1F5; --surface:#FFFFFF;
+    --brand:#12B39A; --brand-deep:#0C8C7E;
+    --cta:#F0602E; --cta-deep:#D64E20;
+    --muted:#5A6B7B; --border:#E2E7EE;
+    --shadow:0 12px 40px rgba(14,26,43,.14);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:"Inter",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.brandmark{font-family:"Sora",sans-serif;letter-spacing:-.02em;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;}
+  .brandmark{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;}
+  .logo-dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--brand-deep));box-shadow:0 4px 12px rgba(18,179,154,.4);}
+  .nav{display:flex;gap:28px;font-size:14px;color:var(--muted);font-weight:500;}
+  .nav a{text-decoration:none;transition:color .15s;}
+  .nav a:hover{color:var(--ink);}
+  .nav-cta{padding:9px 18px;border-radius:10px;background:var(--ink);color:#fff;font-size:14px;font-weight:600;text-decoration:none;}
+  @media(max-width:760px){.nav{display:none;}}
+
+  .hero{max-width:1080px;margin:0 auto;padding:88px 40px 56px;}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-deep);background:rgba(18,179,154,.10);padding:6px 12px;border-radius:100px;margin-bottom:22px;}
+  .hero h1{font-size:clamp(34px,5.5vw,58px);line-height:1.05;margin:0 0 20px;max-width:16ch;}
+  .hero p{font-size:19px;color:var(--muted);max-width:56ch;margin:0 0 32px;}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-primary{padding:14px 26px;border-radius:12px;background:var(--brand);color:#fff;font-weight:600;text-decoration:none;font-size:15px;box-shadow:0 8px 20px rgba(18,179,154,.3);}
+  .btn-ghost{padding:14px 26px;border-radius:12px;background:var(--surface);color:var(--ink);font-weight:600;text-decoration:none;border:1px solid var(--border);font-size:15px;}
+  .stats{display:flex;gap:56px;flex-wrap:wrap;margin-top:64px;padding-top:36px;border-top:1px solid var(--border);}
+  .stat .num{font-family:"Sora";font-size:34px;font-weight:700;}
+  .stat .lbl{font-size:14px;color:var(--muted);}
+  .cards{max-width:1080px;margin:0 auto;padding:20px 40px 100px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;}
+  .card h3{font-size:18px;margin:14px 0 8px;}
+  .card p{font-size:14px;color:var(--muted);margin:0;}
+  .card .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;background:rgba(18,179,154,.1);font-size:20px;}
+  footer{background:var(--ink);color:#9FB0C0;padding:40px;text-align:center;font-size:13px;}
+
+  /* ===== WIDGET ===== */
+  #moka-launcher{position:fixed;bottom:24px;right:24px;z-index:9998;display:flex;align-items:center;gap:10px;padding:14px 20px 14px 16px;border-radius:100px;border:none;cursor:pointer;background:var(--ink);color:#fff;font-family:"Inter";font-size:15px;font-weight:600;box-shadow:var(--shadow);transition:transform .15s;}
+  #moka-launcher:hover{transform:translateY(-2px);}
+  #moka-launcher .pulse{width:10px;height:10px;border-radius:50%;background:var(--brand);animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(18,179,154,.55);}70%{box-shadow:0 0 0 9px rgba(18,179,154,0);}100%{box-shadow:0 0 0 0 rgba(18,179,154,0);}}
+  #moka-launcher.hidden{display:none;}
+
+  #moka-chat{position:fixed;bottom:24px;right:24px;z-index:9999;width:390px;max-width:calc(100vw - 32px);height:600px;max-height:calc(100vh - 48px);background:var(--surface);border-radius:20px;box-shadow:var(--shadow);display:none;flex-direction:column;overflow:hidden;transform:translateY(16px) scale(.97);opacity:0;transition:transform .22s cubic-bezier(.2,.8,.2,1),opacity .22s;}
+  #moka-chat.open{display:flex;transform:translateY(0) scale(1);opacity:1;}
+  .mc-head{background:linear-gradient(135deg,var(--brand),var(--brand-deep));color:#fff;padding:18px 20px;display:flex;align-items:center;gap:12px;}
+  .mc-avatar{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:19px;}
+  .mc-head .t{font-family:"Sora";font-weight:600;font-size:16px;line-height:1.2;}
+  .mc-head .s{font-size:12px;opacity:.85;display:flex;align-items:center;gap:6px;}
+  .mc-head .dot{width:7px;height:7px;border-radius:50%;background:#7CF0C4;}
+  .mc-close{margin-left:auto;background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:18px;line-height:1;}
+  .mc-body{flex:1;overflow-y:auto;padding:20px;background:var(--paper);display:flex;flex-direction:column;gap:12px;}
+  .mc-body::-webkit-scrollbar{width:6px;}
+  .mc-body::-webkit-scrollbar-thumb{background:#CBD5DF;border-radius:3px;}
+  .bubble{max-width:82%;padding:11px 15px;border-radius:16px;font-size:14px;line-height:1.5;animation:rise .22s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .bubble.bot{background:var(--surface);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:5px;}
+  .bubble.user{background:var(--ink);color:#fff;align-self:flex-end;border-bottom-right-radius:5px;}
+  .redirect-card{align-self:flex-start;max-width:92%;background:#FFF4EF;border:1px solid #F8C9B5;border-radius:16px;padding:16px;animation:rise .3s ease;}
+  .redirect-card .rc-title{font-family:"Sora";font-weight:600;font-size:14px;margin-bottom:4px;}
+  .redirect-card .rc-sub{font-size:13px;color:var(--muted);margin-bottom:12px;}
+  .redirect-card a{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--cta);color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:12px;border-radius:11px;box-shadow:0 6px 16px rgba(240,96,46,.32);transition:background .15s;}
+  .redirect-card a:hover{background:var(--cta-deep);}
+  .typing{align-self:flex-start;background:var(--surface);border:1px solid var(--border);padding:13px 16px;border-radius:16px;border-bottom-left-radius:5px;display:flex;gap:4px;}
+  .typing span{width:7px;height:7px;border-radius:50%;background:#B4C0CC;animation:blink 1.3s infinite;}
+  .typing span:nth-child(2){animation-delay:.2s;}
+  .typing span:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,60%,100%{opacity:.3;}30%{opacity:1;}}
+  .mc-foot{padding:14px 16px;border-top:1px solid var(--border);background:var(--surface);}
+  .mc-input{display:flex;gap:8px;align-items:flex-end;background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:6px 6px 6px 14px;}
+  .mc-input textarea{flex:1;border:none;background:none;resize:none;outline:none;font-family:"Inter";font-size:14px;line-height:1.4;max-height:96px;padding:6px 0;color:var(--ink);}
+  .mc-send{width:38px;height:38px;border-radius:10px;border:none;cursor:pointer;flex-shrink:0;background:var(--brand);color:#fff;font-size:17px;display:grid;place-items:center;}
+  .mc-send:disabled{background:#C3D0DA;cursor:not-allowed;}
+  .mc-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;}
+  .quick{display:flex;flex-wrap:wrap;gap:7px;}
+  .quick button{background:var(--surface);border:1px solid var(--border);color:var(--brand-deep);font-family:"Inter";font-size:12.5px;font-weight:500;padding:7px 12px;border-radius:100px;cursor:pointer;}
+  .quick button:hover{background:rgba(18,179,154,.08);border-color:var(--brand);}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brandmark"><span class="logo-dot"></span>Moka United</div>
+    <nav class="nav">
+      <a href="#">Ürünler</a><a href="#">Çözümler</a><a href="#">Üye İşyeri</a><a href="#">Destek</a>
+      <a href="#" class="nav-cta">Başvuru</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <span class="eyebrow">Ödeme Altyapısı</span>
+    <h1>Türkiye'nin işlemlerini güvenle taşıyoruz</h1>
+    <p>Binlerce üye işyeri, ödeme kabulünden mutabakata kadar tüm süreçlerini Moka United altyapısı üzerinden yönetiyor.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">Üye işyeri ol</a>
+      <a href="#" class="btn-ghost">Dokümantasyon</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="num">₺48Mr+</div><div class="lbl">Yıllık işlem hacmi</div></div>
+      <div class="stat"><div class="num">12.000+</div><div class="lbl">Aktif üye işyeri</div></div>
+      <div class="stat"><div class="num">%99,98</div><div class="lbl">Sistem sürekliliği</div></div>
+    </div>
+  </section>
+
+  <section class="cards">
+    <div class="card"><div class="ic">⚡</div><h3>Hızlı entegrasyon</h3><p>Tek API ile kart, cüzdan ve alternatif ödeme yöntemleri.</p></div>
+    <div class="card"><div class="ic">🛡️</div><h3>PCI-DSS güvenlik</h3><p>Uçtan uca şifreleme ve tokenizasyon.</p></div>
+    <div class="card"><div class="ic">📊</div><h3>Canlı mutabakat</h3><p>İşlem, iade ve itiraz süreçlerini tek panelden izleyin.</p></div>
+  </section>
+
+  <footer>© 2026 Moka United — chatbot demosu için örnek sayfa.</footer>
+
+  <!-- ===== WIDGET ===== -->
+  <button id="moka-launcher" aria-label="Yardım asistanını aç">
+    <span class="pulse"></span><span>💬 Yardım</span>
+  </button>
+
+  <div id="moka-chat" role="dialog" aria-label="Moka Asistan">
+    <div class="mc-head">
+      <div class="mc-avatar">🤖</div>
+      <div>
+        <div class="t">Moka Asistan</div>
+        <div class="s"><span class="dot"></span> Çevrimiçi</div>
+      </div>
+      <button class="mc-close" id="mc-close" aria-label="Kapat">×</button>
+    </div>
+    <div class="mc-body" id="mc-body"></div>
+    <div class="mc-foot">
+      <div class="mc-input">
+        <textarea id="mc-text" rows="1" placeholder="Mesajınızı yazın…"></textarea>
+        <button class="mc-send" id="mc-send" aria-label="Gönder">➤</button>
+      </div>
+      <div class="mc-hint">Güvenliğiniz için kart numarası veya şifre paylaşmayın.</div>
+    </div>
+  </div>
+
+<script>
+const DISPUTE_URL = "https://mokaitiraz.com";
+const messages = [];
+let busy = false, redirected = false, opened = false;
+
+const launcher = document.getElementById("moka-launcher");
+const chat = document.getElementById("moka-chat");
+const body = document.getElementById("mc-body");
+const input = document.getElementById("mc-text");
+const sendBtn = document.getElementById("mc-send");
+
+launcher.addEventListener("click", openChat);
+document.getElementById("mc-close").addEventListener("click", () => {
+  chat.classList.remove("open"); launcher.classList.remove("hidden");
+});
+sendBtn.addEventListener("click", () => send());
+input.addEventListener("keydown", e => { if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); }});
+input.addEventListener("input", () => { input.style.height="auto"; input.style.height=Math.min(input.scrollHeight,96)+"px"; });
+
+function openChat(){
+  launcher.classList.add("hidden"); chat.classList.add("open");
+  if(!opened){
+    opened = true;
+    addBot("Merhaba! Ben Moka Asistan 👋\nSize nasıl yardımcı olabilirim?");
+    addQuick(["Ekstremde tanımadığım işlem var","Kartımdan çekim yapıldı","İtiraz etmek istiyorum"]);
+  }
+  setTimeout(() => input.focus(), 250);
+}
+function addBot(t){ const e=document.createElement("div"); e.className="bubble bot"; e.textContent=t; body.appendChild(e); scroll(); }
+function addUser(t){ const e=document.createElement("div"); e.className="bubble user"; e.textContent=t; body.appendChild(e); scroll(); }
+function addQuick(items){
+  const w=document.createElement("div"); w.className="quick";
+  items.forEach(t=>{ const b=document.createElement("button"); b.textContent=t; b.onclick=()=>{ w.remove(); send(t); }; w.appendChild(b); });
+  body.appendChild(w); scroll();
+}
+function showRedirectCard(){
+  const c=document.createElement("div"); c.className="redirect-card";
+  c.innerHTML=`<div class="rc-title">İşleminizi burada çözebilirsiniz</div>
+    <div class="rc-sub">İtiraz portalında işleminizi sorgulayın ve gerekirse itirazınızı başlatın.</div>
+    <a href="${DISPUTE_URL}" target="_blank" rel="noopener">İtiraz Portalına Git →</a>`;
+  c.querySelector("a").addEventListener("click",()=>console.log("[analytics] chatbot_redirect_click"));
+  body.appendChild(c); scroll();
+}
+function typingOn(){ const t=document.createElement("div"); t.className="typing"; t.id="typing"; t.innerHTML="<span></span><span></span><span></span>"; body.appendChild(t); scroll(); }
+function typingOff(){ document.getElementById("typing")?.remove(); }
+function scroll(){ body.scrollTop = body.scrollHeight; }
+
+async function callBackend(){
+  const res = await fetch("/chat", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ messages })
+  });
+  if(!res.ok) throw new Error("API " + res.status);
+  return await res.json();   // { reply, redirect, intent }
+}
+
+async function send(preset){
+  const text = (preset ?? input.value).trim();
+  if(!text || busy) return;
+  input.value=""; input.style.height="auto";
+  addUser(text);
+  messages.push({ role:"user", content:text });
+  busy=true; sendBtn.disabled=true; typingOn();
+  try{
+    const { reply, redirect } = await callBackend();
+    typingOff();
+    if(reply) addBot(reply);
+    if(redirect && !redirected){ redirected=true; showRedirectCard(); }
+    messages.push({ role:"assistant", content:reply });
+  }catch(err){
+    typingOff(); console.error(err);
+    addBot("Şu an bir bağlantı sorunu yaşıyorum. Lütfen birazdan tekrar deneyin.");
+  }finally{
+    busy=false; sendBtn.disabled=false; input.focus();
+  }
+}
+</script>
+</body>
+</html>
