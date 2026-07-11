@@ -333,6 +333,155 @@ function initApplyWizard() {
 document.addEventListener('components:ready', () => {
   initInteractions();
 });
+
+// --- İtiraz / İşlem Sorgulama sihirbazı (frontend mock — gerçek backend yok) ---
+function initDisputeWizard() {
+  const wizard = document.getElementById('disputeWizard');
+  if (!wizard) return;
+
+  // Mock işlem kayıtları (bkz. moka_uyum_raporu.docx — asgari eşleştirme alanları)
+  const TXNS = [
+    { bin: '526955', last4: '3339', amount: 7650, installment: 1, date: '2026-06-23', timeBucket: '18-21', merchant: 'Beymen – Akasya AVM', district: 'Ataşehir/İstanbul', category: 'Giyim & Aksesuar', settled: false, ref: 'MU-7841203' },
+    { bin: '402360', last4: '8821', amount: 1049.70, installment: 3, date: '2026-06-15', timeBucket: '12-15', merchant: 'Migros – Bahçelievler', district: 'Bahçelievler/İstanbul', category: 'Market', settled: true, ref: 'MU-6602918' },
+    { bin: '540667', last4: '1204', amount: 219, installment: 1, date: '2026-07-02', timeBucket: '09-12', merchant: 'Shell – E5 Otoyol', district: 'Pendik/İstanbul', category: 'Akaryakıt', settled: false, ref: 'MU-9013475' },
+    { bin: '471234', last4: '9087', amount: 899, installment: 6, date: '2026-06-28', timeBucket: '18-21', merchant: 'Teknosa – Forum İstanbul', district: 'Bayrampaşa/İstanbul', category: 'Elektronik', settled: true, ref: 'MU-5527740' },
+  ];
+  const MAX_ATTEMPTS = 3;
+  const STEP_BY_SCREEN = { query: 1, notfound: 1, locked: 1, challenge: 2, disclosure: 3, remembered: 4, 'result-unsettled': 4, 'result-settled': 4 };
+
+  const screens = [...wizard.querySelectorAll('.dispute-screen')];
+  const progress = [...wizard.querySelectorAll('.wp-step')];
+  const queryForm = document.getElementById('disputeQueryForm');
+  const queryAttempts = document.getElementById('queryAttempts');
+  const challengeAttempts = document.getElementById('challengeAttempts');
+
+  let attempts = 0;
+  let currentTxn = null;
+
+  function showScreen(name) {
+    screens.forEach(s => s.classList.toggle('active', s.dataset.screen === name));
+    const stepIdx = STEP_BY_SCREEN[name] || 1;
+    progress.forEach(p => {
+      const n = +p.dataset.step;
+      p.classList.toggle('active', n === stepIdx);
+      p.classList.toggle('done', n < stepIdx);
+    });
+    wizard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function findTxn(bin, last4, amount, dateStr) {
+    const target = new Date(dateStr);
+    return TXNS.find(t => {
+      if (t.bin !== bin || t.last4 !== last4) return false;
+      const monthly = Math.round((t.amount / t.installment) * 100) / 100;
+      const amtMatch = Math.abs(t.amount - amount) < 0.01 || Math.abs(monthly - amount) < 0.01;
+      if (!amtMatch) return false;
+      const diffDays = Math.abs((new Date(t.date) - target) / 86400000);
+      return diffDays <= 1;
+    });
+  }
+
+  function attemptsLeftMsg(el) {
+    const left = MAX_ATTEMPTS - attempts;
+    el.hidden = false;
+    el.classList.toggle('danger', left <= 1);
+    el.textContent = `Kalan deneme hakkınız: ${left}`;
+  }
+
+  queryForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (attempts >= MAX_ATTEMPTS) { showScreen('locked'); return; }
+    const bin = queryForm.TxnBin.value.trim();
+    const last4 = queryForm.TxnLast4.value.trim();
+    const amount = parseFloat(queryForm.TxnAmount.value);
+    const date = queryForm.TxnDate.value;
+    if (bin.length !== 6 || last4.length !== 4 || !amount || !date) { queryForm.reportValidity(); return; }
+
+    const match = findTxn(bin, last4, amount, date);
+    if (!match) {
+      attempts++;
+      if (attempts >= MAX_ATTEMPTS) { showScreen('locked'); return; }
+      attemptsLeftMsg(queryAttempts);
+      showScreen('notfound');
+      return;
+    }
+    currentTxn = match;
+    challengeAttempts.hidden = true;
+    wizard.querySelectorAll('.chip-option.selected').forEach(b => b.classList.remove('selected'));
+    showScreen('challenge');
+  });
+
+  document.getElementById('disputeRetry').addEventListener('click', () => showScreen('query'));
+
+  wizard.querySelectorAll('.challenge-options').forEach(group => {
+    group.querySelectorAll('.chip-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.chip-option').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+  });
+
+  document.getElementById('challengeSubmit').addEventListener('click', () => {
+    if (attempts >= MAX_ATTEMPTS) { showScreen('locked'); return; }
+    const chosenInstallment = wizard.querySelector('#chInstallment .chip-option.selected');
+    const chosenTime = wizard.querySelector('#chTime .chip-option.selected');
+    if (!chosenInstallment || !chosenTime) { alert('Lütfen her iki soruyu da yanıtlayın.'); return; }
+
+    const ok = chosenInstallment.dataset.value === String(currentTxn.installment) &&
+               chosenTime.dataset.value === currentTxn.timeBucket;
+    if (!ok) {
+      attempts++;
+      if (attempts >= MAX_ATTEMPTS) { showScreen('locked'); return; }
+      attemptsLeftMsg(challengeAttempts);
+      wizard.querySelectorAll('.chip-option.selected').forEach(b => b.classList.remove('selected'));
+      return;
+    }
+
+    const card = document.getElementById('disclosureCard');
+    card.innerHTML = `
+      <div class="dc-logo">${currentTxn.merchant.charAt(0)}</div>
+      <div class="dc-body">
+        <strong>${currentTxn.merchant}</strong>
+        <span>${currentTxn.district} · ${currentTxn.category}</span>
+        <div class="dc-amount">${formatTL(currentTxn.amount)} — ${formatTRDate(currentTxn.date)}</div>
+      </div>`;
+    showScreen('disclosure');
+  });
+
+  document.getElementById('btnRecall').addEventListener('click', () => {
+    attempts = 0; currentTxn = null;
+    showScreen('remembered');
+  });
+
+  document.getElementById('btnNotRecall').addEventListener('click', () => {
+    if (!currentTxn.settled) {
+      document.getElementById('resultRefUnsettled').innerHTML = `
+        <div class="summary-row"><span class="sr-label">İşlem</span><span class="sr-val">${currentTxn.merchant}</span></div>
+        <div class="summary-row"><span class="sr-label">Tutar</span><span class="sr-val">${formatTL(currentTxn.amount)}</span></div>
+        <div class="summary-row"><span class="sr-label">İptal / Provizyon Referansı</span><span class="sr-val">${currentTxn.ref}</span></div>`;
+      showScreen('result-unsettled');
+    } else {
+      document.getElementById('resultRefSettled').innerHTML = `
+        <div class="summary-row"><span class="sr-label">İşlem</span><span class="sr-val">${currentTxn.merchant}</span></div>
+        <div class="summary-row"><span class="sr-label">Tutar</span><span class="sr-val">${formatTL(currentTxn.amount)}</span></div>
+        <div class="summary-row"><span class="sr-label">İşlem Referansı</span><span class="sr-val">${currentTxn.ref}</span></div>
+        <div class="summary-row"><span class="sr-label">İtiraz Neden Kodu</span><span class="sr-val">10.4 — Kart Hamili Tarafından Tanınmayan İşlem</span></div>`;
+      showScreen('result-settled');
+    }
+  });
+
+  // yalnızca rakam
+  wizard.querySelectorAll('.only-number').forEach(i =>
+    i.addEventListener('input', () => i.value = i.value.replace(/[^0-9]/g, '')));
+}
+
+function formatTL(n) {
+  return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 2 }).format(n);
+}
+function formatTRDate(iso) {
+  return new Date(iso).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
 // --- Dosya yükleme alanı: seçilen dosya adını göster ---
 function initFileInputs() {
   document.querySelectorAll('.file-drop input[type="file"]').forEach(inp => {
@@ -355,5 +504,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initMarquee();
   initContactForm();
   initApplyWizard();
+  initDisputeWizard();
   initFileInputs();
 });

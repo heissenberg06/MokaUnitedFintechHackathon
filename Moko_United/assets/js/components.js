@@ -53,6 +53,9 @@ function buildHeader(active = '') {
           <a class="mega-menu-item" href="linkle-tahsilat.html"><span>LİNKLE TAHSİLAT</span></a>
         </div>
       </div>
+      <div class="menu-item">
+        <a href="itiraz.html" ${isA('itiraz')}>İTİRAZ</a>
+      </div>
     </nav>
     <div class="header-buttons">
       <a class="button button-secondary desktop-only" href="basvuru.html"><span>HEMEN BAŞVURUN</span></a>
@@ -96,6 +99,7 @@ function buildHeader(active = '') {
       <a href="fiziki-pos.html">Fiziki POS</a>
       <a href="linkle-tahsilat.html">Linkle Tahsilat</a>
     </div>
+    <a href="itiraz.html">İTİRAZ</a>
     <a href="iletisim.html">İLETİŞİM</a>
     <div class="m-buttons">
       <a class="button button-secondary" href="basvuru.html"><span>HEMEN BAŞVURUN</span></a>
