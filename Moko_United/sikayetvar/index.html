@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moka United Şikayetleri | Şikayetvar (Klon · Demo)</title>
+  <meta name="description" content="Moka United hakkında şikayetler — Şikayetvar sayfası klonu (eğitim/demo amaçlı). Şikayet ve yorum ekleyebilirsiniz.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/sv.css?v=2">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="sv-header">
+    <div class="container">
+      <a class="sv-logo" href="index.html">şikayet<span class="dot">var</span></a>
+      <div class="sv-search">
+        <input type="search" id="searchInput" placeholder="Sonuçlarda ara..." autocomplete="off" aria-label="Şikayetlerde ara">
+        <svg class="s-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </div>
+      <nav class="sv-nav">
+        <a href="index.html">Şikayetler</a>
+        <a href="javascript:;" data-demo>Trend 100</a>
+        <a href="javascript:;" data-demo>Video</a>
+        <a href="javascript:;" data-demo>Giriş Yap</a>
+      </nav>
+      <button class="btn btn-primary header-write" id="writeBtnHeader">Şikayet Yaz</button>
+    </div>
+  </header>
+
+  <!-- MARKA BLOĞU -->
+  <section class="brand-hero">
+    <div class="container">
+      <div class="brand-logo" id="brandLogo"></div>
+      <div class="brand-info">
+        <h1>Moka United</h1>
+        <div class="brand-meta">
+          <span class="brand-count"><strong id="complaintTotal">—</strong> şikayet</span>
+          <span>·</span>
+          <span class="stars" title="2.8 / 5">
+            <span class="stars-wrap"><span class="stars-bg">★★★★★</span><span class="stars-fg" style="width:56%">★★★★★</span></span>
+            <span class="stars-val">2.8</span>
+          </span>
+          <span>·</span>
+          <span>789 değerlendirme</span>
+        </div>
+      </div>
+      <div class="brand-actions">
+        <div class="score">
+          <div class="score-ring" id="scoreRing">56<small>/100</small></div>
+          <span class="score-label">Müşteri Memnuniyeti</span>
+        </div>
+        <button class="btn btn-primary" id="writeBtnHero">Şikayet Yaz</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ETİKET BULUTU -->
+  <section class="tag-cloud">
+    <div class="container" id="tagCloud">
+      <span class="tc-label">Öne çıkan konular:</span>
+    </div>
+  </section>
+
+  <!-- LİSTE -->
+  <main class="list-wrap">
+    <div class="container">
+      <div class="list-head">
+        <h2>Şikayetler <span class="lh-count" id="listCount"></span></h2>
+      </div>
+      <div id="complaintList">
+        <div class="loading"><div class="spinner"></div>Şikayetler yükleniyor…</div>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="sv-footer">
+    <div class="container">
+      <a class="sv-logo" href="index.html" style="font-size:20px">şikayet<span class="dot">var</span></a>
+      <nav class="f-links">
+        <a href="javascript:;" data-demo>Hakkımızda</a>
+        <a href="javascript:;" data-demo>Markalar İçin</a>
+        <a href="javascript:;" data-demo>Kullanım Şartları</a>
+        <a href="javascript:;" data-demo>Çerez Politikası</a>
+      </nav>
+      <p class="f-note">Bu sayfa yalnızca <strong>eğitim/demo</strong> amaçlı bir klon çalışmasıdır. Şikayetvar ile bağlantısı yoktur; tüm şikayet ve yorumlar kurgudur.</p>
+    </div>
+  </footer>
+
+  <!-- ŞİKAYET YAZ MODALI -->
+  <div class="modal" id="writeModal">
+    <div class="modal-card">
+      <button class="modal-close" id="modalClose" aria-label="Kapat">&times;</button>
+      <div id="writeFormWrap">
+        <h3>Şikayetini Yaz</h3>
+        <p class="m-sub">Moka United hakkındaki deneyimini paylaş. (Demo: gerçek bir şikayet iletilmez.)</p>
+        <form id="complaintForm" novalidate>
+          <div class="form-group">
+            <label for="cName">Ad Soyad</label>
+            <input type="text" id="cName" name="name" placeholder="Adın ve soyadın" maxlength="40" required>
+            <span class="field-error" data-error="name"></span>
+          </div>
+          <div class="form-group">
+            <label for="cTitle">Şikayet Başlığı</label>
+            <input type="text" id="cTitle" name="title" placeholder="Sorununu kısaca özetle" maxlength="100" required>
+            <span class="field-error" data-error="title"></span>
+          </div>
+          <div class="form-group">
+            <label for="cBody">Şikayet Metni</label>
+            <textarea id="cBody" name="body" placeholder="Yaşadığın sorunu detaylıca anlat (en az 30 karakter)" maxlength="2000" required></textarea>
+            <span class="field-error" data-error="body"></span>
+          </div>
+          <label class="form-check">
+            <input type="checkbox" id="cConsent" required>
+            <span>Bu bir demo sitedir; gönderdiğim içeriğin gerçek bir şikayet olarak iletilmeyeceğini anladım.</span>
+          </label>
+          <button type="submit" class="btn btn-primary btn-block">Şikayeti Gönder</button>
+        </form>
+      </div>
+      <div class="form-success" id="writeSuccess" style="display:none">
+        <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 6.5"/></svg></div>
+        <h3>Şikayetin Yayınlandı</h3>
+        <p>Şikayetin listenin en üstünde görünüyor.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/sv.js?v=2"></script>
+</body>
+</html>
