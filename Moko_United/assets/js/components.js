@@ -249,7 +249,13 @@ function buildFooter() {
       <strong>Çerez Kullanımı</strong>
       <p>Web sitemizde deneyiminizi iyileştirmek için çerezler kullanıyoruz. Detaylar için <a href="cerez-politikasi.html">Çerez Politikası</a>’nı inceleyebilirsiniz.</p>
     </div>
+    <div class="cookie-settings" id="cookieSettings" hidden>
+      <label class="cookie-toggle"><span><strong>Zorunlu Çerezler</strong><small>Sitenin çalışması için gereklidir.</small></span><input type="checkbox" checked disabled></label>
+      <label class="cookie-toggle"><span><strong>Analitik Çerezler</strong><small>Kullanım istatistiklerini toplar.</small></span><input type="checkbox" name="analytics" checked></label>
+      <label class="cookie-toggle"><span><strong>Pazarlama Çerezleri</strong><small>İlgi alanınıza uygun içerik sunar.</small></span><input type="checkbox" name="marketing"></label>
+    </div>
     <div class="cookie-actions">
+      <button class="button button-third cookie-config" type="button"><span>ÇEREZ AYARLARI</span></button>
       <button class="button button-secondary cookie-reject"><span>REDDET</span></button>
       <button class="button button-primary cookie-accept"><span>KABUL ET</span></button>
     </div>

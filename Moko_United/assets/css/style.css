@@ -342,8 +342,10 @@ strong { font-weight: 800; }
   position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
   display: flex; align-items: flex-end; gap: 30px; height: 100%; z-index: 0; opacity: .5;
 }
-.grow-bg .block { width: 18vw; max-width: 220px; border: 6vw solid #1d4baf; border-radius: 300px; }
-.grow-bg .block.b1 { height: 40%; } .grow-bg .block.b2 { height: 70%; } .grow-bg .block.b3 { height: 90%; }
+.grow-bg .block { width: 18vw; max-width: 220px; border: 6vw solid #1d4baf; border-radius: 300px; height: 0; transition: height 1.2s cubic-bezier(.2,.8,.2,1); }
+.grow-section.in .grow-bg .block.b1 { height: 40%; transition-delay: .1s; }
+.grow-section.in .grow-bg .block.b2 { height: 70%; transition-delay: .25s; }
+.grow-section.in .grow-bg .block.b3 { height: 90%; transition-delay: .4s; }
 .grow-content { position: relative; z-index: 2; max-width: 640px; }
 .grow-content h2 { color: var(--white); margin-bottom: 24px; }
 .grow-content p { color: rgba(255, 255, 255, .85); margin-bottom: 14px; }
@@ -883,3 +885,51 @@ body[class*="theme-"] .info-box p { color: #555; }
   .timeline::before { left: 78px; }
   .ribbon-hero-img { order: -1; }
 }
+
+/* ============================================================
+   23. 4. TUR CİLA (wordmark logolar, mobil arama, belge modalı,
+       çerez ayarları paneli)
+   ============================================================ */
+
+/* Referans wordmark logoları */
+.ref-logo { height: 34px; width: auto; display: block; }
+.ref-item svg.ref-logo text { letter-spacing: -.02em; }
+
+/* Footer partner wordmark logoları */
+.footer-partners .partner { padding: 0; border: none; background: none; }
+.partner-logo { height: 24px; width: auto; display: block; opacity: .85; transition: opacity .2s; }
+.footer-partners .partner:hover .partner-logo { opacity: 1; }
+
+/* Mobil menü arama tetikleyicisi */
+.mobile-search-toggle {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 16px 18px; margin-bottom: 8px; border-radius: 14px;
+  background: var(--box-gray-2); color: #555; font-weight: 600; font-size: 16px;
+  border-bottom: none;
+}
+.mobile-search-toggle svg { width: 20px; height: 20px; }
+
+/* Yasal belge modalı */
+.doc-modal .doc-badge { width: 60px; height: 60px; border-radius: 16px; background: rgba(13,60,148,.08); color: var(--brand-blue); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+.doc-modal .doc-badge .ic { width: 30px; height: 30px; }
+.doc-modal h3 { color: var(--brand-blue); margin-bottom: 12px; }
+.doc-modal .doc-note { color: #777; font-size: 13px; margin-bottom: 16px; padding: 10px 14px; background: #f6f7f9; border-radius: 10px; }
+.doc-modal p { color: #555; line-height: 1.7; margin-bottom: 12px; }
+.doc-modal a { color: var(--brand-blue); text-decoration: underline; }
+button.doc-card { font: inherit; width: 100%; }
+
+/* Çerez ayarları paneli */
+.cookie-settings { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; }
+.cookie-settings[hidden] { display: none; }
+.cookie-toggle { display: flex; align-items: center; justify-content: space-between; gap: 16px; cursor: pointer; }
+.cookie-toggle span { display: flex; flex-direction: column; }
+.cookie-toggle strong { color: var(--brand-blue); font-size: 14px; }
+.cookie-toggle small { color: #888; font-size: 12px; }
+.cookie-toggle input { width: 20px; height: 20px; accent-color: var(--neon-green); flex-shrink: 0; }
+.cookie-toggle input:disabled { accent-color: #bbb; }
+.cookie-banner .cookie-config { padding: 12px 12px; color: var(--brand-blue); flex: 0 0 auto; }
+.cookie-banner.expanded { max-width: 460px; }
+
+/* Hikayemiz siyah şerit görsel bloğu */
+.strip-image { text-align: center; padding: 40px 4vw; }
+.strip-image img { max-width: 520px; width: 100%; margin: 0 auto; border-radius: var(--r-box); }

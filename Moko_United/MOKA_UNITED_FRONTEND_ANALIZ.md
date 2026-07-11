@@ -526,11 +526,15 @@ Body `product-detail`. Sıra:
 14. Hikayemiz siyah şeridine büyük görsel bloğu; tablet (768px) responsive geçişi gözle doğrula.
 15. `index.html`'i de build script kapsamına alma (tek kaynak) — mimari tercih, zorunlu değil.
 
-### 13.3 Kabul kriterleri (3. tur sonu hedefi)
-- [ ] Sitede hiçbir emoji ikon yok (🔍 dahil); mobil menüden arama açılabiliyor.
-- [ ] Referans marquee'lerinde ve footer'da metin yerine SVG wordmark/logolar var.
-- [ ] Ürün sayfalarında en az 4 farklı illüstrasyon kullanılıyor (tek placeholder tekrarı yok).
-- [ ] Yasal belgeler sayfasında ölü kart kalmadı (link veya modal).
-- [ ] grow-bg barları scroll'da büyüyor; çerez bandında ayarlar paneli çalışıyor.
-- [ ] fiziki-pos ve linkle-tahsilat SSS ≥9 soru.
-- [ ] `python3 build_pages.py` hatasız; konsolda hata yok; 375/768/1280px'te düzen bozulmuyor.
+### 13.3 Kabul kriterleri (4. tur — ✅ TAMAMLANDI ve tarayıcıda doğrulandı)
+- [x] Sitede hiçbir emoji ikon yok (🔍 → SVG büyüteç); mobil menüden arama açılıyor (menü kapanıp overlay geliyor).
+- [x] Referans marquee'lerinde 17 marka + footer'da 8 partner SVG wordmark/logo (Visa/Mastercard/Troy şekilli).
+- [x] Ürün sayfalarında ≥4 farklı illüstrasyon (kart: 6 farklı görsel — security/api/city/growth + prod-kart + placeholder).
+- [x] Yasal belgeler: 6 kart gerçek sayfaya linkli, 14 kart "örnek belge" modalı açıyor, 0 ölü link.
+- [x] grow-bg barları scroll'da büyüyor (`.grow-section.in`); çerez bandında 3 toggle'lı ayarlar paneli JSON tercih kaydediyor.
+- [x] fiziki-pos ve linkle-tahsilat SSS 10'ar soru.
+- [x] `python3 build_pages.py` hatasız (24 sayfa); konsol hatası yok; 375/768/1280px'te yatay taşma/bozulma yok.
+
+**Bilinçli ertelenenler (13.2/D — "istenirse"):** #13 telefon ülke kodu seçici (intl-tel-input muadili) ve #15 (index.html'i build kapsamına alma) yapılmadı; görsel sadakati etkilemiyor, risk/karmaşıklık getiriyor. #12 SEO (OG etiketleri) ve #14 (hikayemiz görsel bloğu) uygulandı.
+
+> **DURUM: 4. tur sonrası klon, canlı siteyle içerik/yapı/görsel olarak yüksek düzeyde eşleşiyor. Bilinen görsel eksik kalmadı.**

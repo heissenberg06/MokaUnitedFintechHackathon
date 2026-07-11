@@ -104,15 +104,30 @@ function initSearch() {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('active')) close(); });
 }
 
-// --- Çerez bandı ---
+// --- Çerez bandı (Kabul / Reddet / Ayarlar) ---
 function initCookieBanner() {
   const banner = document.getElementById('cookieBanner');
   if (!banner) return;
   if (localStorage.getItem('mu-cookie-consent')) return;
+  const settings = banner.querySelector('#cookieSettings');
+  const analytics = banner.querySelector('[name="analytics"]');
+  const marketing = banner.querySelector('[name="marketing"]');
   setTimeout(() => banner.classList.add('show'), 800);
-  const decide = (val) => { localStorage.setItem('mu-cookie-consent', val); banner.classList.remove('show'); };
-  banner.querySelector('.cookie-accept').addEventListener('click', () => decide('accepted'));
-  banner.querySelector('.cookie-reject').addEventListener('click', () => decide('rejected'));
+  const save = (prefs) => {
+    localStorage.setItem('mu-cookie-consent', JSON.stringify({ necessary: true, ...prefs, ts: Date.now() }));
+    banner.classList.remove('show');
+  };
+  banner.querySelector('.cookie-config').addEventListener('click', () => {
+    const open = settings.hasAttribute('hidden');
+    if (open) { settings.removeAttribute('hidden'); banner.classList.add('expanded'); }
+    else { settings.setAttribute('hidden', ''); banner.classList.remove('expanded'); }
+  });
+  banner.querySelector('.cookie-accept').addEventListener('click', () => {
+    // Ayarlar paneli açıksa kullanıcı tercihini, değilse tümünü kabul et
+    if (!settings.hasAttribute('hidden')) save({ analytics: analytics.checked, marketing: marketing.checked });
+    else save({ analytics: true, marketing: true });
+  });
+  banner.querySelector('.cookie-reject').addEventListener('click', () => save({ analytics: false, marketing: false }));
 }
 
 // --- Biyografi modalı (kurumsal yönetim kartları) ---

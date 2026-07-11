@@ -43,6 +43,12 @@ def shell(title, desc, body_class, active, main_html):
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title} | Moka United</title>
   <meta name="description" content="{desc}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Moka United">
+  <meta property="og:title" content="{title} | Moka United">
+  <meta property="og:description" content="{desc}">
+  <meta property="og:image" content="assets/images/favicon.svg">
+  <meta name="twitter:card" content="summary">
   <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -295,7 +301,10 @@ PAGES['fiziki-pos.html'] = content_faq_page(
    ('Temassız ödeme var mı?',['Evet, tüm cihazlarımız temassız ödemeyi destekler.']),
    ('Komisyon oranları nasıl belirlenir?',['İşlem hacminiz, sektörünüz ve taksit seçeneklerine göre size özel belirlenir.']),
    ('Birden fazla banka ile çalışabilir miyim?',['Evet, tek cihazda birden çok bankanın POS uygulamasını kullanabilirsiniz.']),
-   ('Cihaz arızasında ne oluyor?',['7/24 teknik destek ve hızlı cihaz değişimi ile kesintisiz hizmet sağlanır.'])])
+   ('Cihaz arızasında ne oluyor?',['7/24 teknik destek ve hızlı cihaz değişimi ile kesintisiz hizmet sağlanır.']),
+   ('İade işlemi nasıl yapılır?',['İade işlemlerini doğrudan cihaz üzerinden veya yönetim panelinden gerçekleştirebilirsiniz.']),
+   ('Gün sonu mutabakatı nasıl takip edilir?',['Tüm işlemler, mutabakat ve hesaba geçiş bilgileri merkezi raporlama panelinde tek yerden izlenir.']),
+   ('Yurt dışı kartları kabul ediyor mu?',['Evet, cihazlarımız Visa ve Mastercard başta olmak üzere yurt dışı kartlarını kabul eder.'])])
 
 PAGES['linkle-tahsilat.html'] = content_faq_page(
   'linkle-tahsilat.html', 'LİNKLE TAHSİLAT', 'pos',
@@ -317,7 +326,11 @@ PAGES['linkle-tahsilat.html'] = content_faq_page(
    ('Ödeme güvenli mi?',['Evet, tüm ödemeler 3D Secure ve şifreleme ile korunur.']),
    ('Taksit yapılabilir mi?',['Evet, banka anlaşmalarıyla taksit seçeneği sunulabilir.']),
    ('Web sitem yok, kullanabilir miyim?',['Evet, linkle tahsilatın en büyük avantajı web sitesi gerektirmemesidir.']),
-   ('Ödeme durumunu nasıl görürüm?',['Panel üzerinden her linkin ödenip ödenmediğini anlık takip edebilirsiniz.'])])
+   ('Ödeme durumunu nasıl görürüm?',['Panel üzerinden her linkin ödenip ödenmediğini anlık takip edebilirsiniz.']),
+   ('Komisyon oranları nedir?',['Komisyon; işlem hacminiz, sektörünüz ve taksit tercihlerinize göre size özel belirlenir.']),
+   ('Linkin geçerlilik süresi var mı?',['Evet, oluşturduğunuz linke geçerlilik süresi tanımlayabilir veya tek kullanımlık link üretebilirsiniz.']),
+   ('Yurt dışı kartlarından tahsilat yapabilir miyim?',['Evet, dövizli ödeme ve yurt dışı kart kabulü desteklenmektedir.']),
+   ('Para hesabıma ne zaman geçer?',['Anlaşma koşullarınıza göre tahsilatlar belirlenen valörde hesabınıza aktarılır.'])])
 
 # ---------- ÜRÜN DETAY SAYFALARI ----------
 def ribbon_hero(title, tagline, intro=None, img=None):
@@ -345,6 +358,12 @@ PROD_ILLUS = {
   'transfer': 'assets/images/prod-transfer.svg', 'kasa': 'assets/images/prod-kasa.svg',
   'kiosk': 'assets/images/prod-kiosk.svg',
 }
+# Temaya göre çeşitli illüstrasyonlar (tekrar eden placeholder yerine)
+ILLUS = {
+  'security': 'assets/images/illus-security.svg', 'api': 'assets/images/illus-api.svg',
+  'city': 'assets/images/illus-city.svg', 'growth': 'assets/images/illus-growth.svg',
+  'team': 'assets/images/illus-team.svg',
+}
 
 # --- KART ÇÖZÜMLERİ ---
 PAGES['kart-cozumleri.html'] = product_page(
@@ -360,17 +379,17 @@ PAGES['kart-cozumleri.html'] = product_page(
                 ('code','Güçlü API Entegrasyonları','Tek ve çok kullanımlık kartlar, anlık kart üretimi ve programatik yönetim için açık API’ler.'),
                 ('shield','Uçtan Uca Güvenlik','3D Secure, tokenizasyon ve gerçek zamanlı izleme ile her işlem koruma altında.')]),
     split(None, 'GÜVENLİ İŞLEMLERLE KAFANIZ RAHAT ETSİN',
-          '7/24 kesintisiz çalışan, yapay zeka destekli fraud tespit ve izleme teknolojimiz şüpheli işlemleri anında yakalar. Siz büyümeye odaklanın, güvenliği bize bırakın.', img=PROD_ILLUS['kart']),
+          '7/24 kesintisiz çalışan, yapay zeka destekli fraud tespit ve izleme teknolojimiz şüpheli işlemleri anında yakalar. Siz büyümeye odaklanın, güvenliği bize bırakın.', img=ILLUS['security']),
     feature_split('SADAKAT PROGRAMLARI İLE KART İŞİNİZİ BÜYÜTÜN',
           'Geniş üye iş yeri ağımızla müşterilerinize cashback ve nakit iade kampanyaları sunun, sadakati ve işlem hacmini birlikte artırın.',
-          ['Üye iş yeri ağında cashback kampanyaları','Kişiselleştirilmiş kampanya kuralları','Anlık puan/iade tahakkuku','Kampanya performans raporları'], reverse=True),
+          ['Üye iş yeri ağında cashback kampanyaları','Kişiselleştirilmiş kampanya kuralları','Anlık puan/iade tahakkuku','Kampanya performans raporları'], reverse=True, img=ILLUS['growth']),
     split(None, 'AÇIK API’LER İLE KART PROGRAMINIZI KURUN VE TEST EDİN',
-          'Geliştirici dostu API platformumuz ve sandbox ortamımızla kart programınızı hızlıca kurun, test edin ve canlıya alın. Kapsamlı dokümantasyon ve teknik destek yanınızda.'),
+          'Geliştirici dostu API platformumuz ve sandbox ortamımızla kart programınızı hızlıca kurun, test edin ve canlıya alın. Kapsamlı dokümantasyon ve teknik destek yanınızda.', img=ILLUS['api']),
     split(None, 'ŞEHİR KARTLARI: AYNI ŞEHRE AİT İNSANLAR',
-          'Belediyeler için Mastercard/Visa logolu şehir kartları: ulaşım, sosyal yaşam ve altyapı hizmetlerini tek kartta birleştirin. MCC kısıtlamaları, çoklu bakiye ve satıcı seçici desteğiyle.', reverse=True, img=PROD_ILLUS['kart']),
+          'Belediyeler için Mastercard/Visa logolu şehir kartları: ulaşım, sosyal yaşam ve altyapı hizmetlerini tek kartta birleştirin. MCC kısıtlamaları, çoklu bakiye ve satıcı seçici desteğiyle.', reverse=True, img=ILLUS['city']),
     feature_split('AKILLI ŞEHİR KARTLARI İLE SOSYAL FAYDA YARATIN',
           'Belediye kartlarıyla sosyal destekleri şeffaf ve izlenebilir biçimde dağıtın; döngüsel ekonomiyi güçlendirin.',
-          ['Ulaşım ve otopark ödemeleri','Vergi ve harç tahsilatı','Sosyal yardım ve kredi dağıtımı','Kültür-sanat erişimi']),
+          ['Ulaşım ve otopark ödemeleri','Vergi ve harç tahsilatı','Sosyal yardım ve kredi dağıtımı','Kültür-sanat erişimi'], img=ILLUS['city']),
     strip_section('BAĞIŞIN, DEĞİŞİMİN GÜCÜNE İNANIYORUZ', 'Ürettiğimiz her çözümde toplumsal fayda ve eşit erişim hedefimizi merkeze alıyoruz.', 'strip-blue'),
   ],
   'Markanıza özel sanal ve fiziksel kart programları, akıllı şehir kartları ve güvenli kart altyapısı Moka United ile.')
@@ -412,7 +431,7 @@ PAGES['para-transferi.html'] = product_page(
           ['Yurt dışından Türkiye’ye: banka hesabı, kredi kartı ve cüzdanlara','Türkiye’den yurt dışına: anında para gönderimi','Geniş koridor ağı ve şeffaf ücretlendirme','İş ortakları: Wise, TransferGo'], img=PROD_ILLUS['transfer']),
     feature_split('TİCARİ İŞLETMELER İÇİN',
           'Global ödeme API’lerimizle 190 ülke ve 40’tan fazla para biriminde tahsilat ve ödeme yapın, kendi fintek markanızı kurun.',
-          ['190 ülke, 40+ para birimi desteği','Toplu ödeme ve tahsilat','Güvenli emanet (escrow) hizmeti','Kendi fintek markanızı hayata geçirme'], reverse=True),
+          ['190 ülke, 40+ para birimi desteği','Toplu ödeme ve tahsilat','Güvenli emanet (escrow) hizmeti','Kendi fintek markanızı hayata geçirme'], reverse=True, img=ILLUS['api']),
     info_boxes([('building','Sanal Hesap (TL)','İşletmenize özel sanal TL hesabıyla tahsilatlarınızı tek noktada toplayın.'),
                 ('clock','Nöbetçi Transfer','Mesai dışı ve tatil günlerinde de kesintisiz işlem imkânı.'),
                 ('shield','Uyum ve Güvenlik','TCMB ve MASAK düzenlemelerine tam uyum, çok katmanlı güvenlik.')]),
@@ -460,7 +479,7 @@ PAGES['kiosk.html'] = product_page(
           'Dayanıklı donanım ve esnek yazılımıyla kiosklarımız her ortama ve markaya uyum sağlar.',
           ['Yüksek kaliteli malzeme ve işçilik','Dayanıklı, uzun ömürlü yapı','Özelleştirilebilir yazılım ve donanım','Kolay kullanım ve bakım','Farklı boyut ve renk seçenekleri'], img=PROD_ILLUS['kiosk']),
     split(None, 'DÖNÜŞÜMÜ BAŞLATIN',
-          'Self-servis kiosklarla müşteri deneyimini iyileştirin, bekleme sürelerini kısaltın ve rekabette öne geçin. 7/24 hizmet, daha az operasyonel yük demek.', reverse=True),
+          'Self-servis kiosklarla müşteri deneyimini iyileştirin, bekleme sürelerini kısaltın ve rekabette öne geçin. 7/24 hizmet, daha az operasyonel yük demek.', reverse=True, img=ILLUS['growth']),
     info_boxes([('plane','Turizm','Otel ve tesislerde self check-in/out ve ödeme.'),
                 ('plane','Havaalanı','Lounge girişi, bagaj paketleme, döviz ve ödeme işlemleri.'),
                 ('store','Perakende','Self-servis kasa ile hızlı ve temassız alışveriş.'),
@@ -506,6 +525,7 @@ PAGES['hikayemiz.html'] = shell(
            [('2014','Moka kuruldu; Visa, Mastercard, American Express ve Troy onaylı ödeme kuruluşu.'),
             ('2021','İş Bankası Moka’yı bünyesine kattı.'),
             ('2025','İki güçlü fintek birleşerek Moka United’ı oluşturdu.')]) +
+  '<section class="strip strip-black container reveal strip-image"><img src="' + ILLUS['growth'] + '" alt="Moka United büyüme yolculuğu"></section>' +
   '<section class="split container"><div class="col reveal" style="flex:1 1 100%;text-align:center"><h2>BU GÜÇLÜ BİRLEŞMEYLE <span class="multicolors">TÜRKİYE’NİN EN DEĞERLİ FİNTEK ŞİRKETİ</span> OLMA YOLCULUĞUMUZ BURADA BAŞLIYOR.</h2></div></section>' +
   '<section class="landing special"><div class="container"><h3 class="text-center" style="margin-bottom:40px">FİNANSAL <span class="multicolors">ÇÖZÜMLERİNİZ İÇİN</span> HANGİ ANAHTARI İSTERSİNİZ?</h3></div>' +
   cards([('KART ÇÖZÜMLERİ','kart-cozumleri.html',PROD_IMG['kart-cozumleri.html']),
@@ -514,11 +534,11 @@ PAGES['hikayemiz.html'] = shell(
          ('AKILLI KASA','akilli-kasa.html',PROD_IMG['akilli-kasa.html']),
          ('KİOSK','kiosk.html',PROD_IMG['kiosk.html'])], special=True) + '</section>' +
   qa_section('NASIL BİR <strong>DESTEK SUNUYORUZ?</strong>',
-             'Zamanınızın değerli olduğunu biliyoruz. Bu yüzden en yeni, en akıllı, en hızlı ve en güvenli finansal teknoloji yolunu sizin için inşa ediyoruz.') +
+             'Zamanınızın değerli olduğunu biliyoruz. Bu yüzden en yeni, en akıllı, en hızlı ve en güvenli finansal teknoloji yolunu sizin için inşa ediyoruz.', img=ILLUS['security']) +
   qa_section('SİZİ NEREDE <strong>HAYAL EDİYORUZ?</strong>',
-             'Sizi; hayatı kolaylaşmış, işi büyümüş ve global rekabette öne geçmiş olarak hayal ediyoruz. Ürettiğimiz her çözüm bu hedefe hizmet ediyor.', reverse=True) +
+             'Sizi; hayatı kolaylaşmış, işi büyümüş ve global rekabette öne geçmiş olarak hayal ediyoruz. Ürettiğimiz her çözüm bu hedefe hizmet ediyor.', reverse=True, img=ILLUS['growth']) +
   qa_section('NASIL BİR <strong>EKİBİMİZ VAR?</strong>',
-             'Yüzlerce çalışanımız, her gün milyonlarca kullanıcıya hızlı, kusursuz ve kazançlı bir finansal akış deneyimi sunuyor. Her parça, kesintisiz bir bütün oluşturuyor.') +
+             'Yüzlerce çalışanımız, her gün milyonlarca kullanıcıya hızlı, kusursuz ve kazançlı bir finansal akış deneyimi sunuyor. Her parça, kesintisiz bir bütün oluşturuyor.', img=ILLUS['team']) +
   country_grid() +
   strip_section('BİZİ NE MOTİVE EDİYOR?',
                 'Çözüm anahtarını elinde tutan herkesin eşit şekilde rekabet edebildiği bir finansal dünya yaratmak. Adil, eşit ve akıllı finansal çözümlerin herkes için mümkün olduğuna inanıyoruz.', 'strip-blue') +
@@ -626,7 +646,7 @@ PAGES['kariyer.html'] = shell(
   'Kariyer', "Moka United'ta kariyer fırsatları, açık pozisyonlar ve başvuru formu.", '', 'hakkimizda',
   breadcrumb([('Moka United','index.html'),('Hakkımızda','hakkimizda.html'),('Kariyer',None)]) +
   page_title("MOKA UNITED'TA KARİYER") +
-  split(None,'NEDEN <strong>MOKA UNITED?</strong>','Fintek ekosisteminin bir parçası olun. 200+ kişilik ekibimizle; esnek çalışma modelleri, açık iletişim ve güvene dayalı bir kültür sunuyoruz. Öncü finansal teknolojiler üreten, global ölçekte büyüyen ve çalışanının gelişimine yatırım yapan bir ekibin parçası olun.',reverse=True) +
+  split(None,'NEDEN <strong>MOKA UNITED?</strong>','Fintek ekosisteminin bir parçası olun. 200+ kişilik ekibimizle; esnek çalışma modelleri, açık iletişim ve güvene dayalı bir kültür sunuyoruz. Öncü finansal teknolojiler üreten, global ölçekte büyüyen ve çalışanının gelişimine yatırım yapan bir ekibin parçası olun.',reverse=True, img=ILLUS['team']) +
   info_boxes([('chart','Gelişim','Sürekli öğrenme ve kariyer gelişimi için fırsatlar.'),
               ('global','Global Ekip','6 ülkede 250+ çalışanla uluslararası bir ekip.'),
               ('bolt','Esneklik','Modern ve esnek çalışma kültürü.')]) +
