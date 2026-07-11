@@ -11,6 +11,7 @@ Sonra tarayıcıda aç:  http://localhost:8000
 
 import torch
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -35,6 +36,14 @@ REPLIES = {
 }
 
 app = FastAPI(title="Moka Asistan — Classifier")
+
+# Moko_United sitesi ayrı bir portta (statik sunucu) çalıştığı için CORS gerekli.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class Message(BaseModel):

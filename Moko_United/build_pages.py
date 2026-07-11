@@ -65,6 +65,7 @@ def shell(title, desc, body_class, active, main_html):
   <div id="footer-mount"></div>
   <script src="assets/js/components.js?v=3"></script>
   <script src="assets/js/main.js?v=3"></script>
+  <script src="assets/js/moka-chat-widget.js?v=1"></script>
 </body>
 </html>
 """
