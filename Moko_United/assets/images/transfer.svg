@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 360" fill="none">
+  <rect width="460" height="360" rx="20" fill="#f0f0f0"/>
+  <rect x="60" y="90" width="340" height="180" rx="18" fill="#0d3c94"/>
+  <rect x="90" y="130" width="60" height="42" rx="8" fill="#f8f2a7"/>
+  <rect x="90" y="210" width="220" height="14" rx="7" fill="#2bfb97"/>
+  <text x="230" y="330" font-family="Poppins,sans-serif" font-size="20" font-weight="700" fill="#0d3c94" text-anchor="middle">transfer</text>
+</svg>

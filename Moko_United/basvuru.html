@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hemen Başvurun | Moka United</title>
+  <meta name="description" content="Moka United POS başvurusu yapın; sanal POS, fiziki POS ve linkle tahsilat çözümleri için çok adımlı başvuru formunu doldurun.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Moka United">
+  <meta property="og:title" content="Hemen Başvurun | Moka United">
+  <meta property="og:description" content="Moka United POS başvurusu yapın; sanal POS, fiziki POS ve linkle tahsilat çözümleri için çok adımlı başvuru formunu doldurun.">
+  <meta property="og:image" content="assets/images/favicon.svg">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=3">
+</head>
+<body class="product-detail" data-active="basvuru">
+  <div class="overlay-loader" id="loader"><div class="spinner"></div></div>
+  <div id="header-mount"></div>
+  <main>
+<nav class="breadcrumb"><a href="index.html">Moka United</a><span class="sep">/</span><span>Hemen Başvurun</span></nav><section class="apply-page container"><h1 class="multicolors">HEMEN BAŞVURUN</h1><p class="lead">POS ve ödeme çözümleri başvurunuzu 4 adımda tamamlayın. Başvuru ücretsizdir ve hiçbir taahhüt içermez.</p><div class="apply-wizard" id="applyWizard">
+  <div class="wizard-progress">
+    <div class="wp-step active" data-step="1"><span class="wp-num">1</span> İşletme Bilgileri</div>
+    <div class="wp-step" data-step="2"><span class="wp-num">2</span> Yetkili &amp; İletişim</div>
+    <div class="wp-step" data-step="3"><span class="wp-num">3</span> Çözüm Seçimi</div>
+    <div class="wp-step" data-step="4"><span class="wp-num">4</span> Özet &amp; Onay</div>
+  </div>
+  <div class="apply-form-wrap">
+    <form class="apply-light" id="applyForm" novalidate>
+      <div class="wizard-card">
+
+        <!-- ADIM 1: İşletme -->
+        <div class="form-step active" data-step="1">
+          <h3>İşletme Bilgileri</h3>
+          <p class="step-sub">Başvuru yapan işletmeyi tanıyalım.</p>
+          <div class="form-group">
+            <label class="fld-label">İşletme Türü</label>
+            <div class="biz-type">
+              <label><input type="radio" name="BizType" value="Şahıs Şirketi" required> Şahıs Şirketi</label>
+              <label><input type="radio" name="BizType" value="Limited Şirket"> Limited Şirket</label>
+              <label><input type="radio" name="BizType" value="Anonim Şirket"> Anonim Şirket</label>
+              <label><input type="radio" name="BizType" value="Esnaf"> Esnaf</label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="fld-label">İşletme / Ticari Unvan</label><input class="form-control" name="Company" placeholder="Örn. Demo Ticaret Ltd. Şti." required></div>
+            <div class="form-group"><label class="fld-label">Faaliyet Sektörü</label>
+              <select class="form-control" name="Sector" required>
+                <option value="">Seçiniz</option>
+                <option>E-ticaret</option><option>Perakende</option><option>Restoran / Kafe</option>
+                <option>Hizmet</option><option>Turizm / Konaklama</option><option>Sağlık</option>
+                <option>Eğitim</option><option>Diğer</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="fld-label">Vergi Dairesi</label><input class="form-control" name="TaxOffice" placeholder="Örn. Beşiktaş"></div>
+            <div class="form-group"><label class="fld-label">Vergi / TC Kimlik No</label><input class="form-control only-number" name="TaxNo" placeholder="Vergi veya TC No" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="fld-label">Web Sitesi (varsa)</label><input class="form-control" name="Website" placeholder="https://"></div>
+            <div class="form-group"><label class="fld-label">Tahmini Aylık Ciro</label>
+              <select class="form-control" name="Turnover">
+                <option value="">Seçiniz</option>
+                <option>0 - 100.000 ₺</option><option>100.000 - 500.000 ₺</option>
+                <option>500.000 - 1.000.000 ₺</option><option>1.000.000 ₺ ve üzeri</option>
+              </select>
+            </div>
+          </div>
+          <div class="step-nav"><span class="spacer"></span>
+            <button type="button" class="button button-primary wz-next"><span>İLERİ →</span></button>
+          </div>
+        </div>
+
+        <!-- ADIM 2: Yetkili -->
+        <div class="form-step" data-step="2">
+          <h3>Yetkili &amp; İletişim</h3>
+          <p class="step-sub">Başvuruyu değerlendirdiğimizde size nasıl ulaşalım?</p>
+          <div class="form-row">
+            <div class="form-group"><label class="fld-label">Ad</label><input class="form-control only-letter" name="FirstName" placeholder="Ad" required></div>
+            <div class="form-group"><label class="fld-label">Soyad</label><input class="form-control only-letter" name="LastName" placeholder="Soyad" required></div>
+          </div>
+          <div class="form-group"><label class="fld-label">Yetkili Ünvanı</label><input class="form-control" name="Title" placeholder="Örn. Genel Müdür / İşletme Sahibi"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="fld-label">Telefon</label><input class="form-control only-number" type="tel" name="Phone" placeholder="0 5xx xxx xx xx" required></div>
+            <div class="form-group"><label class="fld-label">E-Posta</label><input class="form-control" type="email" name="Email" placeholder="ornek@sirket.com" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="fld-label">İl</label><input class="form-control only-letter" name="City" placeholder="İstanbul" required></div>
+            <div class="form-group"><label class="fld-label">İlçe</label><input class="form-control only-letter" name="District" placeholder="Beşiktaş"></div>
+          </div>
+          <div class="form-group"><label class="fld-label">Adres</label><textarea class="form-control" name="Address" placeholder="İşletme adresi"></textarea></div>
+          <div class="step-nav">
+            <button type="button" class="button button-secondary wz-prev"><span>← GERİ</span></button>
+            <span class="spacer"></span>
+            <button type="button" class="button button-primary wz-next"><span>İLERİ →</span></button>
+          </div>
+        </div>
+
+        <!-- ADIM 3: Çözümler -->
+        <div class="form-step" data-step="3">
+          <h3>Çözüm Seçimi</h3>
+          <p class="step-sub">İlgilendiğiniz ödeme çözümlerini seçin (birden fazla seçebilirsiniz).</p>
+          <div class="choice-grid">
+            <label class="choice-card"><input type="checkbox" name="Product" value="Sanal POS"><span><span class="cc-title">Sanal POS</span><span class="cc-desc">E-ticaret ve mobil uygulamadan online ödeme</span></span></label>
+            <label class="choice-card"><input type="checkbox" name="Product" value="Fiziki POS"><span><span class="cc-title">Fiziki POS</span><span class="cc-desc">Mağaza içi kartlı tahsilat cihazı</span></span></label>
+            <label class="choice-card"><input type="checkbox" name="Product" value="Linkle Tahsilat"><span><span class="cc-title">Linkle Tahsilat</span><span class="cc-desc">Web sitesiz, ödeme linkiyle tahsilat</span></span></label>
+            <label class="choice-card"><input type="checkbox" name="Product" value="Kart Çözümleri"><span><span class="cc-title">Kart Çözümleri</span><span class="cc-desc">Kuruma özel fiziksel/sanal kart</span></span></label>
+            <label class="choice-card"><input type="checkbox" name="Product" value="Cüzdan Çözümleri"><span><span class="cc-title">Cüzdan Çözümleri</span><span class="cc-desc">Dijital cüzdan ve ön ödemeli kart</span></span></label>
+            <label class="choice-card"><input type="checkbox" name="Product" value="Para Transferi"><span><span class="cc-title">Para Transferi</span><span class="cc-desc">Yurt içi ve yurt dışı transfer</span></span></label>
+          </div>
+          <div class="form-group" style="margin-top:20px"><label class="fld-label">Eklemek istedikleriniz (opsiyonel)</label><textarea class="form-control" name="Message" placeholder="İhtiyaçlarınızı kısaca anlatın"></textarea></div>
+          <div class="step-nav">
+            <button type="button" class="button button-secondary wz-prev"><span>← GERİ</span></button>
+            <span class="spacer"></span>
+            <button type="button" class="button button-primary wz-next"><span>İLERİ →</span></button>
+          </div>
+        </div>
+
+        <!-- ADIM 4: Özet & Onay -->
+        <div class="form-step" data-step="4">
+          <h3>Özet &amp; Onay</h3>
+          <p class="step-sub">Bilgilerinizi kontrol edip başvuruyu tamamlayın.</p>
+          <div class="summary-box" id="applySummary"></div>
+          <label class="form-check"><input type="checkbox" name="kvkk" required> Kişisel verilerimin <a href="kvkk-aydinlatma-metni.html">Aydınlatma Metni</a>’nde belirtilen amaçlarla işleneceğini okudum, anladım.</label>
+          <label class="form-check"><input type="checkbox" name="sozlesme" required> <a href="yasal-belgeler-ve-temsilcilikler.html">Üye İş Yeri Sözleşmesi</a> ve başvuru koşullarını kabul ediyorum.</label>
+          <div class="step-nav">
+            <button type="button" class="button button-secondary wz-prev"><span>← GERİ</span></button>
+            <span class="spacer"></span>
+            <button type="submit" class="button button-primary"><span>BAŞVURUYU GÖNDER</span></button>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <div class="wizard-card wizard-success" id="applySuccess">
+    <div class="ok-badge">✓</div>
+    <h3 style="color:var(--brand-blue)">BAŞVURUNUZ ALINMIŞTIR</h3>
+    <p style="color:#555;max-width:480px;margin:14px auto 0">Ekibimiz başvurunuzu değerlendirip <strong>en geç 3 iş günü içinde</strong> e-posta veya telefonla sizinle iletişime geçecektir. Acil durumlar için WhatsApp hattımızı kullanabilirsiniz.</p>
+    <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a class="button button-primary" href="index.html"><span>ANA SAYFAYA DÖN</span></a>
+      <a class="button button-secondary" href="https://api.whatsapp.com/send?phone=908502522222" target="_blank" rel="noopener"><span>WHATSAPP</span></a>
+    </div>
+  </div>
+
+  <div class="apply-trust">
+    <span class="t-item">Ücretsiz başvuru</span>
+    <span class="t-item">3 iş gününde sonuç</span>
+    <span class="t-item">Tüm bankalarla tek entegrasyon</span>
+    <span class="t-item">PCI DSS uyumlu güvenlik</span>
+  </div>
+</div></section>
+  </main>
+  <div id="cta-mount"></div>
+  <div id="footer-mount"></div>
+  <script src="assets/js/components.js?v=3"></script>
+  <script src="assets/js/main.js?v=3"></script>
+</body>
+</html>
