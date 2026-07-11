@@ -64,6 +64,7 @@ def shell(title, desc, body_class, active, main_html):
   <div id="cta-mount"></div>
   <div id="footer-mount"></div>
   <script src="assets/js/components.js?v=3"></script>
+  <script src="assets/data/dispute-txns.js?v=1"></script>
   <script src="assets/js/main.js?v=3"></script>
   <script src="assets/js/moka-chat-widget.js?v=1"></script>
 </body>
@@ -879,9 +880,8 @@ PAGES['basvuru.html'] = shell(
 dispute_wizard = '''<div class="apply-wizard dispute-wizard" id="disputeWizard">
   <div class="wizard-progress">
     <div class="wp-step active" data-step="1"><span class="wp-num">1</span> Sorgu</div>
-    <div class="wp-step" data-step="2"><span class="wp-num">2</span> Doğrulama</div>
-    <div class="wp-step" data-step="3"><span class="wp-num">3</span> Hatırlatma</div>
-    <div class="wp-step" data-step="4"><span class="wp-num">4</span> Sonuç</div>
+    <div class="wp-step" data-step="2"><span class="wp-num">2</span> Hatırlatma</div>
+    <div class="wp-step" data-step="3"><span class="wp-num">3</span> Sonuç</div>
   </div>
   <div class="apply-form-wrap">
     <div class="wizard-card">
@@ -927,42 +927,10 @@ dispute_wizard = '''<div class="apply-wizard dispute-wizard" id="disputeWizard">
         <p class="step-sub">Güvenliğiniz için bu oturumda çok fazla başarısız deneme yapıldı. Lütfen bir süre sonra tekrar deneyin ya da doğrudan bankanızla iletişime geçin.</p>
       </div>
 
-      <!-- EKRAN: kart hamili doğrulama -->
-      <div class="dispute-screen" data-screen="challenge">
-        <h3>Kart Hamili Doğrulama</h3>
-        <p class="step-sub">İşyeri bilgisini gösterebilmemiz için işlemi gerçekten sizin yaptığınızı doğrulamamız gerekiyor.</p>
-        <div class="form-group">
-          <label class="fld-label">Bu işlem tek çekim mi, taksitli mi?</label>
-          <div class="challenge-options" id="chInstallment" data-group="installment">
-            <button type="button" class="chip-option" data-value="1">Tek Çekim</button>
-            <button type="button" class="chip-option" data-value="2">2 Taksit</button>
-            <button type="button" class="chip-option" data-value="3">3 Taksit</button>
-            <button type="button" class="chip-option" data-value="6">6 Taksit</button>
-            <button type="button" class="chip-option" data-value="9">9 Taksit</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="fld-label">İşlem yaklaşık saat kaçta yapıldı?</label>
-          <div class="challenge-options" id="chTime" data-group="time">
-            <button type="button" class="chip-option" data-value="00-06">00:00–06:00</button>
-            <button type="button" class="chip-option" data-value="06-09">06:00–09:00</button>
-            <button type="button" class="chip-option" data-value="09-12">09:00–12:00</button>
-            <button type="button" class="chip-option" data-value="12-15">12:00–15:00</button>
-            <button type="button" class="chip-option" data-value="15-18">15:00–18:00</button>
-            <button type="button" class="chip-option" data-value="18-21">18:00–21:00</button>
-            <button type="button" class="chip-option" data-value="21-24">21:00–24:00</button>
-          </div>
-        </div>
-        <div class="dispute-attempts" id="challengeAttempts" hidden></div>
-        <div class="step-nav"><span class="spacer"></span>
-          <button type="button" class="button button-primary" id="challengeSubmit"><span>DOĞRULA →</span></button>
-        </div>
-      </div>
-
       <!-- EKRAN: asgari ifşa / hatırlatma -->
       <div class="dispute-screen" data-screen="disclosure">
         <h3>Bu Harcamayı Hatırlıyor musunuz?</h3>
-        <p class="step-sub">Doğrulamanız başarılı. İşte işleminize ait asgari bilgiler:</p>
+        <p class="step-sub">İşleminizi bulduk. İşte işleminize ait asgari bilgiler:</p>
         <div class="disclosure-card" id="disclosureCard"></div>
         <div class="step-nav dispute-choice-nav">
           <button type="button" class="button button-secondary" id="btnNotRecall"><span>HÂLÂ TANIMIYORUM</span></button>

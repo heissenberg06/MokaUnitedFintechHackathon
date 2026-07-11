@@ -657,10 +657,6 @@ select.form-control option { color: #1b1c1a; }
 .dispute-result-icon.ok { background: var(--neon-green); color: var(--brand-blue); }
 .dispute-result-icon.warn { background: #fdeaea; color: #c23a3a; }
 .dispute-result-icon.info { background: #e7edfb; color: var(--brand-blue); }
-.challenge-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
-.chip-option { border: 2px solid #e2e5ea; background: #f6f7f9; color: var(--ink); border-radius: 100px; padding: 10px 18px; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all .2s; }
-.chip-option:hover { border-color: var(--neon-green); }
-.chip-option.selected { border-color: var(--brand-blue); background: #f2f7ff; color: var(--brand-blue); }
 .disclosure-card { background: var(--box-gray); border-radius: var(--r-box); padding: 28px; margin: 20px 0; display: flex; gap: 18px; align-items: flex-start; }
 .disclosure-card .dc-logo { width: 52px; height: 52px; border-radius: 14px; background: var(--brand-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; flex-shrink: 0; }
 .disclosure-card .dc-body strong { display: block; color: var(--brand-blue); font-size: 16px; margin-bottom: 4px; }

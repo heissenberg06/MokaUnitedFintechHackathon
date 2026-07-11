@@ -1,0 +1,233 @@
+{
+  "seq": 15,
+  "complaints": [
+    {
+      "id": 1,
+      "name": "A** K**",
+      "initials": "AK",
+      "title": "POS cihazım hâlâ teslim edilmedi",
+      "body": "Sanal POS başvurumun onaylanmasının ardından fiziki POS cihazımın 3 iş günü içinde teslim edileceği söylenmişti. Aradan iki hafta geçmesine rağmen cihaz elime ulaşmadı ve müşteri hizmetlerinden net bir tarih alamıyorum.",
+      "createdAt": "2026-06-13T14:26:35",
+      "views": 339,
+      "supports": 3,
+      "status": "cozuldu",
+      "comments": [
+        {
+          "id": 1,
+          "name": "Moka United",
+          "isBrand": true,
+          "body": "Merhaba, yaşadığınız gecikme için özür dileriz. Başvuru numaranızı özelden ilettiğinizde kargo sürecini hızlandıracağız.",
+          "createdAt": "2026-06-13T18:26:35"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Z** D**",
+      "initials": "ZD",
+      "title": "Komisyon oranı sözleşmedekinden yüksek kesildi",
+      "body": "İş yeri sözleşmemizde belirtilen komisyon oranı ile ay sonunda hesabımdan kesilen tutar birbirini tutmuyor. Aradaki farkın gerekçesini ve iadesini talep ediyorum.",
+      "createdAt": "2026-06-14T08:29:35",
+      "views": 76,
+      "supports": 38,
+      "status": "yanit-bekliyor",
+      "comments": []
+    },
+    {
+      "id": 3,
+      "name": "M** Y**",
+      "initials": "MY",
+      "title": "Para iadem 10 gündür yapılmadı",
+      "body": "İptal ettiğim bir işlemin iadesi ekranda onaylandı görünmesine rağmen kartıma hâlâ yansımadı. 10 gündür bekliyorum, bilgi alamıyorum.",
+      "createdAt": "2026-06-16T18:11:35",
+      "views": 24,
+      "supports": 10,
+      "status": "cozuldu",
+      "comments": [
+        {
+          "id": 1,
+          "name": "Moka United",
+          "isBrand": true,
+          "body": "İadeniz bankanız tarafından işleme alınmış olup 1-2 iş günü içinde kartınıza yansıyacaktır. İlginiz için teşekkürler.",
+          "createdAt": "2026-06-16T21:11:35"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "E** S**",
+      "initials": "ES",
+      "title": "Müşteri hizmetlerine bir türlü ulaşamıyorum",
+      "body": "Çağrı merkezini defalarca aradım, uzun bekleme sürelerinden sonra hat düşüyor. Canlı destek de yanıt vermiyor. Acil bir sorunum var ve kimseye ulaşamıyorum.",
+      "createdAt": "2026-06-17T22:22:35",
+      "views": 253,
+      "supports": 1,
+      "status": "yanit-bekliyor",
+      "comments": []
+    },
+    {
+      "id": 5,
+      "name": "C** T**",
+      "initials": "CT",
+      "title": "Link ile ödeme sayfası açılmıyor",
+      "body": "Müşterilerime gönderdiğim ödeme linki bazı cihazlarda hata veriyor ve ödeme alamıyorum. Bu durum satışlarımı doğrudan etkiliyor.",
+      "createdAt": "2026-06-21T05:28:35",
+      "views": 151,
+      "supports": 17,
+      "status": "yanit-bekliyor",
+      "comments": []
+    },
+    {
+      "id": 6,
+      "name": "S** A**",
+      "initials": "SA",
+      "title": "Hesap doğrulama süreci çok uzadı",
+      "body": "Gerekli tüm evrakları eksiksiz yükledim ancak hesabım hâlâ onaylanmadı. Her aradığımda &#x27;inceleniyor&#x27; yanıtı alıyorum, süreç günlerdir ilerlemiyor.",
+      "createdAt": "2026-06-22T13:19:35",
+      "views": 203,
+      "supports": 25,
+      "status": "cozuldu",
+      "comments": [
+        {
+          "id": 1,
+          "name": "Moka United",
+          "isBrand": true,
+          "body": "Belgeleriniz kontrol edilip hesabınız aktifleştirilmiştir. Yaşattığımız gecikme için teşekkür ve özürlerimizi sunarız.",
+          "createdAt": "2026-06-23T09:19:35"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "B** Ö**",
+      "initials": "BÖ",
+      "title": "Dijital cüzdan bakiyem aktarılmadı",
+      "body": "Cüzdanımdaki bakiyeyi banka hesabıma aktarmak istedim, tutar cüzdandan düştü ama hesabıma geçmedi. İşlem askıda kaldı.",
+      "createdAt": "2026-06-25T02:07:35",
+      "views": 322,
+      "supports": 43,
+      "status": "yanit-bekliyor",
+      "comments": []
+    },
+    {
+      "id": 8,
+      "name": "D** K**",
+      "initials": "DK",
+      "title": "Uygulama sürekli hata veriyor",
+      "body": "Son güncellemeden sonra uygulamaya giriş yapamıyorum, işlem geçmişim görünmüyor ve ödeme alırken uygulama kapanıyor.",
+      "createdAt": "2026-06-25T19:01:35",
+      "views": 340,
+      "supports": 33,
+      "status": "yanit-bekliyor",
+      "comments": []
+    },
+    {
+      "id": 9,
+      "name": "G** M**",
+      "initials": "GM",
+      "title": "Sanal POS başvurum haftalardır sonuçlanmadı",
+      "body": "Başvuru yaptığımda 3 iş günü içinde dönüş yapılacağı belirtilmişti. Üç hafta oldu, başvurumun durumu hakkında hiçbir bilgi verilmiyor.",
+      "createdAt": "2026-06-28T21:29:35",
+      "views": 26,
+      "supports": 17,
+      "status": "cozuldu",
+      "comments": [
+        {
+          "id": 1,
+          "name": "Moka United",
+          "isBrand": true,
+          "body": "Başvurunuz onaylanmış olup panel giriş bilgileriniz e-posta adresinize iletilmiştir. İlginiz için teşekkür ederiz.",
+          "createdAt": "2026-06-29T06:29:35"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "A** R**",
+      "initials": "AR",
+      "title": "Gün sonu mutabakatı tutmuyor",
+      "body": "Panelde görünen işlem tutarları ile hesabıma geçen tutarlar farklı. Gün sonu raporlarında eksik işlemler var, mutabakat sağlayamıyorum.",
+      "createdAt": "2026-07-01T09:43:35",
+      "views": 80,
+      "supports": 8,
+      "status": "yanit-bekliyor",
+      "comments": []
+    },
+    {
+      "id": 11,
+      "name": "K** B**",
+      "initials": "KB",
+      "title": "Sözleşmeyi iptal etmek istiyorum ama edemiyorum",
+      "body": "Hizmeti kullanmayı bırakmak ve sözleşmemi feshetmek istiyorum fakat panelde bir iptal seçeneği yok, destek ekibi de yönlendirme yapmıyor.",
+      "createdAt": "2026-07-02T12:46:35",
+      "views": 103,
+      "supports": 21,
+      "status": "yanit-bekliyor",
+      "comments": []
+    },
+    {
+      "id": 12,
+      "name": "M** İ**",
+      "initials": "Mİ",
+      "title": "İşlem ücreti hakkında bilgilendirilmedim",
+      "body": "Hesabımdan adını bilmediğim bir işlem ücreti kesilmiş. Sözleşmede böyle bir kalem göremedim, bu kesintinin ne olduğunu öğrenmek istiyorum.",
+      "createdAt": "2026-07-03T17:11:35",
+      "views": 389,
+      "supports": 35,
+      "status": "cozuldu",
+      "comments": [
+        {
+          "id": 1,
+          "name": "Moka United",
+          "isBrand": true,
+          "body": "Söz konusu ücret aylık hizmet bedeli olup sözleşmenizde yer almaktadır. Detaylı dökümü e-posta ile paylaştık, teşekkürler.",
+          "createdAt": "2026-07-03T20:11:35"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "O** B**",
+      "initials": "OB",
+      "title": "Bilgim dışında hesabımdan üyelik ücreti çekilmiş",
+      "body": "Onayladığımı hatırlamadığım bir üyelik için hesabımdan aylık ücret kesilmeye başlanmış. Böyle bir hizmeti hiç talep etmedim; kesintinin durdurulmasını ve iadesini istiyorum.",
+      "createdAt": "2026-07-05T22:46:35",
+      "views": 220,
+      "supports": 22,
+      "status": "yanit-bekliyor",
+      "comments": []
+    },
+    {
+      "id": 14,
+      "name": "S** A**",
+      "initials": "SA",
+      "title": "Kartımdan onayım olmadan tahsilat yapıldı",
+      "body": "Kartımdan, benim başlatmadığım bir işlem için tahsilat gerçekleştirilmiş. İşlemin kaynağını ve nasıl iptal edileceğini öğrenmek, tutarın iadesini talep etmek istiyorum.",
+      "createdAt": "2026-07-07T17:27:35",
+      "views": 132,
+      "supports": 29,
+      "status": "cozuldu",
+      "comments": [
+        {
+          "id": 1,
+          "name": "Moka United",
+          "isBrand": true,
+          "body": "Merhaba, bildirdiğiniz işlem incelenmiş olup itirazınız işleme alınmıştır. İlgili tutar en kısa sürede kartınıza iade edilecektir.",
+          "createdAt": "2026-07-08T11:27:35"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "T** E**",
+      "initials": "TE",
+      "title": "Tanımadığım bir işlem için hesabımdan kesinti yapıldı",
+      "body": "Ekstremde tanımadığım bir işlem gördüm; ne olduğuna dair hiçbir bilgilendirme almadım. Bu kesintinin ne olduğunun açıklanmasını ve yetkisiz ise iadesini istiyorum.",
+      "createdAt": "2026-07-10T01:26:35",
+      "views": 86,
+      "supports": 44,
+      "status": "yanit-bekliyor",
+      "comments": []
+    }
+  ]
+}
