@@ -1,7 +1,7 @@
 /* Moka Asistan — chatbot widget (yarım buton + sohbet paneli) */
 (function () {
-  const CHAT_API_URL = window.MOKA_CHAT_API_URL || "http://localhost:8000/chat";
-  const DISPUTE_URL = "https://mokaitiraz.com";
+  const CHAT_API_URL = window.MOKA_CHAT_API_URL || "/chat";
+  const DISPUTE_URL = "itiraz.html";
 
   const style = document.createElement("style");
   style.textContent = `
@@ -116,8 +116,8 @@
     function showRedirectCard() {
       const c = document.createElement("div"); c.className = "redirect-card";
       c.innerHTML = `<div class="rc-title">İşleminizi burada çözebilirsiniz</div>
-        <div class="rc-sub">İtiraz portalında işleminizi sorgulayın ve gerekirse itirazınızı başlatın.</div>
-        <a href="${DISPUTE_URL}" target="_blank" rel="noopener">İtiraz Portalına Git →</a>`;
+        <div class="rc-sub">İtiraz sayfasında işleminizi sorgulayın ve gerekirse itirazınızı başlatın.</div>
+        <a href="${DISPUTE_URL}">İtiraz Sayfasına Git →</a>`;
       body.appendChild(c); scrollBody();
     }
     function typingOn() { const t = document.createElement("div"); t.className = "typing"; t.id = "mc-typing"; t.innerHTML = "<span></span><span></span><span></span>"; body.appendChild(t); scrollBody(); }
