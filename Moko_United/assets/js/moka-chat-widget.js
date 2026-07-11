@@ -1,6 +1,6 @@
 /* Moka Asistan — chatbot widget (yarım buton + sohbet paneli) */
 (function () {
-  const CHAT_API_URL = window.MOKA_CHAT_API_URL || "http://localhost:8000/chat";
+  const CHAT_API_URL = window.MOKA_CHAT_API_URL || "/chat";
   const DISPUTE_URL = "itiraz.html";
 
   const style = document.createElement("style");

@@ -1,7 +1,7 @@
 """
 Moka Asistan — sınıflandırıcı backend (test sürümü)
 Eğittiğin ./moka-intent-model modelini yükler, /chat endpoint'i sunar
-ve demo sayfasını (index.html) da kendi üstünden servis eder.
+ve Moko_United web sitesini de kendi üstünden servis eder (tek komut, tek port).
 
 Çalıştırma:
     pip install fastapi "uvicorn[standard]"
@@ -12,9 +12,11 @@ Sonra tarayıcıda aç:  http://localhost:8000
 import torch
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+SITE_DIR = "./Moko_United"
 
 MODEL_DIR = "./moka-intent-model"
 
@@ -37,7 +39,8 @@ REPLIES = {
 
 app = FastAPI(title="Moka Asistan — Classifier")
 
-# Moko_United sitesi ayrı bir portta (statik sunucu) çalıştığı için CORS gerekli.
+# Site ve API artık aynı origin'den servis edilse de, sayfanın doğrudan
+# başka bir statik sunucudan açılabildiği durumlar için CORS açık bırakıldı.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -75,11 +78,11 @@ def chat(req: ChatRequest):
     }
 
 
-@app.get("/")
-def index():
-    return FileResponse("index.html")
-
-
 @app.get("/health")
 def health():
     return {"ok": True}
+
+
+# Moko_United sitesindeki tüm statik dosyaları (index.html dahil) kök yoldan servis eder.
+# /chat ve /health rotaları yukarıda tanımlandığı için önceliklidir, mount en sona eklenir.
+app.mount("/", StaticFiles(directory=SITE_DIR, html=True), name="site")
