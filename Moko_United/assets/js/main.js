@@ -339,21 +339,15 @@ function initDisputeWizard() {
   const wizard = document.getElementById('disputeWizard');
   if (!wizard) return;
 
-  // Mock işlem kayıtları (bkz. moka_uyum_raporu.docx — asgari eşleştirme alanları)
-  const TXNS = [
-    { bin: '526955', last4: '3339', amount: 7650, installment: 1, date: '2026-06-23', timeBucket: '18-21', merchant: 'Beymen – Akasya AVM', district: 'Ataşehir/İstanbul', category: 'Giyim & Aksesuar', settled: false, ref: 'MU-7841203' },
-    { bin: '402360', last4: '8821', amount: 1049.70, installment: 3, date: '2026-06-15', timeBucket: '12-15', merchant: 'Migros – Bahçelievler', district: 'Bahçelievler/İstanbul', category: 'Market', settled: true, ref: 'MU-6602918' },
-    { bin: '540667', last4: '1204', amount: 219, installment: 1, date: '2026-07-02', timeBucket: '09-12', merchant: 'Shell – E5 Otoyol', district: 'Pendik/İstanbul', category: 'Akaryakıt', settled: false, ref: 'MU-9013475' },
-    { bin: '471234', last4: '9087', amount: 899, installment: 6, date: '2026-06-28', timeBucket: '18-21', merchant: 'Teknosa – Forum İstanbul', district: 'Bayrampaşa/İstanbul', category: 'Elektronik', settled: true, ref: 'MU-5527740' },
-  ];
+  // Mock işlem kayıtları tek kaynaktan gelir: assets/data/dispute-txns.js (window.MOKA_DISPUTE_TXNS)
+  const TXNS = window.MOKA_DISPUTE_TXNS || [];
   const MAX_ATTEMPTS = 3;
-  const STEP_BY_SCREEN = { query: 1, notfound: 1, locked: 1, challenge: 2, disclosure: 3, remembered: 4, 'result-unsettled': 4, 'result-settled': 4 };
+  const STEP_BY_SCREEN = { query: 1, notfound: 1, locked: 1, disclosure: 2, remembered: 3, 'result-unsettled': 3, 'result-settled': 3 };
 
   const screens = [...wizard.querySelectorAll('.dispute-screen')];
   const progress = [...wizard.querySelectorAll('.wp-step')];
   const queryForm = document.getElementById('disputeQueryForm');
   const queryAttempts = document.getElementById('queryAttempts');
-  const challengeAttempts = document.getElementById('challengeAttempts');
 
   let attempts = 0;
   let currentTxn = null;
@@ -406,38 +400,6 @@ function initDisputeWizard() {
       return;
     }
     currentTxn = match;
-    challengeAttempts.hidden = true;
-    wizard.querySelectorAll('.chip-option.selected').forEach(b => b.classList.remove('selected'));
-    showScreen('challenge');
-  });
-
-  document.getElementById('disputeRetry').addEventListener('click', () => showScreen('query'));
-
-  wizard.querySelectorAll('.challenge-options').forEach(group => {
-    group.querySelectorAll('.chip-option').forEach(btn => {
-      btn.addEventListener('click', () => {
-        group.querySelectorAll('.chip-option').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-      });
-    });
-  });
-
-  document.getElementById('challengeSubmit').addEventListener('click', () => {
-    if (attempts >= MAX_ATTEMPTS) { showScreen('locked'); return; }
-    const chosenInstallment = wizard.querySelector('#chInstallment .chip-option.selected');
-    const chosenTime = wizard.querySelector('#chTime .chip-option.selected');
-    if (!chosenInstallment || !chosenTime) { alert('Lütfen her iki soruyu da yanıtlayın.'); return; }
-
-    const ok = chosenInstallment.dataset.value === String(currentTxn.installment) &&
-               chosenTime.dataset.value === currentTxn.timeBucket;
-    if (!ok) {
-      attempts++;
-      if (attempts >= MAX_ATTEMPTS) { showScreen('locked'); return; }
-      attemptsLeftMsg(challengeAttempts);
-      wizard.querySelectorAll('.chip-option.selected').forEach(b => b.classList.remove('selected'));
-      return;
-    }
-
     const card = document.getElementById('disclosureCard');
     card.innerHTML = `
       <div class="dc-logo">${currentTxn.merchant.charAt(0)}</div>
@@ -448,6 +410,8 @@ function initDisputeWizard() {
       </div>`;
     showScreen('disclosure');
   });
+
+  document.getElementById('disputeRetry').addEventListener('click', () => showScreen('query'));
 
   document.getElementById('btnRecall').addEventListener('click', () => {
     attempts = 0; currentTxn = null;
