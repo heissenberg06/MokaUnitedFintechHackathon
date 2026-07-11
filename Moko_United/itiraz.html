@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İtiraz — İşlem Sorgulama | Moka United</title>
+  <meta name="description" content="Ekstrenizde tanımadığınız bir işlem mi var? İşleminizi sorgulayın, gerekirse itiraz sürecini bu sayfadan başlatın.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Moka United">
+  <meta property="og:title" content="İtiraz — İşlem Sorgulama | Moka United">
+  <meta property="og:description" content="Ekstrenizde tanımadığınız bir işlem mi var? İşleminizi sorgulayın, gerekirse itiraz sürecini bu sayfadan başlatın.">
+  <meta property="og:image" content="assets/images/favicon.svg">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=3">
+</head>
+<body class="product-detail" data-active="itiraz">
+  <div class="overlay-loader" id="loader"><div class="spinner"></div></div>
+  <div id="header-mount"></div>
+  <main>
+<nav class="breadcrumb"><a href="index.html">Moka United</a><span class="sep">/</span><span>İtiraz</span></nav><section class="apply-page container"><h1 class="multicolors">İŞLEM SORGULAMA VE İTİRAZ</h1><p class="lead">Ekstrenizde tanımadığınız bir işlem mi var? Aşağıdaki bilgilerle işleminizi sorgulayın; hatırlamıyorsanız itiraz sürecini bu sayfadan başlatabilirsiniz.</p><div class="apply-wizard dispute-wizard" id="disputeWizard">
+  <div class="wizard-progress">
+    <div class="wp-step active" data-step="1"><span class="wp-num">1</span> Sorgu</div>
+    <div class="wp-step" data-step="2"><span class="wp-num">2</span> Doğrulama</div>
+    <div class="wp-step" data-step="3"><span class="wp-num">3</span> Hatırlatma</div>
+    <div class="wp-step" data-step="4"><span class="wp-num">4</span> Sonuç</div>
+  </div>
+  <div class="apply-form-wrap">
+    <div class="wizard-card">
+
+      <!-- EKRAN: sorgu formu -->
+      <div class="dispute-screen active" data-screen="query">
+        <h3>İşleminizi Sorgulayın</h3>
+        <p class="step-sub">Ekstrenizde tanımadığınız bir işlem mi var? Aşağıdaki bilgilerle işleminizi bulalım.</p>
+        <div class="kvkk-note">
+          <span class="kn-ic">🔒</span>
+          <p>Girdiğiniz bilgiler yalnızca işleminizi eşleştirmek amacıyla kullanılır ve üçüncü kişilerle paylaşılmaz. Detaylar için <a href="kvkk-aydinlatma-metni.html">Aydınlatma Metni</a>'ni inceleyebilirsiniz.</p>
+        </div>
+        <form class="apply-light" id="disputeQueryForm" novalidate>
+          <div class="form-row">
+            <div class="form-group"><label class="fld-label">İşlem Tarihi</label><input class="form-control" type="date" name="TxnDate" required></div>
+            <div class="form-group"><label class="fld-label">İşlem Tutarı (₺)</label><input class="form-control" type="number" step="0.01" min="0" name="TxnAmount" placeholder="Örn. 7650.00" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="fld-label">Kartın İlk 6 Hanesi (BIN)</label><input class="form-control only-number" name="TxnBin" maxlength="6" inputmode="numeric" placeholder="Örn. 526955" required></div>
+            <div class="form-group"><label class="fld-label">Kartın Son 4 Hanesi</label><input class="form-control only-number" name="TxnLast4" maxlength="4" inputmode="numeric" placeholder="Örn. 3339" required></div>
+          </div>
+          <div class="dispute-attempts" id="queryAttempts" hidden></div>
+          <div class="step-nav"><span class="spacer"></span>
+            <button type="submit" class="button button-primary"><span>SORGULA →</span></button>
+          </div>
+        </form>
+      </div>
+
+      <!-- EKRAN: bulunamadı -->
+      <div class="dispute-screen" data-screen="notfound">
+        <div class="dispute-result-icon warn">✕</div>
+        <h3>İşlem Bulunamadı</h3>
+        <p class="step-sub">Girdiğiniz bilgilerle eşleşen bir işlem bulamadık. Lütfen tarih, tutar ve kart bilgilerinizi kontrol ederek tekrar deneyin.</p>
+        <div class="step-nav"><span class="spacer"></span>
+          <button type="button" class="button button-primary" id="disputeRetry"><span>TEKRAR DENE</span></button>
+        </div>
+      </div>
+
+      <!-- EKRAN: çok fazla deneme -->
+      <div class="dispute-screen" data-screen="locked">
+        <div class="dispute-result-icon warn">⏳</div>
+        <h3>Çok Fazla Deneme</h3>
+        <p class="step-sub">Güvenliğiniz için bu oturumda çok fazla başarısız deneme yapıldı. Lütfen bir süre sonra tekrar deneyin ya da doğrudan bankanızla iletişime geçin.</p>
+      </div>
+
+      <!-- EKRAN: kart hamili doğrulama -->
+      <div class="dispute-screen" data-screen="challenge">
+        <h3>Kart Hamili Doğrulama</h3>
+        <p class="step-sub">İşyeri bilgisini gösterebilmemiz için işlemi gerçekten sizin yaptığınızı doğrulamamız gerekiyor.</p>
+        <div class="form-group">
+          <label class="fld-label">Bu işlem tek çekim mi, taksitli mi?</label>
+          <div class="challenge-options" id="chInstallment" data-group="installment">
+            <button type="button" class="chip-option" data-value="1">Tek Çekim</button>
+            <button type="button" class="chip-option" data-value="2">2 Taksit</button>
+            <button type="button" class="chip-option" data-value="3">3 Taksit</button>
+            <button type="button" class="chip-option" data-value="6">6 Taksit</button>
+            <button type="button" class="chip-option" data-value="9">9 Taksit</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="fld-label">İşlem yaklaşık saat kaçta yapıldı?</label>
+          <div class="challenge-options" id="chTime" data-group="time">
+            <button type="button" class="chip-option" data-value="00-06">00:00–06:00</button>
+            <button type="button" class="chip-option" data-value="06-09">06:00–09:00</button>
+            <button type="button" class="chip-option" data-value="09-12">09:00–12:00</button>
+            <button type="button" class="chip-option" data-value="12-15">12:00–15:00</button>
+            <button type="button" class="chip-option" data-value="15-18">15:00–18:00</button>
+            <button type="button" class="chip-option" data-value="18-21">18:00–21:00</button>
+            <button type="button" class="chip-option" data-value="21-24">21:00–24:00</button>
+          </div>
+        </div>
+        <div class="dispute-attempts" id="challengeAttempts" hidden></div>
+        <div class="step-nav"><span class="spacer"></span>
+          <button type="button" class="button button-primary" id="challengeSubmit"><span>DOĞRULA →</span></button>
+        </div>
+      </div>
+
+      <!-- EKRAN: asgari ifşa / hatırlatma -->
+      <div class="dispute-screen" data-screen="disclosure">
+        <h3>Bu Harcamayı Hatırlıyor musunuz?</h3>
+        <p class="step-sub">Doğrulamanız başarılı. İşte işleminize ait asgari bilgiler:</p>
+        <div class="disclosure-card" id="disclosureCard"></div>
+        <div class="step-nav dispute-choice-nav">
+          <button type="button" class="button button-secondary" id="btnNotRecall"><span>HÂLÂ TANIMIYORUM</span></button>
+          <button type="button" class="button button-primary" id="btnRecall"><span>BU HARCAMAYI HATIRLADIM</span></button>
+        </div>
+      </div>
+
+      <!-- EKRAN: hatırladı (deflection başarılı) -->
+      <div class="dispute-screen" data-screen="remembered">
+        <div class="dispute-result-icon ok">✓</div>
+        <h3>Teşekkürler!</h3>
+        <p class="step-sub">Harcamanızı hatırladığınıza sevindik. Herhangi bir itiraz sürecine gerek kalmadı; ekstrenizde başka bir sorun görürseniz bu sayfaya tekrar dönebilirsiniz.</p>
+        <div class="step-nav"><span class="spacer"></span>
+          <a class="button button-primary" href="index.html"><span>ANA SAYFAYA DÖN</span></a>
+        </div>
+      </div>
+
+      <!-- EKRAN: taze işlem — otomatik iade -->
+      <div class="dispute-screen" data-screen="result-unsettled">
+        <div class="dispute-result-icon ok">✓</div>
+        <h3>İşleminiz İade Sürecine Alındı</h3>
+        <p class="step-sub">İşleminiz henüz takas edilmediği için tarafımızca otomatik olarak iptal (void) işlemine alındı. Tutar, bankanızın süreçlerine bağlı olarak birkaç iş günü içinde hesabınıza yansıyacaktır.</p>
+        <div class="summary-box" id="resultRefUnsettled"></div>
+        <p class="dispute-fineprint">Bu bilgilendirme kesin bir iade garantisi teşkil etmez; sürecin nihai sonucu bankanız ve ilgili kart şeması kurallarına tabidir.</p>
+        <div class="step-nav"><span class="spacer"></span>
+          <a class="button button-primary" href="index.html"><span>ANA SAYFAYA DÖN</span></a>
+        </div>
+      </div>
+
+      <!-- EKRAN: takas edilmiş işlem — üye işyerine iletildi -->
+      <div class="dispute-screen" data-screen="result-settled">
+        <div class="dispute-result-icon info">ℹ</div>
+        <h3>Talebiniz Üye İşyerine İletildi</h3>
+        <p class="step-sub">İşleminiz zaten takas edildiği için tarafımızca doğrudan iptal edilemiyor. Talebiniz üye işyerine iletildi. Süreci hızlandırmak isterseniz aşağıdaki bilgilerle kendi bankanıza başvurup ters ibraz (chargeback) talebinde bulunabilirsiniz; bu süreci yalnızca kartınızı veren banka başlatabilir.</p>
+        <div class="summary-box" id="resultRefSettled"></div>
+        <p class="dispute-fineprint">Bu bilgilendirme kesin bir sonuç garantisi teşkil etmez.</p>
+        <div class="step-nav"><span class="spacer"></span>
+          <a class="button button-primary" href="index.html"><span>ANA SAYFAYA DÖN</span></a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div></section>
+  </main>
+  <div id="cta-mount"></div>
+  <div id="footer-mount"></div>
+  <script src="assets/js/components.js?v=3"></script>
+  <script src="assets/js/main.js?v=3"></script>
+  <script src="assets/js/moka-chat-widget.js?v=1"></script>
+</body>
+</html>
