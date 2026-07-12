@@ -900,8 +900,8 @@ dispute_wizard = '''<div class="apply-wizard dispute-wizard" id="disputeWizard">
             <div class="form-group"><label class="fld-label">İşlem Tutarı (₺)</label><input class="form-control" type="number" step="0.01" min="0" name="TxnAmount" placeholder="Örn. 7650.00" required></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label class="fld-label">Kartın İlk 6 Hanesi (BIN)</label><input class="form-control only-number" name="TxnBin" maxlength="6" inputmode="numeric" placeholder="Örn. 526955" required></div>
-            <div class="form-group"><label class="fld-label">Kartın Son 4 Hanesi</label><input class="form-control only-number" name="TxnLast4" maxlength="4" inputmode="numeric" placeholder="Örn. 3339" required></div>
+            <div class="form-group"><label class="fld-label">Kurum Adı</label><input class="form-control" name="TxnKurum" maxlength="60" placeholder="Örn. Beymen" required></div>
+            <div class="form-group"><label class="fld-label">Cüzdan ID</label><input class="form-control" name="TxnCuzdanId" maxlength="20" placeholder="Örn. CZD-482911" required></div>
           </div>
           <div class="dispute-attempts" id="queryAttempts" hidden></div>
           <div class="step-nav"><span class="spacer"></span>

@@ -13,7 +13,6 @@ Sağladığı güvenlik/iş kuralları:
 Tüm veri KURGUDUR (mock işlem verisi assets/data/dispute-txns.js'den bağımsızdır).
 Çalıştır: python3 itiraz_server.py  ->  http://localhost:8757
 """
-import cgi
 import html
 import io
 import json
@@ -22,9 +21,13 @@ import re
 import threading
 import time
 import uuid
+from collections import defaultdict
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
+
+# Not: stdlib'deki `cgi` modülü Python 3.13'te kaldırıldı (PEP 594);
+# bu yüzden multipart/form-data ayrıştırma elle yapılır (aşağıda).
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(ROOT, 'data')
@@ -121,6 +124,72 @@ def v_required(s, lo, hi, label):
     if not (lo <= len(s) <= hi):
         return f"{label} {lo}-{hi} karakter olmalı."
     return None
+
+# ----------------------------------------------------------------------------
+# multipart/form-data ayrıştırma (cgi.FieldStorage yerine, stdlib-only)
+# ----------------------------------------------------------------------------
+class _UploadedFile:
+    """cgi.FieldStorage'ın dosya alanlarıyla uyumlu minimal arayüz (.filename/.type/.file)."""
+    def __init__(self, filename, ctype, data):
+        self.filename = filename
+        self.type = ctype
+        self.file = io.BytesIO(data)
+
+class MultipartForm:
+    """cgi.FieldStorage'a yeterince benzeyen basit bir form nesnesi:
+    form.getvalue(name), name in form, form['name'] (tek dosya ya da liste)."""
+    def __init__(self, fields, files):
+        self._fields = fields
+        self._files = files
+
+    def getvalue(self, name, default=''):
+        return self._fields.get(name, default)
+
+    def __contains__(self, name):
+        return name in self._fields or name in self._files
+
+    def __getitem__(self, name):
+        if name in self._files:
+            items = self._files[name]
+            return items if len(items) > 1 else items[0]
+        return self._fields.get(name)
+
+_DISP_PARAM_RE = re.compile(r'(\w+)="([^"]*)"')
+
+def parse_multipart(raw, content_type):
+    m = re.search(r'boundary=(?:"([^"]+)"|([^;]+))', content_type)
+    if not m:
+        raise ValueError("boundary bulunamadı")
+    boundary = (m.group(1) or m.group(2)).strip()
+    delim = ('--' + boundary).encode('utf-8')
+
+    fields = {}
+    files = defaultdict(list)
+    for part in raw.split(delim):
+        part = part.strip(b'\r\n')
+        if not part or part == b'--':
+            continue
+        if b'\r\n\r\n' not in part:
+            continue
+        header_blob, body = part.split(b'\r\n\r\n', 1)
+        body = body[:-2] if body.endswith(b'\r\n') else body  # kapanış CRLF'i at
+        headers_text = header_blob.decode('utf-8', errors='replace')
+        disp_m = re.search(r'Content-Disposition:\s*form-data;\s*(.+)', headers_text, re.I)
+        if not disp_m:
+            continue
+        params = dict(_DISP_PARAM_RE.findall(disp_m.group(1)))
+        name = params.get('name')
+        if not name:
+            continue
+        if 'filename' in params:
+            if not params['filename']:
+                continue  # boş dosya alanı seçilmemiş
+            ctype_m = re.search(r'Content-Type:\s*([^\r\n]+)', headers_text, re.I)
+            ctype = ctype_m.group(1).strip() if ctype_m else 'application/octet-stream'
+            files[name].append(_UploadedFile(params['filename'], ctype, body))
+        else:
+            fields[name] = body.decode('utf-8', errors='replace')
+    return MultipartForm(fields, files)
 
 # ----------------------------------------------------------------------------
 # HTTP Handler
@@ -239,13 +308,8 @@ class Handler(BaseHTTPRequestHandler):
                               "message": "Yüklenen dosyaların toplam boyutu çok büyük (maks 15MB)."}, 413)
 
         try:
-            form = cgi.FieldStorage(
-                fp=self.rfile,
-                headers=self.headers,
-                environ={'REQUEST_METHOD': 'POST', 'CONTENT_TYPE': ctype,
-                        'CONTENT_LENGTH': str(length)},
-                keep_blank_values=True,
-            )
+            raw_body = self.rfile.read(length)
+            form = parse_multipart(raw_body, ctype)
         except Exception:
             return self._json({"error": "invalid_form"}, 400)
 

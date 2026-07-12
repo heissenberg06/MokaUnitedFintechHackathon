@@ -428,10 +428,13 @@ function initDisputeWizard() {
     wizard.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function findTxn(bin, last4, amount, dateStr) {
+  function findTxn(kurum, cuzdanId, amount, dateStr) {
     const target = new Date(dateStr);
+    const kurumNorm = trLower(kurum);
     return TXNS.find(t => {
-      if (t.bin !== bin || t.last4 !== last4) return false;
+      // Kurum: kullanıcının bildiği kısayol ad (ör. "Beymen"), tam işyeri kaydının
+      // (ör. "Beymen – Akasya AVM") içinde geçmesi yeterli — TR-duyarlı, büyük/küçük harf yok sayılır.
+      if (!trLower(t.merchant).includes(kurumNorm) || t.cuzdanId !== cuzdanId) return false;
       const monthly = Math.round((t.amount / t.installment) * 100) / 100;
       const amtMatch = Math.abs(t.amount - amount) < 0.01 || Math.abs(monthly - amount) < 0.01;
       if (!amtMatch) return false;
@@ -473,13 +476,13 @@ function initDisputeWizard() {
     if (!gate.allowed) { showLocked(gate.message); return; }
     if (gate.remaining != null) attemptsLeftMsg(queryAttempts, gate.remaining);
 
-    const bin = queryForm.TxnBin.value.trim();
-    const last4 = queryForm.TxnLast4.value.trim();
+    const kurum = queryForm.TxnKurum.value.trim();
+    const cuzdanId = queryForm.TxnCuzdanId.value.trim();
     const amount = parseFloat(queryForm.TxnAmount.value);
     const date = queryForm.TxnDate.value;
-    if (bin.length !== 6 || last4.length !== 4 || !amount || !date) { queryForm.reportValidity(); return; }
+    if (!kurum || !cuzdanId || !amount || !date) { queryForm.reportValidity(); return; }
 
-    const match = findTxn(bin, last4, amount, date);
+    const match = findTxn(kurum, cuzdanId, amount, date);
     if (!match) {
       showScreen('notfound');
       return;
@@ -513,9 +516,9 @@ function initDisputeWizard() {
   const wantMail = document.getElementById('disputeWantMail');
   const mailWrap = document.getElementById('disputeMailWrap');
 
-  // İtiraz edilebilecek işlem havuzu: aynı kart ailesinden (BIN) işlemler
+  // İtiraz edilebilecek işlem havuzu: aynı işyerinden diğer işlemler
   function disputePool() {
-    let pool = TXNS.filter(t => t.bin === currentTxn.bin);
+    let pool = TXNS.filter(t => t.merchant === currentTxn.merchant);
     if (pool.length < 3) pool = [currentTxn, ...TXNS.filter(t => t.ref !== currentTxn.ref).slice(0, 7)];
     const seen = new Set(); const out = [];
     [currentTxn, ...pool].forEach(t => { if (!seen.has(t.ref)) { seen.add(t.ref); out.push(t); } });
