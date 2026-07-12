@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "5173"],
       "port": 5173
+    },
+    {
+      "name": "sikayetvar",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["sikayetvar/server.py"],
+      "port": 8756
     }
   ]
 }

@@ -20,6 +20,8 @@ from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
 
+import analysis  # Moka Müşteri Zeka Motoru (deterministik + opsiyonel yerel LLM)
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(ROOT, 'data')
 DATA_FILE = os.path.join(DATA_DIR, 'complaints.json')
@@ -189,6 +191,39 @@ def _write(data):
     os.replace(tmp, DATA_FILE)
 
 # ----------------------------------------------------------------------------
+# AI yönetici özeti — arka planda hesapla, önbellekten servis et
+# (LLM yavaş olabilir; endpoint asla bloklanmaz. Hazır olana kadar deterministik
+#  şablon özet gösterilir.)
+# ----------------------------------------------------------------------------
+_AI_LOCK = threading.Lock()
+_AI_CACHE = {"summary": None, "count": -1, "at": None}
+_AI_BUSY = threading.Event()
+
+def _refresh_ai_summary():
+    """İçgörüyü hesapla + LLM özeti üret, önbelleğe yaz. Ayrı thread'de çağrılır."""
+    if _AI_BUSY.is_set():
+        return
+    _AI_BUSY.set()
+    try:
+        with LOCK:
+            data = load_data()
+            count = len(data.get('complaints', []))
+        ins = analysis.analyze(data)
+        summary = analysis.llm_summary(ins, timeout=240)
+        with _AI_LOCK:
+            _AI_CACHE.update({"summary": summary, "count": count,
+                              "at": now_iso()})
+    except Exception as e:
+        with _AI_LOCK:
+            _AI_CACHE["summary"] = {"text": f"AI özeti üretilemedi: {e}",
+                                    "source": "error"}
+    finally:
+        _AI_BUSY.clear()
+
+def _trigger_ai_refresh():
+    threading.Thread(target=_refresh_ai_summary, daemon=True).start()
+
+# ----------------------------------------------------------------------------
 # TR-duyarlı arama yardımcısı
 # ----------------------------------------------------------------------------
 def tr_lower(s):
@@ -266,6 +301,8 @@ class Handler(BaseHTTPRequestHandler):
         return self._static(path)
 
     def _api_get(self, path, qs):
+        if path == '/api/admin/insights':
+            return self._admin_insights()
         m = re.fullmatch(r'/api/complaints/(\d+)', path)
         if path == '/api/complaints':
             page = max(1, int((qs.get('page', ['1'])[0]) or 1))
@@ -363,6 +400,7 @@ class Handler(BaseHTTPRequestHandler):
             }
             data['complaints'].append(rec)
             _write(data)
+        _trigger_ai_refresh()  # yeni şikayet -> AI özetini tazele
         return self._json(rec, 201)
 
     def _create_comment(self, cid, body):
@@ -400,6 +438,30 @@ class Handler(BaseHTTPRequestHandler):
             val = c[field]
             _write(data)
         return self._json({field: val})
+
+    # --- admin: zeka paneli içgörüleri ---
+    def _admin_insights(self):
+        with LOCK:
+            data = load_data()
+            count = len(data.get('complaints', []))
+        ins = analysis.analyze(data)  # deterministik: hızlı, her istekte taze
+        with _AI_LOCK:
+            cached = _AI_CACHE.get("summary")
+            cached_count = _AI_CACHE.get("count")
+            cached_at = _AI_CACHE.get("at")
+        # önbellek yoksa ya da veri değiştiyse arka planda tazele
+        if cached is None or cached_count != count:
+            _trigger_ai_refresh()
+        if cached is None:
+            # ilk yükleme: anında deterministik şablon özeti ver
+            ins["ai_summary"] = {"text": analysis._template_summary(ins),
+                                 "source": "template", "pending": True}
+        else:
+            ai = dict(cached)
+            ai["pending"] = (cached_count != count)
+            ai["at"] = cached_at
+            ins["ai_summary"] = ai
+        return self._json(ins)
 
     # --- statik dosyalar ---
     def _static(self, path):
@@ -443,8 +505,10 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     load_data()  # seed'i garantile
+    _trigger_ai_refresh()  # AI özetini arka planda önceden hazırla (ısınma)
     server = ThreadingHTTPServer(('0.0.0.0', PORT), Handler)
     print(f"Şikayetvar klonu çalışıyor:  http://localhost:{PORT}")
+    print(f"Yönetici paneli:            http://localhost:{PORT}/admin.html")
     print(f"Veri dosyası: {DATA_FILE}")
     try:
         server.serve_forever()
