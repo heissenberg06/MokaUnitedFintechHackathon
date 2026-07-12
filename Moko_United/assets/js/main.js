@@ -335,14 +335,54 @@ document.addEventListener('components:ready', () => {
 });
 
 // --- İtiraz / İşlem Sorgulama sihirbazı (frontend mock — gerçek backend yok) ---
+// ---- İtiraz: paylaşılan takip + kalıcılık yardımcıları (hem oluşturma hem durum sorgu sayfası kullanır) ----
+const MOKA_TRACK_STAGES = [
+  { t: 'Talep Alındı', d: 'İtiraz talebiniz sisteme kaydedildi.' },
+  { t: 'İnceleniyor', d: 'Uzman ekibimiz işlemi ve belgeleri değerlendiriyor.' },
+  { t: 'Bankaya / İşyerine İletildi', d: 'Talebiniz ilgili taraflara resmî olarak iletildi.' },
+  { t: 'Sonuçlandırıldı', d: 'Süreç tamamlandı; sonuç tarafınıza bildirildi.' },
+];
+function mokaRenderTracker(el, stage) {
+  if (!el) return;
+  el.innerHTML = MOKA_TRACK_STAGES.map((s, i) => {
+    const n = i + 1;
+    const cls = n < stage ? 'done' : (n === stage ? 'active' : '');
+    return `<div class="track-step ${cls}"><span class="track-dot">${n < stage ? '✓' : n}</span>` +
+      `<span class="track-info"><strong>${s.t}</strong><span>${s.d}</span></span></div>`;
+  }).join('');
+}
+function mokaDisputeSummary(r) {
+  return `
+    <div class="summary-row"><span class="sr-label">İtiraz Sebebi</span><span class="sr-val">${r.reason}</span></div>
+    <div class="summary-row"><span class="sr-label">İşlem Tipi</span><span class="sr-val">${r.txnType}</span></div>
+    <div class="summary-row"><span class="sr-label">İşlem</span><span class="sr-val">${r.merchant} — ${formatTL(r.amount)}</span></div>
+    <div class="summary-row"><span class="sr-label">İşlem Referansı</span><span class="sr-val">${r.ref}</span></div>
+    <div class="summary-row"><span class="sr-label">Cep Telefonu</span><span class="sr-val">${r.phone}</span></div>
+    ${r.email ? `<div class="summary-row"><span class="sr-label">E-Posta</span><span class="sr-val">${r.email}</span></div>` : ''}
+    <div class="summary-row"><span class="sr-label">Oluşturulma</span><span class="sr-val">${formatTRDate(r.createdAt)}</span></div>
+    <div class="summary-row"><span class="sr-label">Tahmini Sonuçlanma</span><span class="sr-val">7–14 iş günü</span></div>`;
+}
+function mokaLoadDisputes() { try { return JSON.parse(localStorage.getItem('moka-disputes') || '{}'); } catch (e) { return {}; } }
+function mokaSaveDispute(r) { const all = mokaLoadDisputes(); all[r.caseId] = r; localStorage.setItem('moka-disputes', JSON.stringify(all)); }
+function mokaSetStage(id, stage) { const all = mokaLoadDisputes(); if (all[id]) { all[id].stage = stage; localStorage.setItem('moka-disputes', JSON.stringify(all)); } }
+
 function initDisputeWizard() {
   const wizard = document.getElementById('disputeWizard');
   if (!wizard) return;
 
+  // Giriş seçimi: "Yeni İtiraz Oluştur" tıklanınca wizard'ı göster
+  const entry = document.getElementById('disputeEntry');
+  const entryNew = document.getElementById('entryNew');
+  if (entryNew) entryNew.addEventListener('click', () => {
+    if (entry) entry.hidden = true;
+    wizard.hidden = false;
+    wizard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
   // Mock işlem kayıtları tek kaynaktan gelir: assets/data/dispute-txns.js (window.MOKA_DISPUTE_TXNS)
   const TXNS = window.MOKA_DISPUTE_TXNS || [];
   const MAX_ATTEMPTS = 3;
-  const STEP_BY_SCREEN = { query: 1, notfound: 1, locked: 1, disclosure: 2, remembered: 3, 'result-unsettled': 3, 'result-settled': 3 };
+  const STEP_BY_SCREEN = { query: 1, notfound: 1, locked: 1, disclosure: 2, remembered: 2, request: 3, 'request-done': 4 };
 
   const screens = [...wizard.querySelectorAll('.dispute-screen')];
   const progress = [...wizard.querySelectorAll('.wp-step')];
@@ -418,26 +458,169 @@ function initDisputeWizard() {
     showScreen('remembered');
   });
 
+  // ---- "HÂLÂ TANIMIYORUM" → resmi itiraz talebi oluşturma akışı ----
+  let trackStage = 2;
+  let currentCaseId = null;
+
+  const reqForm = document.getElementById('disputeRequestForm');
+  const txnTypeSel = document.getElementById('disputeTxnType');
+  const txnWrap = document.getElementById('disputeTxnWrap');
+  const txnListEl = document.getElementById('disputeTxnList');
+  const wantMail = document.getElementById('disputeWantMail');
+  const mailWrap = document.getElementById('disputeMailWrap');
+
+  // İtiraz edilebilecek işlem havuzu: aynı kart ailesinden (BIN) işlemler
+  function disputePool() {
+    let pool = TXNS.filter(t => t.bin === currentTxn.bin);
+    if (pool.length < 3) pool = [currentTxn, ...TXNS.filter(t => t.ref !== currentTxn.ref).slice(0, 7)];
+    const seen = new Set(); const out = [];
+    [currentTxn, ...pool].forEach(t => { if (!seen.has(t.ref)) { seen.add(t.ref); out.push(t); } });
+    return out;
+  }
+  function filterByType(pool, type) {
+    if (type === 'ekstre') return pool.filter(t => t.settled);          // ekstreye yansımış
+    if (type === 'acik-provizyon') return pool.filter(t => !t.settled); // bekleyen provizyon
+    return pool;                                                        // dönem içi = tümü
+  }
+  function renderTxnList(type) {
+    const list = filterByType(disputePool(), type);
+    if (!list.length) { txnListEl.innerHTML = '<p class="txn-empty">Bu tipte itiraz edilebilecek işlem bulunamadı.</p>'; return; }
+    const curInList = list.some(x => x.ref === currentTxn.ref);
+    txnListEl.innerHTML = list.map((t, i) => {
+      const checked = curInList ? (t.ref === currentTxn.ref ? 'checked' : '') : (i === 0 ? 'checked' : '');
+      const badge = t.settled ? '<span class="txn-badge settled">Ekstrede</span>' : '<span class="txn-badge pending">Bekliyor</span>';
+      return `<label class="txn-choice">
+        <input type="radio" name="DisputeTxn" value="${t.ref}" ${checked} required>
+        <span class="txn-logo">${t.merchant.charAt(0)}</span>
+        <span class="txn-main"><span class="txn-merch">${t.merchant}</span><span class="txn-meta">${formatTRDate(t.date)} · ${t.category}</span></span>
+        <span class="txn-right"><span class="txn-amt">${formatTL(t.amount)}</span>${badge}</span>
+      </label>`;
+    }).join('');
+  }
+
   document.getElementById('btnNotRecall').addEventListener('click', () => {
-    if (!currentTxn.settled) {
-      document.getElementById('resultRefUnsettled').innerHTML = `
-        <div class="summary-row"><span class="sr-label">İşlem</span><span class="sr-val">${currentTxn.merchant}</span></div>
-        <div class="summary-row"><span class="sr-label">Tutar</span><span class="sr-val">${formatTL(currentTxn.amount)}</span></div>
-        <div class="summary-row"><span class="sr-label">İptal / Provizyon Referansı</span><span class="sr-val">${currentTxn.ref}</span></div>`;
-      showScreen('result-unsettled');
-    } else {
-      document.getElementById('resultRefSettled').innerHTML = `
-        <div class="summary-row"><span class="sr-label">İşlem</span><span class="sr-val">${currentTxn.merchant}</span></div>
-        <div class="summary-row"><span class="sr-label">Tutar</span><span class="sr-val">${formatTL(currentTxn.amount)}</span></div>
-        <div class="summary-row"><span class="sr-label">İşlem Referansı</span><span class="sr-val">${currentTxn.ref}</span></div>
-        <div class="summary-row"><span class="sr-label">İtiraz Neden Kodu</span><span class="sr-val">10.4 — Kart Hamili Tarafından Tanınmayan İşlem</span></div>`;
-      showScreen('result-settled');
+    reqForm.reset();
+    txnWrap.hidden = true; txnListEl.innerHTML = '';
+    mailWrap.hidden = true; mailWrap.querySelector('input').required = false;
+    document.getElementById('disputeReqError').textContent = '';
+    showScreen('request');
+  });
+  document.getElementById('disputeReqBack').addEventListener('click', () => showScreen('disclosure'));
+
+  txnTypeSel.addEventListener('change', () => {
+    if (txnTypeSel.value) { renderTxnList(txnTypeSel.value); txnWrap.hidden = false; }
+    else { txnWrap.hidden = true; txnListEl.innerHTML = ''; }
+  });
+  wantMail.addEventListener('change', () => {
+    mailWrap.hidden = !wantMail.checked;
+    mailWrap.querySelector('input').required = wantMail.checked;
+  });
+
+  reqForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const err = document.getElementById('disputeReqError');
+    err.textContent = '';
+    if (!reqForm.Reason.value) { err.textContent = 'Lütfen itiraz sebebini seçin.'; return; }
+    if (!txnTypeSel.value) { err.textContent = 'Lütfen işlem tipini seçin.'; return; }
+    const selTxn = reqForm.querySelector('input[name="DisputeTxn"]:checked');
+    if (!selTxn) { err.textContent = 'Lütfen itiraz edilecek işlemi seçin.'; return; }
+    if (reqForm.Note.value.trim().length < 15) { err.textContent = 'Açıklama en az 15 karakter olmalıdır.'; reqForm.Note.focus(); return; }
+    if (reqForm.Phone.value.trim().length < 10) { err.textContent = 'Geçerli bir cep telefonu girin.'; reqForm.Phone.focus(); return; }
+    let email = '';
+    if (wantMail.checked) {
+      email = reqForm.Email.value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'Geçerli bir e-posta girin.'; reqForm.Email.focus(); return; }
     }
+
+    const txn = TXNS.find(t => t.ref === selTxn.value) || currentTxn;
+    const caseId = 'MU-ITZ-' + new Date().getFullYear() + '-' + String(Math.floor(100000 + Math.random() * 900000));
+    currentCaseId = caseId;
+    trackStage = 2;
+
+    const phone = reqForm.Phone.value.trim();
+    const maskPhone = phone.length >= 8 ? phone.slice(0, 4) + ' *** ** ' + phone.slice(-2) : phone;
+    const rec = {
+      caseId, createdAt: new Date().toISOString(), stage: trackStage,
+      reason: reqForm.Reason.value,
+      txnType: txnTypeSel.options[txnTypeSel.selectedIndex].text,
+      merchant: txn.merchant, amount: txn.amount, ref: txn.ref,
+      phone: maskPhone, email,
+    };
+    mokaSaveDispute(rec);
+
+    document.getElementById('disputeCaseId').textContent = caseId;
+    mokaRenderTracker(document.getElementById('disputeTracker'), trackStage);
+    document.getElementById('disputeReqSummary').innerHTML = mokaDisputeSummary(rec);
+    showScreen('request-done');
+  });
+
+  document.getElementById('disputeTrackRefresh').addEventListener('click', () => {
+    if (trackStage < MOKA_TRACK_STAGES.length) {
+      trackStage++;
+      mokaRenderTracker(document.getElementById('disputeTracker'), trackStage);
+      if (currentCaseId) mokaSetStage(currentCaseId, trackStage);
+    }
+  });
+  document.getElementById('disputeCaseCopy').addEventListener('click', () => {
+    const b = document.getElementById('disputeCaseCopy');
+    navigator.clipboard && navigator.clipboard.writeText(document.getElementById('disputeCaseId').textContent);
+    const old = b.textContent; b.textContent = 'Kopyalandı ✓';
+    setTimeout(() => b.textContent = old, 1500);
   });
 
   // yalnızca rakam
   wizard.querySelectorAll('.only-number').forEach(i =>
     i.addEventListener('input', () => i.value = i.value.replace(/[^0-9]/g, '')));
+}
+
+// ---- İtiraz Durumu Sorgula sayfası (itiraz-durum.html) ----
+function initDisputeStatus() {
+  const page = document.getElementById('disputeStatusPage');
+  if (!page) return;
+  const form = document.getElementById('statusQueryForm');
+  const input = document.getElementById('statusCaseInput');
+  const resultWrap = document.getElementById('statusResult');
+  const notFound = document.getElementById('statusNotFound');
+  const recentWrap = document.getElementById('statusRecent');
+  let activeId = null, activeStage = 2;
+
+  function renderRecent() {
+    const all = mokaLoadDisputes();
+    const ids = Object.keys(all).sort((a, b) => new Date(all[b].createdAt) - new Date(all[a].createdAt));
+    if (!ids.length) { recentWrap.innerHTML = ''; return; }
+    recentWrap.innerHTML = '<span class="sr-hint">Bu cihazdaki kayıtlarınız:</span>' +
+      ids.slice(0, 5).map(id => `<button type="button" class="recent-chip" data-id="${id}">${id}</button>`).join('');
+  }
+  function lookup(raw) {
+    const id = (raw || '').trim().toUpperCase();
+    const rec = mokaLoadDisputes()[id];
+    if (!rec) { resultWrap.hidden = true; notFound.hidden = false; return; }
+    notFound.hidden = true;
+    activeId = rec.caseId; activeStage = rec.stage || 2;
+    document.getElementById('statusCaseId').textContent = rec.caseId;
+    mokaRenderTracker(document.getElementById('statusTracker'), activeStage);
+    document.getElementById('statusSummary').innerHTML = mokaDisputeSummary(rec);
+    resultWrap.hidden = false;
+    resultWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  form.addEventListener('submit', (e) => { e.preventDefault(); lookup(input.value); });
+  recentWrap.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-id]'); if (!b) return;
+    input.value = b.dataset.id; lookup(b.dataset.id);
+  });
+  const refresh = document.getElementById('statusRefresh');
+  if (refresh) refresh.addEventListener('click', () => {
+    if (activeId && activeStage < MOKA_TRACK_STAGES.length) {
+      activeStage++;
+      mokaRenderTracker(document.getElementById('statusTracker'), activeStage);
+      mokaSetStage(activeId, activeStage);
+    }
+  });
+
+  const qp = new URLSearchParams(location.search).get('case');
+  if (qp) { input.value = qp; lookup(qp); }
+  renderRecent();
 }
 
 function formatTL(n) {
@@ -469,5 +652,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initContactForm();
   initApplyWizard();
   initDisputeWizard();
+  initDisputeStatus();
   initFileInputs();
 });

@@ -15,17 +15,32 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=3">
+  <link rel="stylesheet" href="assets/css/style.css?v=5">
 </head>
 <body class="product-detail" data-active="itiraz">
   <div class="overlay-loader" id="loader"><div class="spinner"></div></div>
   <div id="header-mount"></div>
   <main>
-<nav class="breadcrumb"><a href="index.html">Moka United</a><span class="sep">/</span><span>İtiraz</span></nav><section class="apply-page container"><h1 class="multicolors">İŞLEM SORGULAMA VE İTİRAZ</h1><p class="lead">Ekstrenizde tanımadığınız bir işlem mi var? Aşağıdaki bilgilerle işleminizi sorgulayın; hatırlamıyorsanız itiraz sürecini bu sayfadan başlatabilirsiniz.</p><div class="apply-wizard dispute-wizard" id="disputeWizard">
+<nav class="breadcrumb"><a href="index.html">Moka United</a><span class="sep">/</span><span>İtiraz</span></nav><section class="apply-page container"><h1 class="multicolors">İŞLEM SORGULAMA VE İTİRAZ</h1><p class="lead">Ekstrenizde tanımadığınız bir işlem mi var? Aşağıdaki bilgilerle işleminizi sorgulayın; hatırlamıyorsanız itiraz sürecini bu sayfadan başlatabilirsiniz.</p><div class="dispute-entry" id="disputeEntry">
+  <div class="entry-grid">
+    <button type="button" class="entry-card" id="entryNew">
+      <span class="entry-ic">＋</span>
+      <strong>Yeni İtiraz Oluştur</strong>
+      <span>Tanımadığınız bir işlem için yeni itiraz kaydı başlatın.</span>
+    </button>
+    <a class="entry-card" href="itiraz-durum.html">
+      <span class="entry-ic">🔍</span>
+      <strong>İtiraz Durumu Sorgula</strong>
+      <span>Elinizdeki işlem numarası ile mevcut itirazınızın güncel durumunu görün.</span>
+    </a>
+  </div>
+</div>
+<div class="apply-wizard dispute-wizard" id="disputeWizard" hidden>
   <div class="wizard-progress">
     <div class="wp-step active" data-step="1"><span class="wp-num">1</span> Sorgu</div>
     <div class="wp-step" data-step="2"><span class="wp-num">2</span> Hatırlatma</div>
-    <div class="wp-step" data-step="3"><span class="wp-num">3</span> Sonuç</div>
+    <div class="wp-step" data-step="3"><span class="wp-num">3</span> Talep</div>
+    <div class="wp-step" data-step="4"><span class="wp-num">4</span> Takip</div>
   </div>
   <div class="apply-form-wrap">
     <div class="wizard-card">
@@ -92,26 +107,76 @@
         </div>
       </div>
 
-      <!-- EKRAN: taze işlem — otomatik iade -->
-      <div class="dispute-screen" data-screen="result-unsettled">
-        <div class="dispute-result-icon ok">✓</div>
-        <h3>İşleminiz İade Sürecine Alındı</h3>
-        <p class="step-sub">İşleminiz henüz takas edilmediği için tarafımızca otomatik olarak iptal (void) işlemine alındı. Tutar, bankanızın süreçlerine bağlı olarak birkaç iş günü içinde hesabınıza yansıyacaktır.</p>
-        <div class="summary-box" id="resultRefUnsettled"></div>
-        <p class="dispute-fineprint">Bu bilgilendirme kesin bir iade garantisi teşkil etmez; sürecin nihai sonucu bankanız ve ilgili kart şeması kurallarına tabidir.</p>
-        <div class="step-nav"><span class="spacer"></span>
-          <a class="button button-primary" href="index.html"><span>ANA SAYFAYA DÖN</span></a>
-        </div>
+      <!-- EKRAN: talep oluşturma formu -->
+      <div class="dispute-screen" data-screen="request">
+        <h3>İtiraz Talebi Oluşturun</h3>
+        <p class="step-sub">Tanımadığınız işlem için resmi itiraz talebinizi oluşturalım. Yıldızlı (*) alanlar zorunludur.</p>
+        <form class="apply-light" id="disputeRequestForm" novalidate>
+          <div class="form-group">
+            <label class="fld-label">İtiraz Sebebi *</label>
+            <select class="form-control" name="Reason" required>
+              <option value="">Seçiniz</option>
+              <option>İşlemi ben yapmadım / kartımı ben kullanmadım (yetkisiz işlem)</option>
+              <option>Ürün veya hizmet teslim edilmedi / sağlanmadı</option>
+              <option>Ürün/hizmet açıklandığından farklı ya da ayıplı çıktı</option>
+              <option>İşlemi iptal ettim ancak iadem yapılmadı</option>
+              <option>Aynı işlem birden fazla kez çekildi (mükerrer işlem)</option>
+              <option>İşlem tutarı hatalı / farklı tutar yansıtıldı</option>
+              <option>Aboneliğimi iptal ettim ama tahsilat devam ediyor</option>
+              <option>Taksit sayısı veya tutarı hatalı uygulandı</option>
+              <option>Diğer (açıklamada belirteceğim)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="fld-label">İşlem Tipi *</label>
+            <select class="form-control" name="TxnType" id="disputeTxnType" required>
+              <option value="">Seçiniz</option>
+              <option value="donemici">Dönem İçi İşlemler</option>
+              <option value="ekstre">Ekstre (Hesap Özeti) İşlemleri</option>
+              <option value="acik-provizyon">Açık Provizyon (Bekleyen İşlem)</option>
+            </select>
+          </div>
+          <div class="form-group txn-select-wrap" id="disputeTxnWrap" hidden>
+            <label class="fld-label">İtiraz Edilecek İşlemi Seçin *</label>
+            <div class="txn-choice-list" id="disputeTxnList"></div>
+          </div>
+          <div class="form-group">
+            <label class="fld-label">Açıklama *</label>
+            <textarea class="form-control" name="Note" placeholder="İşlemle ilgili yaşadığınız durumu kısaca anlatın (en az 15 karakter)" required></textarea>
+          </div>
+          <div class="form-group">
+            <label class="fld-label">Cep Telefonu *</label>
+            <input class="form-control only-number" type="tel" name="Phone" maxlength="11" inputmode="numeric" placeholder="05xx xxx xx xx" required>
+          </div>
+          <label class="opt-toggle"><input type="checkbox" id="disputeWantMail"> Süreç ilerlemesi hakkında e-posta ile bilgilendirilmek istiyorum</label>
+          <div class="form-group" id="disputeMailWrap" hidden>
+            <label class="fld-label">E-Posta</label>
+            <input class="form-control" type="email" name="Email" placeholder="ornek@eposta.com">
+          </div>
+          <div class="field-error" id="disputeReqError"></div>
+          <div class="step-nav">
+            <button type="button" class="button button-secondary" id="disputeReqBack"><span>← GERİ</span></button>
+            <span class="spacer"></span>
+            <button type="submit" class="button button-primary"><span>TALEP OLUŞTUR →</span></button>
+          </div>
+        </form>
       </div>
 
-      <!-- EKRAN: takas edilmiş işlem — üye işyerine iletildi -->
-      <div class="dispute-screen" data-screen="result-settled">
-        <div class="dispute-result-icon info">ℹ</div>
-        <h3>Talebiniz Üye İşyerine İletildi</h3>
-        <p class="step-sub">İşleminiz zaten takas edildiği için tarafımızca doğrudan iptal edilemiyor. Talebiniz üye işyerine iletildi. Süreci hızlandırmak isterseniz aşağıdaki bilgilerle kendi bankanıza başvurup ters ibraz (chargeback) talebinde bulunabilirsiniz; bu süreci yalnızca kartınızı veren banka başlatabilir.</p>
-        <div class="summary-box" id="resultRefSettled"></div>
-        <p class="dispute-fineprint">Bu bilgilendirme kesin bir sonuç garantisi teşkil etmez.</p>
-        <div class="step-nav"><span class="spacer"></span>
+      <!-- EKRAN: talep oluşturuldu — durum takibi -->
+      <div class="dispute-screen" data-screen="request-done">
+        <div class="dispute-result-icon ok">✓</div>
+        <h3>İtiraz Talebiniz Oluşturuldu</h3>
+        <p class="step-sub">Talebiniz kaydedildi ve işleme alındı. Aşağıdaki işlem numarasıyla durumunu bu sayfadan takip edebilirsiniz.</p>
+        <div class="case-id-box">
+          <div><span class="cib-label">İşlem Numarası</span><span class="cib-id" id="disputeCaseId">—</span></div>
+          <button type="button" class="cib-copy" id="disputeCaseCopy" title="Kopyala">Kopyala</button>
+        </div>
+        <div class="dispute-tracker" id="disputeTracker"></div>
+        <div class="summary-box" id="disputeReqSummary"></div>
+        <p class="dispute-fineprint">Bu bilgilendirme kesin bir sonuç garantisi teşkil etmez; sürecin nihai sonucu ilgili banka ve kart şeması kurallarına tabidir.</p>
+        <div class="step-nav">
+          <button type="button" class="button button-secondary" id="disputeTrackRefresh"><span>DURUMU YENİLE</span></button>
+          <span class="spacer"></span>
           <a class="button button-primary" href="index.html"><span>ANA SAYFAYA DÖN</span></a>
         </div>
       </div>
@@ -124,7 +189,7 @@
   <div id="footer-mount"></div>
   <script src="assets/js/components.js?v=3"></script>
   <script src="assets/data/dispute-txns.js?v=1"></script>
-  <script src="assets/js/main.js?v=3"></script>
+  <script src="assets/js/main.js?v=5"></script>
   <script src="assets/js/moka-chat-widget.js?v=1"></script>
 </body>
 </html>

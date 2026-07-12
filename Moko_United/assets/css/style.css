@@ -665,10 +665,74 @@ select.form-control option { color: #1b1c1a; }
 .dispute-choice-nav { flex-wrap: wrap; }
 .dispute-fineprint { font-size: 12px; color: #999; margin-top: 12px; }
 
+/* ---- Talep formu: işlem seçim listesi ---- */
+.txn-select-wrap { animation: fadeStep .35s ease; }
+.txn-choice-list { display: flex; flex-direction: column; gap: 10px; max-height: 340px; overflow-y: auto; padding: 2px; }
+.txn-choice { display: flex; align-items: center; gap: 12px; border: 2px solid #e2e5ea; border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: border-color .2s, background .2s; }
+.txn-choice:hover { border-color: var(--brand-blue); }
+.txn-choice:has(input:checked) { border-color: var(--brand-blue); background: #f2f7ff; }
+.txn-choice input { width: 18px; height: 18px; accent-color: var(--brand-blue); flex-shrink: 0; }
+.txn-logo { width: 38px; height: 38px; border-radius: 10px; background: var(--brand-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+.txn-main { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.txn-merch { font-weight: 700; color: var(--ink); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.txn-meta { font-size: 12px; color: #888; }
+.txn-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.txn-amt { font-weight: 800; color: var(--ink); font-size: 14px; }
+.txn-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; }
+.txn-badge.settled { background: #e7edfb; color: var(--brand-blue); }
+.txn-badge.pending { background: #fff4e5; color: #a86400; }
+.txn-empty { color: #888; font-size: 13px; padding: 10px 0; }
+.opt-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; margin: 4px 0 16px; cursor: pointer; }
+.opt-toggle input { width: 18px; height: 18px; accent-color: var(--brand-blue); }
+#disputeReqError:not(:empty) { background: #fdeaea; border: 1px solid #f5b5b5; color: #a12727; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; }
+
+/* ---- Talep numarası kutusu ---- */
+.case-id-box { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--brand-blue); color: #fff; border-radius: 14px; padding: 18px 22px; margin: 8px 0 24px; }
+.case-id-box .cib-label { display: block; font-size: 12px; opacity: .8; }
+.case-id-box .cib-id { display: block; font-size: clamp(18px, 2.2vw, 26px); font-weight: 800; letter-spacing: .02em; }
+.case-id-box .cib-copy { background: rgba(255,255,255,.16); color: #fff; border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 700; transition: background .2s; }
+.case-id-box .cib-copy:hover { background: rgba(255,255,255,.28); }
+
+/* ---- Durum takip (kargo tarzı stepper) ---- */
+.dispute-tracker { display: flex; flex-direction: column; gap: 0; margin: 8px 0 24px; }
+.track-step { display: flex; gap: 14px; position: relative; padding-bottom: 22px; }
+.track-step:last-child { padding-bottom: 0; }
+.track-step::before { content: ""; position: absolute; left: 15px; top: 32px; bottom: -4px; width: 2px; background: #e2e5ea; }
+.track-step:last-child::before { display: none; }
+.track-step.done::before { background: var(--neon-green); }
+.track-dot { width: 32px; height: 32px; border-radius: 50%; background: #e9ecf2; color: #9aa0a8; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; z-index: 1; transition: all .3s; }
+.track-step.done .track-dot { background: var(--neon-green); color: var(--brand-blue); }
+.track-step.active .track-dot { background: var(--brand-blue); color: #fff; box-shadow: 0 0 0 4px rgba(13,60,148,.15); }
+.track-info { display: flex; flex-direction: column; padding-top: 4px; }
+.track-info strong { color: #9aa0a8; font-size: 15px; transition: color .3s; }
+.track-step.done .track-info strong, .track-step.active .track-info strong { color: var(--ink); }
+.track-info span { font-size: 12.5px; color: #999; }
+.track-step.active .track-info strong::after { content: " • sürüyor"; color: var(--brand-blue); font-size: 12px; font-weight: 600; }
+
+/* ---- İtiraz giriş seçimi (yeni / durum sorgu) ---- */
+.dispute-entry { max-width: 760px; margin: 0 auto; }
+.entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.entry-card { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; text-align: left; background: #fff; border: 2px solid var(--border-gray); border-radius: var(--r-box); padding: 30px 28px; cursor: pointer; transition: border-color .25s, transform .25s, box-shadow .25s; font-family: inherit; }
+.entry-card:hover { border-color: var(--brand-blue); transform: translateY(-3px); box-shadow: 0 16px 40px rgba(13,60,148,.08); }
+.entry-card .entry-ic { width: 52px; height: 52px; border-radius: 14px; background: #f2f7ff; color: var(--brand-blue); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; }
+.entry-card strong { font-size: 18px; color: var(--brand-blue); }
+.entry-card > span:last-child { font-size: 13.5px; color: #666; line-height: 1.5; }
+
+/* ---- İtiraz durumu sorgu: son kayıt chip'leri ---- */
+.status-recent { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 2px 0 14px; }
+.status-recent .sr-hint { font-size: 12px; color: #888; width: 100%; margin-bottom: 2px; }
+.recent-chip { background: #f2f7ff; color: var(--brand-blue); border: 1px solid #d8e4fb; border-radius: 20px; padding: 6px 14px; font-size: 12.5px; font-weight: 700; font-family: inherit; cursor: pointer; transition: background .2s, color .2s; }
+.recent-chip:hover { background: var(--brand-blue); color: #fff; }
+.status-notfound, #statusResult { animation: fadeStep .35s ease; }
+
+@media (max-width: 600px) { .entry-grid { grid-template-columns: 1fr; } }
+
 @media (max-width: 600px) {
   .wizard-card { padding: 24px; }
   .wp-step { font-size: 0; }
   .wp-step .wp-num { width: 34px; height: 34px; }
+  .txn-choice { flex-wrap: wrap; }
+  .case-id-box { flex-direction: column; align-items: flex-start; }
 }
 
 /* ---------- 18c. Panel giriş sayfası ---------- */
