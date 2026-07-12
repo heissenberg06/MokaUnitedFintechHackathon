@@ -247,6 +247,28 @@ def v_len(s, lo, hi, label):
         return f"{label} {lo}-{hi} karakter olmalı."
     return None
 
+PHONE_RE = re.compile(r"^0?5\d{9}$")
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+def v_phone(s):
+    digits = re.sub(r"\D", "", s or "")
+    if not PHONE_RE.match(digits):
+        return "Geçerli bir cep telefonu girin (05xx xxx xx xx)."
+    return None
+
+def v_email(s):
+    s = (s or "").strip()
+    if not s:
+        return None  # opsiyonel
+    if not EMAIL_RE.match(s):
+        return "Geçerli bir e-posta adresi girin."
+    return None
+
+def _public(rec):
+    """Herkese açık şikayet sayfasında gösterilecek alanlar; 'contact' (telefon/e-posta) hiçbir
+    zaman public API yanıtlarına dahil edilmez — yalnızca data/complaints.json'da saklanır."""
+    return {k: v for k, v in rec.items() if k != "contact"}
+
 PAGE_SIZE = 10
 
 # ----------------------------------------------------------------------------
@@ -319,7 +341,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({
                 "total": total, "page": page, "pageSize": PAGE_SIZE,
                 "totalPages": max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE),
-                "items": page_items,
+                "items": [_public(c) for c in page_items],
             })
         if m:
             cid = int(m.group(1))
@@ -328,7 +350,7 @@ class Handler(BaseHTTPRequestHandler):
                 c = next((x for x in data['complaints'] if x['id'] == cid), None)
             if not c:
                 return self._json({"error": "not_found"}, 404)
-            return self._json(c)
+            return self._json(_public(c))
         return self._json({"error": "not_found"}, 404)
 
     # --- POST ---
@@ -362,11 +384,17 @@ class Handler(BaseHTTPRequestHandler):
         name = str(body.get('name', ''))
         title = str(body.get('title', ''))
         text = str(body.get('body', ''))
+        phone = str(body.get('phone', ''))
+        email = str(body.get('email', ''))
         for chk, field in ((v_name(name), 'name'),
                            (v_len(title, 10, 100, 'Başlık'), 'title'),
-                           (v_len(text, 30, 2000, 'Şikayet metni'), 'body')):
+                           (v_len(text, 30, 2000, 'Şikayet metni'), 'body'),
+                           (v_phone(phone), 'phone'),
+                           (v_email(email), 'email')):
             if chk:
                 return self._json({"error": chk, "field": field}, 400)
+        if not body.get('kvkkConsent'):
+            return self._json({"error": "KVKK Aydınlatma Metni onayı gereklidir.", "field": "phone"}, 400)
 
         # Otomatik sınıflandırma + marka yanıtı (model kapalıysa sessizce atlanır)
         auto = get_auto_reply(f"{title}. {text}")
@@ -397,11 +425,17 @@ class Handler(BaseHTTPRequestHandler):
                 "supports": 0,
                 "status": status,
                 "comments": comments,
+                "contact": {
+                    "phone": re.sub(r"\D", "", phone),
+                    "email": email.strip(),
+                    "marketingConsent": bool(body.get('marketingConsent')),
+                    "kvkkConsentAt": now_iso(),
+                },
             }
             data['complaints'].append(rec)
             _write(data)
         _trigger_ai_refresh()  # yeni şikayet -> AI özetini tazele
-        return self._json(rec, 201)
+        return self._json(_public(rec), 201)
 
     def _create_comment(self, cid, body):
         name = str(body.get('name', ''))

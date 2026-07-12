@@ -222,7 +222,16 @@
     const form = e.target;
     $$('[data-error]', form).forEach(el => el.textContent = '');
     if (!$('#cConsent').checked) return;
-    const payload = { name: form.name.value.trim(), title: form.title.value.trim(), body: form.body.value.trim() };
+    if (!$('#cKvkk').checked) {
+      const target = form.querySelector('[data-error="phone"]');
+      if (target) target.textContent = 'Devam etmek için KVKK Aydınlatma Metni onayı gereklidir.';
+      return;
+    }
+    const payload = {
+      name: form.name.value.trim(), title: form.title.value.trim(), body: form.body.value.trim(),
+      phone: form.phone.value.trim(), email: form.email.value.trim(),
+      kvkkConsent: true, marketingConsent: $('#cMarketing').checked,
+    };
     const r = await postJSON('/api/complaints', payload);
     if (!r.ok) {
       const field = r.data && r.data.field;
