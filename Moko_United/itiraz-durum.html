@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İtiraz Durumu Sorgula | Moka United</title>
+  <meta name="description" content="İtiraz oluştururken aldığınız işlem numarası ile itiraz talebinizin güncel durumunu sorgulayın.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Moka United">
+  <meta property="og:title" content="İtiraz Durumu Sorgula | Moka United">
+  <meta property="og:description" content="İşlem numaranız ile itiraz talebinizin güncel durumunu görüntüleyin.">
+  <meta property="og:image" content="assets/images/favicon.svg">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=5">
+</head>
+<body class="product-detail" data-active="itiraz">
+  <div class="overlay-loader" id="loader"><div class="spinner"></div></div>
+  <div id="header-mount"></div>
+  <main>
+    <nav class="breadcrumb"><a href="index.html">Moka United</a><span class="sep">/</span><a href="itiraz.html">İtiraz</a><span class="sep">/</span><span>Durum Sorgula</span></nav>
+    <section class="apply-page container" id="disputeStatusPage">
+      <h1 class="multicolors">İTİRAZ DURUMU SORGULA</h1>
+      <p class="lead">İtiraz oluştururken aldığınız işlem numarasını girerek talebinizin güncel durumunu görüntüleyin.</p>
+      <div class="apply-wizard" style="max-width:760px">
+        <div class="wizard-card">
+          <h3>İşlem Numaranızı Girin</h3>
+          <p class="step-sub">İtiraz talebi oluşturduğunuzda size verilen numarayı girin. Örnek: <strong>MU-ITZ-2026-123456</strong></p>
+          <form class="apply-light" id="statusQueryForm" novalidate>
+            <div class="form-group">
+              <label class="fld-label">İşlem Numarası *</label>
+              <input class="form-control" id="statusCaseInput" name="Case" placeholder="MU-ITZ-2026-XXXXXX" autocomplete="off" required>
+            </div>
+            <div class="status-recent" id="statusRecent"></div>
+            <div class="step-nav"><span class="spacer"></span>
+              <button type="submit" class="button button-primary"><span>DURUMU SORGULA →</span></button>
+            </div>
+          </form>
+
+          <div id="statusNotFound" class="status-notfound" hidden>
+            <div class="dispute-result-icon warn">✕</div>
+            <h3>Kayıt Bulunamadı</h3>
+            <p class="step-sub">Girdiğiniz işlem numarasıyla eşleşen bir itiraz kaydı bulunamadı. Numarayı kontrol edin. (Not: Kayıtlar oluşturulduğu tarayıcıda saklanır; farklı cihaz veya tarayıcıda görünmeyebilir.)</p>
+          </div>
+
+          <div id="statusResult" hidden>
+            <div class="dispute-result-icon info">🔎</div>
+            <h3>İtiraz Talebinizin Durumu</h3>
+            <div class="case-id-box">
+              <div><span class="cib-label">İşlem Numarası</span><span class="cib-id" id="statusCaseId">—</span></div>
+            </div>
+            <div class="dispute-tracker" id="statusTracker"></div>
+            <div class="summary-box" id="statusSummary"></div>
+            <p class="dispute-fineprint">Bu bilgilendirme kesin bir sonuç garantisi teşkil etmez; sürecin nihai sonucu ilgili banka ve kart şeması kurallarına tabidir.</p>
+            <div class="step-nav">
+              <button type="button" class="button button-secondary" id="statusRefresh"><span>DURUMU YENİLE</span></button>
+              <span class="spacer"></span>
+              <a class="button button-primary" href="itiraz.html"><span>YENİ İTİRAZ OLUŞTUR</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="cta-mount"></div>
+  <div id="footer-mount"></div>
+  <script src="assets/js/components.js?v=3"></script>
+  <script src="assets/js/main.js?v=5"></script>
+  <script src="assets/js/moka-chat-widget.js?v=1"></script>
+</body>
+</html>
