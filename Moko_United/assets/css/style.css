@@ -665,6 +665,20 @@ select.form-control option { color: #1b1c1a; }
 .dispute-choice-nav { flex-wrap: wrap; }
 .dispute-fineprint { font-size: 12px; color: #999; margin-top: 12px; }
 
+/* ---- Talep formu: destekleyici belge yükleme ---- */
+.fld-optional { font-weight: 400; color: #999; font-size: 12px; }
+.dispute-file-drop { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: var(--box-gray); border: 1.5px dashed #c9cedb; border-radius: var(--r-box); padding: 14px 16px; }
+.file-pick-btn { flex-shrink: 0; padding: 9px 16px; font-size: 13px; }
+.file-drop-hint { font-size: 12px; color: #888; line-height: 1.5; }
+.file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.file-list:empty { display: none; }
+.file-chip { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #e2e5ea; border-radius: 10px; padding: 8px 12px; font-size: 13px; }
+.file-chip .fc-ic { flex-shrink: 0; }
+.file-chip .fc-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); font-weight: 600; }
+.file-chip .fc-size { flex-shrink: 0; color: #999; font-size: 11px; }
+.file-chip .fc-remove { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: #f2f2f2; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; line-height: 1; border: none; }
+.file-chip .fc-remove:hover { background: #fdeaea; color: #c23a3a; }
+
 /* ---- Talep formu: işlem seçim listesi ---- */
 .txn-select-wrap { animation: fadeStep .35s ease; }
 .txn-choice-list { display: flex; flex-direction: column; gap: 10px; max-height: 340px; overflow-y: auto; padding: 2px; }

@@ -148,6 +148,16 @@
             <label class="fld-label">Cep Telefonu *</label>
             <input class="form-control only-number" type="tel" name="Phone" maxlength="11" inputmode="numeric" placeholder="05xx xxx xx xx" required>
           </div>
+          <div class="form-group">
+            <label class="fld-label">Destekleyici Belge <span class="fld-optional">(opsiyonel)</span></label>
+            <div class="dispute-file-drop" id="disputeFileDrop">
+              <input class="file-input" type="file" name="Evidence" id="disputeFileInput" accept=".pdf,.jpg,.jpeg,.png,.heic" multiple hidden>
+              <button type="button" class="button button-secondary file-pick-btn" id="disputeFilePick"><span>📎 DOSYA SEÇ</span></button>
+              <span class="file-drop-hint">PDF, JPG, PNG veya HEIC · dosya başı en fazla 5MB, toplam 15MB, en fazla 5 dosya</span>
+            </div>
+            <ul class="file-list" id="disputeFileList"></ul>
+            <div class="field-error" id="disputeFileError"></div>
+          </div>
           <label class="opt-toggle"><input type="checkbox" id="disputeWantMail"> Süreç ilerlemesi hakkında e-posta ile bilgilendirilmek istiyorum</label>
           <div class="form-group" id="disputeMailWrap" hidden>
             <label class="fld-label">E-Posta</label>
@@ -160,6 +170,20 @@
             <button type="submit" class="button button-primary"><span>TALEP OLUŞTUR →</span></button>
           </div>
         </form>
+      </div>
+
+      <!-- EKRAN: bu işlem için zaten açık bir itiraz var — mükerrer talep engellendi -->
+      <div class="dispute-screen" data-screen="already-open">
+        <div class="dispute-result-icon info">ℹ</div>
+        <h3>Bu İşlem İçin Zaten Bir İtirazınız Var</h3>
+        <p class="step-sub" id="alreadyOpenMsg">Bu işlem için devam eden bir itiraz talebiniz bulunuyor. Yeni bir talep oluşturmak yerine mevcut kaydınızın durumunu görüntüleyebilirsiniz.</p>
+        <div class="case-id-box">
+          <div><span class="cib-label">İşlem Numarası</span><span class="cib-id" id="alreadyOpenCaseId">—</span></div>
+        </div>
+        <p class="dispute-fineprint">Birkaç saniye içinde durum sorgulama sayfasına yönlendirileceksiniz.</p>
+        <div class="step-nav"><span class="spacer"></span>
+          <a class="button button-primary" id="alreadyOpenGo" href="itiraz-durum.html"><span>DURUMU GÖRÜNTÜLE →</span></a>
+        </div>
       </div>
 
       <!-- EKRAN: talep oluşturuldu — durum takibi -->

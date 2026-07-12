@@ -3,6 +3,8 @@
 Sıfır bağımlılık: yalnız Python stdlib. Statik dosyalar + JSON API aynı porttan.
 Veri kalıcılığı: sikayetvar/data/complaints.json (atomic write + Lock).
 Seed ve tüm içerik KURGUDUR; gerçek şikayet metni/rumuz kullanılmaz.
+Yeni şikayet gönderildiğinde sikayet_api'deki (port 8020) eğitilmiş sınıflandırıcı
+çağrılır ve otomatik "Marka Yanıtı" yorumu olarak eklenir (bkz. get_auto_reply).
 Çalıştır: python3 sikayetvar/server.py  ->  http://localhost:8756
 """
 import json
@@ -12,9 +14,13 @@ import re
 import time
 import threading
 import random
+import urllib.request
+import urllib.error
 from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
+
+import analysis  # Moka Müşteri Zeka Motoru (deterministik + opsiyonel yerel LLM)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(ROOT, 'data')
@@ -22,8 +28,26 @@ DATA_FILE = os.path.join(DATA_DIR, 'complaints.json')
 PORT = 8756
 MAX_BODY = 16 * 1024  # 16KB
 
+# --- Otomatik sınıflandırma/cevap servisi (sikayet_api.py, ayrı süreç) ---
+SIKAYET_API_URL = "http://localhost:8020/cevapla"
+SIKAYET_API_TIMEOUT = 8  # saniye
+# Bu sınıflarda sablonlar.py talebi ekibe yönlendirdiğini söylüyor -> otomatik kapatılmaz.
+NEEDS_HUMAN_REVIEW = {"dolandiricilik_suphesi", "cuzdan_hesap_sorunu"}
+
 LOCK = threading.Lock()
 _RATE = {}  # ip -> [timestamps]
+
+def get_auto_reply(text):
+    """sikayet_api'yi çağırır; servis kapalıysa/hata verirse None döner (akış kesilmez)."""
+    try:
+        payload = json.dumps({"sikayet_metni": text}).encode('utf-8')
+        req = urllib.request.Request(
+            SIKAYET_API_URL, data=payload,
+            headers={'Content-Type': 'application/json'}, method='POST')
+        with urllib.request.urlopen(req, timeout=SIKAYET_API_TIMEOUT) as resp:
+            return json.loads(resp.read().decode('utf-8'))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError):
+        return None
 
 # ----------------------------------------------------------------------------
 # Yardımcılar
@@ -167,6 +191,39 @@ def _write(data):
     os.replace(tmp, DATA_FILE)
 
 # ----------------------------------------------------------------------------
+# AI yönetici özeti — arka planda hesapla, önbellekten servis et
+# (LLM yavaş olabilir; endpoint asla bloklanmaz. Hazır olana kadar deterministik
+#  şablon özet gösterilir.)
+# ----------------------------------------------------------------------------
+_AI_LOCK = threading.Lock()
+_AI_CACHE = {"summary": None, "count": -1, "at": None}
+_AI_BUSY = threading.Event()
+
+def _refresh_ai_summary():
+    """İçgörüyü hesapla + LLM özeti üret, önbelleğe yaz. Ayrı thread'de çağrılır."""
+    if _AI_BUSY.is_set():
+        return
+    _AI_BUSY.set()
+    try:
+        with LOCK:
+            data = load_data()
+            count = len(data.get('complaints', []))
+        ins = analysis.analyze(data)
+        summary = analysis.llm_summary(ins, timeout=240)
+        with _AI_LOCK:
+            _AI_CACHE.update({"summary": summary, "count": count,
+                              "at": now_iso()})
+    except Exception as e:
+        with _AI_LOCK:
+            _AI_CACHE["summary"] = {"text": f"AI özeti üretilemedi: {e}",
+                                    "source": "error"}
+    finally:
+        _AI_BUSY.clear()
+
+def _trigger_ai_refresh():
+    threading.Thread(target=_refresh_ai_summary, daemon=True).start()
+
+# ----------------------------------------------------------------------------
 # TR-duyarlı arama yardımcısı
 # ----------------------------------------------------------------------------
 def tr_lower(s):
@@ -244,6 +301,8 @@ class Handler(BaseHTTPRequestHandler):
         return self._static(path)
 
     def _api_get(self, path, qs):
+        if path == '/api/admin/insights':
+            return self._admin_insights()
         m = re.fullmatch(r'/api/complaints/(\d+)', path)
         if path == '/api/complaints':
             page = max(1, int((qs.get('page', ['1'])[0]) or 1))
@@ -308,6 +367,22 @@ class Handler(BaseHTTPRequestHandler):
                            (v_len(text, 30, 2000, 'Şikayet metni'), 'body')):
             if chk:
                 return self._json({"error": chk, "field": field}, 400)
+
+        # Otomatik sınıflandırma + marka yanıtı (model kapalıysa sessizce atlanır)
+        auto = get_auto_reply(f"{title}. {text}")
+        comments = []
+        status = "yanit-bekliyor"
+        if auto and auto.get('cevap'):
+            comments.append({
+                "id": 1,
+                "name": "Moka United",
+                "isBrand": True,
+                "body": clean(auto['cevap']),
+                "createdAt": now_iso(),
+            })
+            if auto.get('sinif') not in NEEDS_HUMAN_REVIEW:
+                status = "cozuldu"
+
         with LOCK:
             data = load_data()
             data['seq'] += 1
@@ -320,11 +395,12 @@ class Handler(BaseHTTPRequestHandler):
                 "createdAt": now_iso(),
                 "views": 0,
                 "supports": 0,
-                "status": "yanit-bekliyor",
-                "comments": [],
+                "status": status,
+                "comments": comments,
             }
             data['complaints'].append(rec)
             _write(data)
+        _trigger_ai_refresh()  # yeni şikayet -> AI özetini tazele
         return self._json(rec, 201)
 
     def _create_comment(self, cid, body):
@@ -362,6 +438,30 @@ class Handler(BaseHTTPRequestHandler):
             val = c[field]
             _write(data)
         return self._json({field: val})
+
+    # --- admin: zeka paneli içgörüleri ---
+    def _admin_insights(self):
+        with LOCK:
+            data = load_data()
+            count = len(data.get('complaints', []))
+        ins = analysis.analyze(data)  # deterministik: hızlı, her istekte taze
+        with _AI_LOCK:
+            cached = _AI_CACHE.get("summary")
+            cached_count = _AI_CACHE.get("count")
+            cached_at = _AI_CACHE.get("at")
+        # önbellek yoksa ya da veri değiştiyse arka planda tazele
+        if cached is None or cached_count != count:
+            _trigger_ai_refresh()
+        if cached is None:
+            # ilk yükleme: anında deterministik şablon özeti ver
+            ins["ai_summary"] = {"text": analysis._template_summary(ins),
+                                 "source": "template", "pending": True}
+        else:
+            ai = dict(cached)
+            ai["pending"] = (cached_count != count)
+            ai["at"] = cached_at
+            ins["ai_summary"] = ai
+        return self._json(ins)
 
     # --- statik dosyalar ---
     def _static(self, path):
@@ -405,8 +505,10 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     load_data()  # seed'i garantile
+    _trigger_ai_refresh()  # AI özetini arka planda önceden hazırla (ısınma)
     server = ThreadingHTTPServer(('0.0.0.0', PORT), Handler)
     print(f"Şikayetvar klonu çalışıyor:  http://localhost:{PORT}")
+    print(f"Yönetici paneli:            http://localhost:{PORT}/admin.html")
     print(f"Veri dosyası: {DATA_FILE}")
     try:
         server.serve_forever()
