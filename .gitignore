@@ -1,2 +1,4 @@
 moka-intent-model/
 .DS_Store
+moka-sikayet-model
+__pycache__
