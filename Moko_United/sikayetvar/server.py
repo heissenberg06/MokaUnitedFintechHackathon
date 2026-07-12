@@ -3,6 +3,8 @@
 Sıfır bağımlılık: yalnız Python stdlib. Statik dosyalar + JSON API aynı porttan.
 Veri kalıcılığı: sikayetvar/data/complaints.json (atomic write + Lock).
 Seed ve tüm içerik KURGUDUR; gerçek şikayet metni/rumuz kullanılmaz.
+Yeni şikayet gönderildiğinde sikayet_api'deki (port 8020) eğitilmiş sınıflandırıcı
+çağrılır ve otomatik "Marka Yanıtı" yorumu olarak eklenir (bkz. get_auto_reply).
 Çalıştır: python3 sikayetvar/server.py  ->  http://localhost:8756
 """
 import json
@@ -12,6 +14,8 @@ import re
 import time
 import threading
 import random
+import urllib.request
+import urllib.error
 from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
@@ -22,8 +26,26 @@ DATA_FILE = os.path.join(DATA_DIR, 'complaints.json')
 PORT = 8756
 MAX_BODY = 16 * 1024  # 16KB
 
+# --- Otomatik sınıflandırma/cevap servisi (sikayet_api.py, ayrı süreç) ---
+SIKAYET_API_URL = "http://localhost:8020/cevapla"
+SIKAYET_API_TIMEOUT = 8  # saniye
+# Bu sınıflarda sablonlar.py talebi ekibe yönlendirdiğini söylüyor -> otomatik kapatılmaz.
+NEEDS_HUMAN_REVIEW = {"dolandiricilik_suphesi", "cuzdan_hesap_sorunu"}
+
 LOCK = threading.Lock()
 _RATE = {}  # ip -> [timestamps]
+
+def get_auto_reply(text):
+    """sikayet_api'yi çağırır; servis kapalıysa/hata verirse None döner (akış kesilmez)."""
+    try:
+        payload = json.dumps({"sikayet_metni": text}).encode('utf-8')
+        req = urllib.request.Request(
+            SIKAYET_API_URL, data=payload,
+            headers={'Content-Type': 'application/json'}, method='POST')
+        with urllib.request.urlopen(req, timeout=SIKAYET_API_TIMEOUT) as resp:
+            return json.loads(resp.read().decode('utf-8'))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError):
+        return None
 
 # ----------------------------------------------------------------------------
 # Yardımcılar
@@ -308,6 +330,22 @@ class Handler(BaseHTTPRequestHandler):
                            (v_len(text, 30, 2000, 'Şikayet metni'), 'body')):
             if chk:
                 return self._json({"error": chk, "field": field}, 400)
+
+        # Otomatik sınıflandırma + marka yanıtı (model kapalıysa sessizce atlanır)
+        auto = get_auto_reply(f"{title}. {text}")
+        comments = []
+        status = "yanit-bekliyor"
+        if auto and auto.get('cevap'):
+            comments.append({
+                "id": 1,
+                "name": "Moka United",
+                "isBrand": True,
+                "body": clean(auto['cevap']),
+                "createdAt": now_iso(),
+            })
+            if auto.get('sinif') not in NEEDS_HUMAN_REVIEW:
+                status = "cozuldu"
+
         with LOCK:
             data = load_data()
             data['seq'] += 1
@@ -320,8 +358,8 @@ class Handler(BaseHTTPRequestHandler):
                 "createdAt": now_iso(),
                 "views": 0,
                 "supports": 0,
-                "status": "yanit-bekliyor",
-                "comments": [],
+                "status": status,
+                "comments": comments,
             }
             data['complaints'].append(rec)
             _write(data)

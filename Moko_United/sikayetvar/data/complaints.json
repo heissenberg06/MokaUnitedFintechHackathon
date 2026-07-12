@@ -1,5 +1,5 @@
 {
-  "seq": 16,
+  "seq": 21,
   "complaints": [
     {
       "id": 1,
@@ -240,6 +240,106 @@
       "supports": 0,
       "status": "yanit-bekliyor",
       "comments": []
+    },
+    {
+      "id": 17,
+      "name": "T** K**",
+      "initials": "TK",
+      "title": "Kartimdan tanimadigim bir islem cekildi",
+      "body": "Ekstremde Moka United isimli bir firma tarafindan yapilmis 1250 TL tutarinda tanimadigim bir islem gorduml. Boyle bir alisveris yapmadim, aciklama istiyorum.",
+      "createdAt": "2026-07-12T18:12:24",
+      "views": 0,
+      "supports": 0,
+      "status": "cozuldu",
+      "comments": [
+        {
+          "id": 1,
+          "name": "Moka United",
+          "isBrand": true,
+          "body": "Merhaba,\n\nEkstrenizde tanımadığınız bir işlem gördüğünüzü anlıyoruz. &quot;MOKA&quot; ibaresi, bir üye işyerinde kartınızla yapılan gerçek bir işlemi temsil eder. İşlemin hangi işyerinde gerçekleştiğini kendiniz sorgulayabilirsiniz.\n\nİşleminizi doğrulamak ve tanımadığınız bir durumda itiraz sürecini başlatmak için https://www.mokaunited.com/itiraz adresindeki İşlem Sorgulama ve İtiraz sayfamızı kullanabilirsiniz.\n\nSaygılarımızla.",
+          "createdAt": "2026-07-12T18:12:24"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "name": "A** Y**",
+      "initials": "AY",
+      "title": "Telefonda dolandirildim param gitti",
+      "body": "Beni arayan kisi banka calisani oldugunu soyleyerek kart bilgilerimi aldi ve 5000 TL tutarinda iki odeme yapildi. Dekontlarim mevcut, islemin iptalini talep ediyorum.",
+      "createdAt": "2026-07-12T18:12:38",
+      "views": 0,
+      "supports": 0,
+      "status": "yanit-bekliyor",
+      "comments": [
+        {
+          "id": 1,
+          "name": "Moka United",
+          "isBrand": true,
+          "body": "Merhaba,\n\nYaşadığınız durumdan dolayı üzgünüz. Yetkisiz veya dolandırıcılık şüphesi taşıyan bir işlem söz konusuysa, güvenliğiniz için öncelikle bankanızla iletişime geçerek kartınızı kullanıma kapatmanızı ve bankanıza harcama itirazı talebinizi iletmenizi öneririz. Bilginiz dışında yapılan işlemler için savcılığa suç duyurusunda da bulunabilirsiniz. Talebiniz ayrıca incelenmek üzere ilgili ekibimize iletilecektir.\n\nİşleminizi doğrulamak ve tanımadığınız bir durumda itiraz sürecini başlatmak için https://www.mokaunited.com/itiraz adresindeki İşlem Sorgulama ve İtiraz sayfamızı kullanabilirsiniz.\n\nSaygılarımızla.",
+          "createdAt": "2026-07-12T18:12:38"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "name": "R** T**",
+      "initials": "RT",
+      "title": "Model servisi kapaliyken test",
+      "body": "Bu sikayet model servisi kapaliyken gonderiliyor, sistemin cokmedigini dogrulamak icin yeterince uzun bir metin.",
+      "createdAt": "2026-07-12T18:13:02",
+      "views": 0,
+      "supports": 0,
+      "status": "yanit-bekliyor",
+      "comments": []
+    },
+    {
+      "id": 20,
+      "name": "G** T** K**",
+      "initials": "GK",
+      "title": "Kartımdan tanımadığım bir işlem çekildi",
+      "body": "Ekstremde Moka United isimli firma tarafından yapılmış tanımadığım bir işlem gördüm, 980 TL çekilmiş, ne olduğunu öğrenmek istiyorum lütfen bilgi verin.",
+      "createdAt": "2026-07-12T18:13:51",
+      "views": 2,
+      "supports": 0,
+      "status": "yanit-bekliyor",
+      "comments": [
+        {
+          "id": 1,
+          "name": "Moka United",
+          "isBrand": true,
+          "body": "Merhaba,\n\nYaşadığınız durumdan dolayı üzgünüz. Yetkisiz veya dolandırıcılık şüphesi taşıyan bir işlem söz konusuysa, güvenliğiniz için öncelikle bankanızla iletişime geçerek kartınızı kullanıma kapatmanızı ve bankanıza harcama itirazı talebinizi iletmenizi öneririz. Bilginiz dışında yapılan işlemler için savcılığa suç duyurusunda da bulunabilirsiniz. Talebiniz ayrıca incelenmek üzere ilgili ekibimize iletilecektir.\n\nİşleminizi doğrulamak ve tanımadığınız bir durumda itiraz sürecini başlatmak için https://www.mokaunited.com/itiraz adresindeki İşlem Sorgulama ve İtiraz sayfamızı kullanabilirsiniz.\n\nSaygılarımızla.",
+          "createdAt": "2026-07-12T18:13:51"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "name": "B** E**",
+      "initials": "BE",
+      "title": "tanimsiz islem",
+      "body": "kartimdan bugun saat gece 3 4 gibi tanimadigim bir islem yapildi ve 4000 tl cekilmek istendi, bu durumun cozulmesini istiyorum",
+      "createdAt": "2026-07-12T18:15:32",
+      "views": 1,
+      "supports": 0,
+      "status": "yanit-bekliyor",
+      "comments": [
+        {
+          "id": 1,
+          "name": "Moka United",
+          "isBrand": true,
+          "body": "Merhaba,\n\nCüzdan/hesap işlemlerinize ilişkin talebiniz incelenmek üzere ilgili ekibimize iletilmiştir. Bakiye, hesap veya kart erişiminizle ilgili detaylar için sizinle iletişime geçilecektir. Kart işlemlerinize dair bir sorunuz olması halinde ise aşağıdaki sayfamızdan işleminizi sorgulayabilirsiniz.\n\nİşleminizi doğrulamak ve tanımadığınız bir durumda itiraz sürecini başlatmak için https://www.mokaunited.com/itiraz adresindeki İşlem Sorgulama ve İtiraz sayfamızı kullanabilirsiniz.\n\nSaygılarımızla.",
+          "createdAt": "2026-07-12T18:15:32"
+        },
+        {
+          "id": 2,
+          "name": "B** E**",
+          "initials": "BE",
+          "isBrand": false,
+          "body": "ama hala bir cpozum yok mu",
+          "createdAt": "2026-07-12T18:16:48"
+        }
+      ]
     }
   ]
 }
