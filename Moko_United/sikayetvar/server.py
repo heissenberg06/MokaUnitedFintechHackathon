@@ -162,9 +162,63 @@ def build_seed():
             "initials": initials(name),
             "title": clean(title),
             "body": clean(body),
+            "merchant": None,
             "createdAt": created.replace(microsecond=0).isoformat(),
             "views": random.randint(20, 400),
             "supports": random.randint(0, 45),
+            "status": status,
+            "comments": comments,
+        })
+
+    # --- Sahtekarlık Ağı + İşyeri Risk Sıralaması demo verisi ---
+    # "Hızlı Ödeme Bayii": 3 FARKLI kullanıcıdan kısa sürede şikayet -> sahtekarlık ağı
+    # eşiğini geçiyor (bkz. analysis.detect_fraud_rings, 48 saat/3 şikayet eşiği).
+    # Diğer iki işyeri ise TEK'er izole vaka: risk sıralamasında daha düşük sırada
+    # görünüp panelin "işyeri risk" listesine gerçekçi çeşitlilik katar.
+    # Zamanlama rastgeleliğe bağlı bırakılmadı ki demo her sunucu açılışında güvenilir olsun.
+    merchant_seed = [
+        ("Zeynep Kaya", "Tanımadığım bir alışverişte kartım kullanılmış",
+         "Hızlı Ödeme Bayii adlı işyerinde benim onayım olmadan kartımla bir tahsilat yapılmış. "
+         "Bu işlemi ben gerçekleştirmedim, itiraz etmek istiyorum.",
+         40, "Hızlı Ödeme Bayii", "yanit-bekliyor", None),
+        ("Emre Aydın", "Yetkisiz işlem: kartımdan habersiz tahsilat",
+         "Hızlı Ödeme Bayii üzerinden hesabımdan izinsiz bir çekim yapılmış. Böyle bir alışveriş "
+         "yapmadım, kartımı kimseyle paylaşmadım.",
+         20, "Hızlı Ödeme Bayii", "yanit-bekliyor", None),
+        ("Derya Çelik", "Aynı işyerinde bilgim dışında işlem yapılmış",
+         "Hızlı Ödeme Bayii isimli yerde, benim başlatmadığım bir işlem gerçekleşmiş. Kısa süre "
+         "önce benzer şikayetler gördüm, bir güvenlik açığı olabilir mi diye endişeliyim.",
+         6, "Hızlı Ödeme Bayii", "yanit-bekliyor", None),
+        ("Caner Demir", "İşyerinde kartım bilgim dışında kullanılmış",
+         "TeknoMarket Elektronik'te gerçekleştirilen bir işlemi ben yapmadım. Kartımı hiç "
+         "kimseyle paylaşmadım, bu tutarın nasıl çekildiğini öğrenmek istiyorum.",
+         190, "TeknoMarket Elektronik", "yanit-bekliyor", None),
+        ("Pınar Yıldız", "Kafede tanımadığım bir ödeme görünüyor",
+         "Şehir Kafe Zinciri şubelerinden birinde, benim yapmadığım bir ödeme kartımdan geçmiş. "
+         "İtiraz sürecini başlatmak istiyorum.",
+         260, "Şehir Kafe Zinciri", "cozuldu",
+         "Merhaba, bildirdiğiniz işlem incelenmiş olup itirazınız işleme alınmıştır. İlgili "
+         "tutar en kısa sürede kartınıza iade edilecektir."),
+    ]
+    for name, title, body, hours_ago, merchant, status, reply in merchant_seed:
+        seq += 1
+        created = datetime.now() - timedelta(hours=hours_ago)
+        comments = []
+        if reply:
+            comments.append({
+                "id": 1, "name": "Moka United", "isBrand": True, "body": clean(reply),
+                "createdAt": (created + timedelta(hours=6)).replace(microsecond=0).isoformat(),
+            })
+        complaints.append({
+            "id": seq,
+            "name": mask_name(name),
+            "initials": initials(name),
+            "title": clean(title),
+            "body": clean(body),
+            "merchant": merchant,
+            "createdAt": created.replace(microsecond=0).isoformat(),
+            "views": random.randint(30, 150),
+            "supports": random.randint(2, 20),
             "status": status,
             "comments": comments,
         })
@@ -386,6 +440,7 @@ class Handler(BaseHTTPRequestHandler):
         text = str(body.get('body', ''))
         phone = str(body.get('phone', ''))
         email = str(body.get('email', ''))
+        merchant = str(body.get('merchant', '')).strip()
         for chk, field in ((v_name(name), 'name'),
                            (v_len(title, 10, 100, 'Başlık'), 'title'),
                            (v_len(text, 30, 2000, 'Şikayet metni'), 'body'),
@@ -393,6 +448,8 @@ class Handler(BaseHTTPRequestHandler):
                            (v_email(email), 'email')):
             if chk:
                 return self._json({"error": chk, "field": field}, 400)
+        if merchant and len(merchant) > 80:
+            return self._json({"error": "İşyeri adı en fazla 80 karakter olmalı.", "field": "merchant"}, 400)
         if not body.get('kvkkConsent'):
             return self._json({"error": "KVKK Aydınlatma Metni onayı gereklidir.", "field": "phone"}, 400)
 
@@ -420,6 +477,7 @@ class Handler(BaseHTTPRequestHandler):
                 "initials": initials(name),
                 "title": clean(title),
                 "body": clean(text),
+                "merchant": clean(merchant) if merchant else None,
                 "createdAt": now_iso(),
                 "views": 0,
                 "supports": 0,

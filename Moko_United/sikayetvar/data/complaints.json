@@ -1,5 +1,5 @@
 {
-  "seq": 17,
+  "seq": 15,
   "complaints": [
     {
       "id": 1,
@@ -228,58 +228,6 @@
       "supports": 44,
       "status": "yanit-bekliyor",
       "comments": []
-    },
-    {
-      "id": 16,
-      "name": "B** E**",
-      "initials": "BE",
-      "title": "itirazim var",
-      "body": "gece vakti hesabimdan 4000 tl cekilmeye calisildi",
-      "createdAt": "2026-07-12T23:29:45",
-      "views": 0,
-      "supports": 0,
-      "status": "cozuldu",
-      "comments": [
-        {
-          "id": 1,
-          "name": "Moka United",
-          "isBrand": true,
-          "body": "Merhaba,\n\nİade sürecinizle ilgili yaşadığınız gecikme için üzgünüz. İşleminizin ve itiraz kaydınızın güncel durumunu sorgulayabilir, gerekirse talebinizi buradan takip edebilirsiniz.\n\nİşleminizi doğrulamak ve tanımadığınız bir durumda itiraz sürecini başlatmak için https://www.mokaunited.com/itiraz adresindeki İşlem Sorgulama ve İtiraz sayfamızı kullanabilirsiniz.\n\nSaygılarımızla.",
-          "createdAt": "2026-07-12T23:29:45"
-        }
-      ],
-      "contact": {
-        "phone": "05444444444",
-        "email": "",
-        "marketingConsent": true,
-        "kvkkConsentAt": "2026-07-12T23:29:45"
-      }
-    },
-    {
-      "id": 17,
-      "name": "B** E**",
-      "initials": "BE",
-      "title": "itirazim var cekim yapilmis",
-      "body": "itirazim var cekim yapilmisitirazim var cekim yapilmisitirazim var cekim yapilmisitirazim var cekim yapilmisitirazim var cekim yapilmis",
-      "createdAt": "2026-07-12T23:42:31",
-      "views": 0,
-      "supports": 0,
-      "status": "yanit-bekliyor",
-      "comments": [
-        {
-          "id": 1,
-          "name": "Moka United",
-          "isBrand": true,
-          "body": "Merhaba,\n\nCüzdan/hesap işlemlerinize ilişkin talebiniz incelenmek üzere ilgili ekibimize iletilmiştir. Bakiye, hesap veya kart erişiminizle ilgili detaylar için sizinle iletişime geçilecektir. Kart işlemlerinize dair bir sorunuz olması halinde ise aşağıdaki sayfamızdan işleminizi sorgulayabilirsiniz.\n\nİşleminizi doğrulamak ve tanımadığınız bir durumda itiraz sürecini başlatmak için https://www.mokaunited.com/itiraz adresindeki İşlem Sorgulama ve İtiraz sayfamızı kullanabilirsiniz.\n\nSaygılarımızla.",
-          "createdAt": "2026-07-12T23:42:31"
-        }
-      ],
-      "contact": {
-        "phone": "05555555555",
-        "email": "",
-        "marketingConsent": true,
-        "kvkkConsentAt": "2026-07-12T23:42:31"
-      }
     }
   ]
 }

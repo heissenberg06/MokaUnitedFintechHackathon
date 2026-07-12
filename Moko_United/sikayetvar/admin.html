@@ -19,6 +19,11 @@
     .ad-header .spacer { flex:1; }
     .ad-header a.back { font-size:13px; font-weight:600; color:var(--sv-muted); }
     .ad-header a.back:hover { color:var(--sv-primary); }
+    .btn-report { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700;
+      color:#fff; background:var(--sv-primary); border:none; border-radius:20px; padding:8px 16px;
+      cursor:pointer; transition:opacity .15s; }
+    .btn-report:hover { opacity:.88; }
+    .btn-report:disabled { opacity:.5; cursor:default; }
 
     .ad-hero { padding:22px 0 4px; }
     .ad-hero h1 { font-size:22px; color:var(--sv-dark); letter-spacing:-.01em; }
@@ -46,6 +51,50 @@
     .ring-in { width:60px; height:60px; border-radius:50%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; }
     .ring-in strong { font-size:22px; color:var(--sv-dark); line-height:1; }
     .ring-in small { font-size:10px; color:var(--sv-muted); }
+
+    /* Sahtekarlık ağı */
+    .ring-card { border-left:4px solid var(--sv-red); }
+    .ring-alert { padding:12px 14px; background:#fdecec; border:1px solid #f5c2c2; border-radius:10px; margin-bottom:10px; }
+    .ring-alert:last-child { margin-bottom:0; }
+    .ring-top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .ring-ic { font-size:16px; }
+    .ring-merchant { font-weight:800; font-size:15px; color:var(--sv-dark); flex:1; }
+    .ring-badge { background:var(--sv-red); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+    .ring-meta { font-size:12.5px; color:var(--sv-dark); margin:6px 0; line-height:1.5; }
+    .ring-samples { margin:6px 0 0; padding-left:2px; display:flex; flex-direction:column; gap:3px; }
+    .ring-samples li { font-size:12px; color:var(--sv-dark); padding-left:14px; position:relative; list-style:none; }
+    .ring-samples li::before { content:'“'; position:absolute; left:0; color:var(--sv-red); font-weight:800; }
+    .ring-action { margin-top:9px; font-size:12.5px; color:var(--sv-dark); background:#fff; border-radius:8px; padding:9px 11px; line-height:1.55; }
+    .ring-action strong { color:var(--sv-red); }
+    .ring-clear-txt { color:var(--sv-secondary); font-weight:600; font-size:13.5px; }
+
+    /* Saatlik yoğunluk */
+    .hourly-chart { width:100%; max-width:320px; }
+    .hourly-foot { margin-top:10px; font-size:12px; color:var(--sv-muted); line-height:1.6; }
+    .hourly-foot strong { color:var(--sv-dark); }
+
+    /* İşyeri risk sıralaması */
+    .mrisk-row { padding:10px 0; border-top:1px solid var(--sv-border); }
+    .mrisk-row:first-of-type { border-top:none; padding-top:0; }
+    .mrisk-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+    .mrisk-name { font-weight:700; font-size:13.5px; color:var(--sv-dark); }
+    .mrisk-flag { font-size:11px; font-weight:700; color:var(--sv-red); background:#fdecec; padding:2px 8px; border-radius:10px; margin-left:4px; }
+    .mrisk-score { font-size:12px; font-weight:700; color:var(--sv-muted); white-space:nowrap; }
+    .mrisk-danger .mrisk-score { color:var(--sv-red); }
+    .bar-fill.danger { background:var(--sv-red); }
+    .mrisk-meta { font-size:11.5px; color:var(--sv-muted); margin-top:5px; }
+
+    /* Ekip yönlendirme */
+    .team-row { padding:11px 0; border-top:1px solid var(--sv-border); }
+    .team-row:first-of-type { border-top:none; padding-top:0; }
+    .team-top { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .team-name { font-weight:700; font-size:13.5px; color:var(--sv-primary); }
+    .team-badge { font-size:11px; font-weight:700; color:var(--sv-dark); background:var(--sv-light); padding:3px 9px; border-radius:20px; white-space:nowrap; }
+    .team-hot .team-badge { background:#fdecec; color:var(--sv-red); }
+    .team-meta { font-size:11.5px; color:var(--sv-muted); margin-top:4px; }
+    .team-samples { margin:6px 0 0; padding-left:2px; display:flex; flex-direction:column; gap:3px; }
+    .team-samples li { font-size:12px; color:var(--sv-dark); padding-left:14px; position:relative; list-style:none; }
+    .team-samples li::before { content:'“'; position:absolute; left:0; color:var(--sv-primary); font-weight:800; }
 
     /* AI */
     .ai-card { border-left:4px solid var(--sv-primary); }
@@ -144,6 +193,7 @@
       <span class="ad-title"><span class="dot"></span>Moka Müşteri Zeka Paneli</span>
       <span class="ad-demo">DEMO</span>
       <span class="spacer"></span>
+      <button id="btnReport" class="btn-report" type="button">📄 Rapor Oluştur</button>
       <a class="back" href="index.html">← Şikayet sayfasına dön</a>
     </div>
   </header>
@@ -165,6 +215,6 @@
     </div>
   </footer>
 
-  <script src="assets/js/admin.js?v=1"></script>
+  <script src="assets/js/admin.js?v=5"></script>
 </body>
 </html>
