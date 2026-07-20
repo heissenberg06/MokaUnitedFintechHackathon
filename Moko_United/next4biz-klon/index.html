@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moka Akış — Süreç Tasarım ve İşletim Sistemi (Demo)</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/css/n4b.css?v=1">
+<style>
+  .n4b-hero { padding: 56px 0 40px; background: linear-gradient(180deg, var(--n4b-cyan-05), #fff 70%); }
+  .n4b-hero .n4b-container { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
+  @media (max-width: 900px) {
+    .n4b-hero .n4b-container { grid-template-columns: 1fr; }
+  }
+  .n4b-hero-visual { background: #fff; border-radius: 20px; border: 1px solid var(--n4b-card-border); padding: 18px; box-shadow: 0 20px 50px rgba(15,23,42,.08); }
+  .n4b-mockbar { display: flex; gap: 6px; margin-bottom: 12px; }
+  .n4b-mockbar span { width: 10px; height: 10px; border-radius: 50%; background: #e2e8f0; }
+  .n4b-mockrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .n4b-mockfield { background: var(--n4b-cyan-05); border: 1px solid var(--n4b-card-border); border-radius: 8px; padding: 10px 12px; font-size: 11px; color: var(--n4b-slate-500); }
+  .n4b-mockfield strong { display:block; font-size: 12px; color: var(--n4b-ink); margin-bottom: 4px; }
+  .n4b-hero-ctas { display: flex; gap: 14px; margin-top: 28px; flex-wrap: wrap; }
+
+  .n4b-feature-list { list-style: none; margin: 0 0 20px; padding: 0; }
+  .n4b-feature-list li { display: flex; gap: 10px; font-size: 15px; color: var(--n4b-slate-700); margin-bottom: 12px; line-height: 1.5; }
+  .n4b-feature-list li svg { flex-shrink: 0; margin-top: 2px; color: var(--n4b-cyan); }
+
+  .n4b-diagram-box { background: var(--n4b-cyan-05); border: 1px dashed var(--n4b-cyan); border-radius: 20px; padding: 32px; text-align: center; }
+  .n4b-diagram-box .n4b-p { margin-top: 8px; }
+
+  .n4b-alt-row:nth-child(even) .n4b-grid-2 { direction: rtl; }
+  .n4b-alt-row:nth-child(even) .n4b-grid-2 > * { direction: ltr; }
+
+  .n4b-cta-band { background: var(--n4b-ink); border-radius: 24px; padding: 48px; text-align: center; color: #fff; }
+  .n4b-cta-band h2 { color: #fff; }
+  .n4b-cta-band p { color: #cbd5e1; max-width: 560px; margin: 0 auto 28px; }
+</style>
+</head>
+<body>
+
+<header class="n4b-header">
+  <div class="n4b-container">
+    <a href="index.html" class="n4b-logo">moka<span>akış</span></a>
+    <nav class="n4b-nav">
+      <a class="n4b-navlink" href="#lowcode">Lowcode</a>
+      <a class="n4b-navlink" href="#prototip">Prototip</a>
+      <a class="n4b-navlink" href="#platform">Hepsi Bir Arada</a>
+      <a class="n4b-navlink" href="#ai">Yapay Zeka</a>
+      <a class="n4b-navlink" href="#entegrasyon">Entegrasyon</a>
+      <a class="n4b-navlink" href="tickets.html">Talepler</a>
+      <a class="n4b-navlink" href="dashboard.html">Panel</a>
+    </nav>
+    <div class="n4b-header-ctas">
+      <a href="#" class="n4b-btn n4b-btn-pill-teal">Müşteri Yorumları</a>
+      <a href="#" class="n4b-btn n4b-btn-pill-orange">Toplantı Planla</a>
+    </div>
+    <button class="n4b-burger" id="burgerBtn" aria-label="Menü">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</header>
+
+<section class="n4b-hero">
+  <div class="n4b-container">
+    <div>
+      <h1 class="n4b-h1">Moka Akış:<br><span class="n4b-accent-underline">Süreç Tasarım</span><br><span class="n4b-accent-underline">ve İşletim Sistemi</span></h1>
+      <p class="n4b-lead" style="margin-top:24px;">Talep ve şikayet süreçlerinizi tasarlayın: prototip oluşturun, yayınlayın, ölçün ve sürekli geliştirin. Süreç envanteriniz bütünleşik tek bir platformda.</p>
+      <div class="n4b-hero-ctas">
+        <a href="dashboard.html" class="n4b-btn n4b-btn-primary">Demo Planla</a>
+        <a href="tickets.html" class="n4b-btn n4b-btn-outline">Talep Panelini Gör</a>
+      </div>
+    </div>
+    <div class="n4b-hero-visual">
+      <div class="n4b-mockbar"><span></span><span></span><span></span></div>
+      <div class="n4b-mockrow">
+        <div class="n4b-mockfield"><strong>Talep Başlığı</strong>Kartımdan izinsiz kesinti</div>
+        <div class="n4b-mockfield"><strong>Kategori</strong>Yetkisiz İşlem</div>
+      </div>
+      <div class="n4b-mockrow">
+        <div class="n4b-mockfield"><strong>Öncelik</strong>Kritik</div>
+        <div class="n4b-mockfield"><strong>Atanan Ekip</strong>Güvenlik &amp; Fraud</div>
+      </div>
+      <div class="n4b-mockrow">
+        <div class="n4b-mockfield"><strong>SLA</strong>4 sa. kaldı</div>
+        <div class="n4b-mockfield"><strong>Durum</strong>İşlemde</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="n4b-section" id="platform">
+  <div class="n4b-container">
+    <div class="n4b-section-head">
+      <h2 class="n4b-h2">Sadece Bir İş Akışı Aracı Değil</h2>
+      <p class="n4b-p">Tasarımı doğrudan çalışan bir uygulamaya dönüştürün; her adımı izlenebilir, ölçülebilir ve kolayca geliştirilebilir kılın — IT bağımlılığını azaltın.</p>
+    </div>
+    <div class="n4b-grid-4">
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+        <h3 class="n4b-h3-sm">Modellemenin ötesinde</h3>
+        <p class="n4b-p">Süreç diyagramı çizmekle kalmaz, tasarımı doğrudan çalışan forma ve akışa dönüştürür.</p>
+      </div>
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z"/></svg></div>
+        <h3 class="n4b-h3-sm">Uçtan uca dijitalleştirme</h3>
+        <p class="n4b-p">Talep girişinden kapanışa kadar tüm adımlar tek platformda uçtan uca yönetilir.</p>
+      </div>
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h6M7 12h10M7 16h6"/></svg></div>
+        <h3 class="n4b-h3-sm">Daha az IT bağımlılığı</h3>
+        <p class="n4b-p">İş birimleri, geliştirici beklemeden form ve akışları kendi başına güncelleyebilir.</p>
+      </div>
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg></div>
+        <h3 class="n4b-h3-sm">Sürdürülebilir iyileştirme</h3>
+        <p class="n4b-p">Ölçüm verisiyle mevcut durumu hedef duruma dönüştürün, süreci sürekli geliştirin.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="n4b-section n4b-section-alt" id="lowcode">
+  <div class="n4b-container">
+    <div class="n4b-section-head">
+      <h2 class="n4b-h2">Low-Code Tasarım</h2>
+      <p class="n4b-p">Güncelleyin, test edin, yeniden yayınlayın — geliştirici beklemeden.</p>
+    </div>
+
+    <div class="n4b-alt-row" style="margin-bottom:56px;">
+      <div class="n4b-grid-2">
+        <div>
+          <h3 class="n4b-h3">İş Akışları, Formlar, Veri Yapıları ve Arayüzler</h3>
+          <ul class="n4b-feature-list">
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Görsel akış editörüyle adım, karar ve onay noktalarını sürükle-bırak tasarlayın.</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>İlişkisel alanlar, tablo formları, harita ve doküman yükleme desteği.</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Bildirim şablonlarını ve arayüz görünümlerini kod yazmadan düzenleyin.</li>
+          </ul>
+        </div>
+        <div class="n4b-diagram-box">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--n4b-cyan)" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          <p class="n4b-p">Form &amp; akış tasarım tuvali (görsel önizleme)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="n4b-alt-row">
+      <div class="n4b-grid-2">
+        <div class="n4b-diagram-box">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--n4b-cyan)" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <p class="n4b-p">SLA sayaç ve otomasyon kuralı önizlemesi</p>
+        </div>
+        <div>
+          <h3 class="n4b-h3">İş Kuralları, SLA'lar ve Otomasyon</h3>
+          <ul class="n4b-feature-list">
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Adım başına ve toplam akış için SLA sayaçları tanımlayın.</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Eşik aşıldığında otomatik yükseltme (escalation) ve bildirim tetikleyin.</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Koşullu yönlendirme kurallarıyla talebi doğru ekibe otomatik atayın.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="n4b-section" id="prototip">
+  <div class="n4b-container">
+    <div class="n4b-grid-2">
+      <div>
+        <span class="n4b-eyebrow">Prototipleme</span>
+        <h2 class="n4b-h2">İş ve Teknoloji Arasındaki Boşluğu Kapatın</h2>
+        <p class="n4b-p" style="margin-bottom:24px;">Gereksinim tartışmalarını uzatmak yerine, çalışan bir prototip üzerinden ortak dil kurun.</p>
+        <div class="n4b-grid-2" style="gap:16px;">
+          <div><h3 class="n4b-h3-sm">Görsel Geri Bildirim</h3><p class="n4b-p">Paydaşlar ekranı görüp anında yorum yapar.</p></div>
+          <div><h3 class="n4b-h3-sm">Otomasyona Dönüşür</h3><p class="n4b-p">Onaylanan prototip doğrudan çalışan akışa geçer.</p></div>
+          <div><h3 class="n4b-h3-sm">Riski Azaltır</h3><p class="n4b-p">Yanlış anlaşılmalar geliştirme öncesi ortaya çıkar.</p></div>
+          <div><h3 class="n4b-h3-sm">Ortak Dil</h3><p class="n4b-p">İş birimi ve teknik ekip aynı ekrana bakar.</p></div>
+        </div>
+      </div>
+      <div class="n4b-diagram-box" style="min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--n4b-cyan)" stroke-width="1.5"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+        <p class="n4b-p">Süreç prototip diyagramı</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="n4b-section n4b-section-alt">
+  <div class="n4b-container">
+    <div class="n4b-section-head">
+      <h2 class="n4b-h2">Tek Bir Platformda Tasarımlayın, Test Edin ve Yayınlayın</h2>
+      <p class="n4b-p">Tasarım, test ve devreye alma aynı ortamda — ayrı araçlar arasında geçiş yok.</p>
+    </div>
+    <div class="n4b-grid-3">
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg></div>
+        <h3 class="n4b-h3-sm">Güncelleyin ve İyileştirin</h3>
+        <p class="n4b-p">Mevcut süreci canlıdayken düzenleyin, değişikliği anında görün.</p>
+      </div>
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <h3 class="n4b-h3-sm">Yayınlamadan Önce Test Edin</h3>
+        <p class="n4b-p">Test ortamında uçtan uca senaryoyu doğrulayıp sonra canlıya alın.</p>
+      </div>
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+        <h3 class="n4b-h3-sm">Kolayca Devreye Alım</h3>
+        <p class="n4b-p">Tek tıkla yayınlayın, geri dönüş gerekirse önceki sürüme dönün.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="n4b-section">
+  <div class="n4b-container">
+    <div class="n4b-grid-2">
+      <div class="n4b-diagram-box" style="min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--n4b-cyan)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 15v-4M12 15V8M17 15v-7"/></svg>
+        <p class="n4b-p"><a href="dashboard.html" style="color:var(--n4b-cyan-2);font-weight:600;">Canlı kontrol panelini gör →</a></p>
+      </div>
+      <div>
+        <h2 class="n4b-h2">Ölçün, Analiz Edin ve Sürekli İyileştirin</h2>
+        <h3 class="n4b-h3-sm">Raporlar ve Kontrol Panelleri</h3>
+        <ul class="n4b-feature-list">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Sürükle-bırak rapor ve kontrol panelleri oluşturun.</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>KPI takibi ve trend analiziyle darboğazları erken görün.</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Rol bazlı kontrol panelleriyle her ekip kendi verisini görür.</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Üst seviye KPI'dan tekil kayda kadar derinlemesine inceleyin.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="n4b-section n4b-section-alt" id="ai">
+  <div class="n4b-container">
+    <div class="n4b-section-head">
+      <h2 class="n4b-h2">AI Destekli Süreç Zekası<span class="n4b-soon">Yakında</span></h2>
+      <p class="n4b-p">Şikayetvar müşteri zeka motorumuzdaki analiz katmanı, süreç verisine de genişleyecek.</p>
+    </div>
+
+    <div class="n4b-alt-row" style="margin-bottom:48px;">
+      <div class="n4b-grid-2">
+        <div>
+          <h3 class="n4b-h3-lg">Şikayet Zekası Motoru ile Gelişmiş Analitik</h3>
+          <p class="n4b-p" style="margin-bottom:16px;">Mevcut kategori, aciliyet, duygu ve sahtekarlık ağı tespiti motorumuzun süreç olay kayıtlarına uygulanmış hâli.</p>
+          <ul class="n4b-feature-list">
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Çoklu süreç grafiği üzerinden anomali tespiti.</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Tasarım verisiyle üretim verisini karşılaştırma.</li>
+          </ul>
+        </div>
+        <div class="n4b-diagram-box"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--n4b-cyan)" stroke-width="1.5"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v6M12 13 5 17M12 13l7 4"/></svg><p class="n4b-p">Süreç grafiği / anomali görselleştirme</p></div>
+      </div>
+    </div>
+
+    <div class="n4b-alt-row">
+      <div class="n4b-grid-2">
+        <div class="n4b-diagram-box"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--n4b-cyan)" stroke-width="1.5"><path d="M4 6h16M4 12h10M4 18h13"/></svg><p class="n4b-p">Metin → akış diyagramı dönüşümü</p></div>
+        <div>
+          <h3 class="n4b-h3-lg">Doğal Dilden Sürece: Metin2Akış</h3>
+          <p class="n4b-p" style="margin-bottom:16px;">Süreci düz Türkçe cümlelerle anlatın, sistem sizin için akış taslağını çizsin.</p>
+          <ul class="n4b-feature-list">
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Gerçek süreç verisiyle eğitilmiş dil modeli.</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Karar noktalarında öneri ve karar desteği.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="n4b-section">
+  <div class="n4b-container">
+    <div class="n4b-section-head">
+      <h2 class="n4b-h2">Erişimi Kontrol Edin, Paydaşları Sürece Dahil Edin</h2>
+    </div>
+    <div class="n4b-grid-2">
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3 class="n4b-h3">Roller, Yetkiler ve Atama Kuralları</h3>
+        <p class="n4b-p">Özel roller tanımlayın, kimlik doğrulama ve İK sistemleriyle entegre olun. Süreç durumuna göre alan bazlı erişim kısıtlayın; tedarikçi, iş ortağı ve harici hizmet sağlayıcıları sürece güvenle dahil edin.</p>
+      </div>
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+        <h3 class="n4b-h3">Saha Operasyonları için Mobil Akış</h3>
+        <p class="n4b-p">iOS ve Android uygulamalarıyla görev listesine erişin, foto/doküman ekleyin, formu sahadan doldurun.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="n4b-section n4b-section-alt" id="entegrasyon">
+  <div class="n4b-container">
+    <div class="n4b-section-head">
+      <h2 class="n4b-h2">Moka Akış'ı Genişletin ve Entegre Edin</h2>
+    </div>
+    <div class="n4b-grid-2">
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg></div>
+        <h3 class="n4b-h3">Akıllı Kodlama Katmanı</h3>
+        <p class="n4b-p">Görsel tasarımın yetmediği yerde özel kod ile genişletin; low-code ve kod bir arada çalışır.</p>
+      </div>
+      <div class="n4b-card">
+        <div class="n4b-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><path d="M8 7.5 11 16M16 7.5 13 16"/></svg></div>
+        <h3 class="n4b-h3">Kurumsal Sistemlerle Entegrasyonlar</h3>
+        <p class="n4b-p">Muhasebe, CRM ve iletişim kanallarıyla API üzerinden bağlanın; veriyi tek yerde toplayın.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="n4b-section">
+  <div class="n4b-container">
+    <div class="n4b-section-head">
+      <h2 class="n4b-h2">Deneyim ve Yeniden Kullanılabilir Bileşenlerden Yararlanın</h2>
+    </div>
+    <div class="n4b-grid-3">
+      <div><h3 class="n4b-h3-sm">Kanıtlanmış Metodoloji</h3><p class="n4b-p">Baştan başlamayın; test edilmiş bir süreç iyileştirme yaklaşımıyla ilerleyin.</p></div>
+      <div><h3 class="n4b-h3-sm">Yeniden Kullanılabilir Bileşenler</h3><p class="n4b-p">Form, ekran ve otomasyon parçalarını farklı süreçlerde tekrar kullanın.</p></div>
+      <div><h3 class="n4b-h3-sm">Özelleştirilmiş Şablonlar</h3><p class="n4b-p">Sektöre özel hazır şablonlarla hızlı başlayın.</p></div>
+      <div><h3 class="n4b-h3-sm">Dışa Aktar ve Yeniden Kullan</h3><p class="n4b-p">Tasarımları dışa aktarıp başka ortamda yeniden içe aktarın.</p></div>
+      <div><h3 class="n4b-h3-sm">Deneyimli Ekipler</h3><p class="n4b-p">Kurulum ve geçişte uygulama ekibinden destek alın.</p></div>
+      <div><h3 class="n4b-h3-sm">Kendi Yapı Taşlarınızı Yeniden Kullanın</h3><p class="n4b-p">Kendi bileşen kütüphanenizi oluşturup kurum genelinde paylaşın.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="n4b-section">
+  <div class="n4b-container">
+    <div class="n4b-cta-band">
+      <h2 class="n4b-h2">Talep sürecinizi bugün canlı görün</h2>
+      <p class="n4b-p">Demo veriyle çalışan talep listesi ve kontrol panelini hemen inceleyin.</p>
+      <a href="tickets.html" class="n4b-btn n4b-btn-primary">Talep Panelini Gör</a>
+    </div>
+  </div>
+</section>
+
+<footer class="n4b-footer">
+  <div class="n4b-container">
+    <div class="n4b-footer-grid">
+      <div class="n4b-footer-col">
+        <a href="index.html" class="n4b-logo" style="color:#fff;">moka<span>akış</span></a>
+        <p style="color:#94a3b8;font-size:13px;margin-top:12px;max-width:280px;">Talep ve şikayet süreçlerinizi tasarlayın, işletin ve sürekli iyileştirin. Bu sayfa yalnızca eğitim/demo amaçlıdır.</p>
+      </div>
+      <div class="n4b-footer-col">
+        <h3 class="n4b-h3">Keşfedin</h3>
+        <a href="tickets.html">Talepler</a>
+        <a href="dashboard.html">Kontrol Paneli</a>
+        <a href="index.html#lowcode">Low-Code Tasarım</a>
+      </div>
+      <div class="n4b-footer-col">
+        <h3 class="n4b-h3">Yapay Zeka</h3>
+        <a href="index.html#ai">Süreç Zekası</a>
+        <a href="http://localhost:8756/admin.html">Şikayet Zekası Paneli</a>
+      </div>
+      <div class="n4b-footer-col">
+        <h3 class="n4b-h3">Sorularınız Var Mı?</h3>
+        <a href="#">İletişim</a>
+        <a href="#">Toplantı Planla</a>
+      </div>
+    </div>
+    <div class="n4b-footer-bottom">
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <a href="#">Gizlilik Politikası</a>
+        <a href="#">KVKK Aydınlatma Metni</a>
+        <a href="#">Kullanım Koşulları</a>
+        <a href="#">Çerez Politikası</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span>© 2026 Moka Akış. Tüm hakları saklıdır.</span>
+        <span class="n4b-lang"><span class="active">TR</span><span>EN</span></span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="n4b-cookie" id="cookieBanner">
+  <div class="n4b-cookie-inner">
+    <p>Hizmetlerimizi iyileştirmek ve sitemizdeki deneyiminizi geliştirmek için yasal düzenlemelere uygun çerezler (cookies) kullanıyoruz. 'Anladım' butonuna tıklayarak çerez politikamızı kabul etmiş olursunuz.</p>
+    <div class="n4b-cookie-actions">
+      <button class="n4b-btn n4b-btn-cookie-outline" id="cookieSettings">AYARLAR</button>
+      <button class="n4b-btn n4b-btn-cookie-accept" id="cookieAccept">ANLADIM</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/landing.js?v=1"></script>
+</body>
+</html>
