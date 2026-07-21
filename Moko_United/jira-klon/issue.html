@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talep Detayı | Moka Akış</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%231868DB'/%3E%3Ctext x='12' y='17' font-family='Arial' font-size='14' font-weight='700' fill='white' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/fonts.css?v=1">
+<link rel="stylesheet" href="assets/css/tokens.css?v=1">
+<link rel="stylesheet" href="assets/css/jira.css?v=1">
+<style>
+  .j-issue-layout { display: flex; gap: 24px; align-items: flex-start; }
+  .j-issue-main { flex: 1; min-width: 0; max-width: var(--j-detail-col-w); }
+  .j-issue-side { flex: 0 0 var(--j-detail-panel-w); width: var(--j-detail-panel-w); }
+  @media (max-width: 1100px) { .j-issue-layout { flex-direction: column; } .j-issue-side { width: 100%; } }
+  .j-desc-block { white-space: pre-wrap; }
+  .j-subtask-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+  .j-subtask-row.done .j-subtask-title { text-decoration: line-through; color: var(--j-text-subtlest); }
+  .j-attachment-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; }
+  .j-timeline-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--j-border); font-size: 13px; }
+  .j-timeline-item:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<div id="jTopbar"></div>
+<div id="jSidebar"></div>
+
+<main class="j-shell-main" id="jMain">
+  <div class="j-breadcrumb"><a href="list.html">MOKA</a><span class="j-crumb-sep">/</span><span class="j-crumb-current" id="crumbKey">...</span></div>
+  <div id="issueBanner"></div>
+  <div id="issueBody" class="j-issue-layout">
+    <div class="j-empty">Yükleniyor...</div>
+  </div>
+</main>
+
+<script src="assets/js/shell.js?v=1"></script>
+<script src="assets/js/components.js?v=1"></script>
+<script src="assets/js/create-modal.js?v=1"></script>
+<script src="assets/js/issue.js?v=1"></script>
+</body>
+</html>

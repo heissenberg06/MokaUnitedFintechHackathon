@@ -1,20 +1,25 @@
 {
   "seq": 15,
-  "tickets": [
+  "issues": [
     {
       "id": 1,
-      "createdAt": "2026-07-20T23:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-21T17:50:37",
       "source": "ai",
-      "requester_name": "Z** K**",
-      "requester_initials": "ZK",
-      "title": "Kartımdan onayım olmadan tahsilat yapıldı",
-      "body": "Hızlı Ödeme Bayii&#x27;nde benim başlatmadığım bir işlem gerçekleşmiş, itiraz ediyorum.",
+      "reporter_name": "Z** K**",
+      "reporter_initials": "ZK",
+      "summary": "Kartımdan onayım olmadan tahsilat yapıldı",
+      "description": "Hızlı Ödeme Bayii'nde benim başlatmadığım bir işlem gerçekleşmiş, itiraz ediyorum.",
       "category": "Yetkisiz İşlem",
+      "labels": [
+        "olasi-fraud-ring"
+      ],
       "priority": "kritik",
       "status": "yeni",
       "assignee_team": "Güvenlik & Fraud Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-21T03:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-21T21:50:37",
       "resolved_at": null,
       "sentiment": "ofkeli",
       "merchant": "Hızlı Ödeme Bayii",
@@ -45,7 +50,7 @@
       ],
       "timeline": [
         {
-          "at": "2026-07-20T23:39:49.104623",
+          "at": "2026-07-21T17:50:37.138571",
           "actor": "Yapay Zeka",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
@@ -53,26 +58,31 @@
       ],
       "audit": [
         {
-          "at": "2026-07-20T23:39:49",
+          "at": "2026-07-21T17:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 2,
-      "createdAt": "2026-07-20T09:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-21T03:50:37",
       "source": "ai",
-      "requester_name": "E** A**",
-      "requester_initials": "EA",
-      "title": "Yetkisiz işlem: kartımdan habersiz tahsilat",
-      "body": "Hızlı Ödeme Bayii üzerinden hesabımdan izinsiz bir çekim yapılmış.",
+      "reporter_name": "E** A**",
+      "reporter_initials": "EA",
+      "summary": "Yetkisiz işlem: kartımdan habersiz tahsilat",
+      "description": "Hızlı Ödeme Bayii üzerinden hesabımdan izinsiz bir çekim yapılmış.",
       "category": "Yetkisiz İşlem",
+      "labels": [
+        "olasi-fraud-ring"
+      ],
       "priority": "kritik",
       "status": "islemde",
       "assignee_team": "Güvenlik & Fraud Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-20T13:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-21T07:50:37",
       "resolved_at": null,
       "sentiment": "ofkeli",
       "merchant": "Hızlı Ödeme Bayii",
@@ -103,25 +113,25 @@
       ],
       "timeline": [
         {
-          "at": "2026-07-20T09:39:49.104651",
+          "at": "2026-07-21T03:50:37.138599",
           "actor": "Yapay Zeka",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-20T10:39:49.104651",
+          "at": "2026-07-21T04:50:37.138599",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-20T11:39:49.104651",
+          "at": "2026-07-21T05:50:37.138599",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
         },
         {
-          "at": "2026-07-20T13:39:49.104651",
+          "at": "2026-07-21T07:50:37.138599",
           "actor": "Ekip",
           "type": "not",
           "note": "İşlem üzerinde çalışılmaya başlandı."
@@ -129,26 +139,29 @@
       ],
       "audit": [
         {
-          "at": "2026-07-20T09:39:49",
+          "at": "2026-07-21T03:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 3,
-      "createdAt": "2026-07-20T07:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-21T01:50:37",
       "source": "self-service",
-      "requester_name": "M** Y**",
-      "requester_initials": "MY",
-      "title": "Para iadem 10 gündür yapılmadı",
-      "body": "İptal ettiğim işlemin iadesi onaylandı görünüyor ama kartıma yansımadı.",
+      "reporter_name": "M** Y**",
+      "reporter_initials": "MY",
+      "summary": "Para iadem 10 gündür yapılmadı",
+      "description": "İptal ettiğim işlemin iadesi onaylandı görünüyor ama kartıma yansımadı.",
       "category": "Para İadesi",
+      "labels": [],
       "priority": "yuksek",
       "status": "islemde",
       "assignee_team": "Finans & Ödemeler Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-21T07:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-22T01:50:37",
       "resolved_at": null,
       "sentiment": "olumsuz",
       "merchant": null,
@@ -179,25 +192,25 @@
       ],
       "timeline": [
         {
-          "at": "2026-07-20T07:39:49.104666",
+          "at": "2026-07-21T01:50:37.138614",
           "actor": "Self-Servis",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-20T08:39:49.104666",
+          "at": "2026-07-21T02:50:37.138614",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-20T09:39:49.104666",
+          "at": "2026-07-21T03:50:37.138614",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
         },
         {
-          "at": "2026-07-20T11:39:49.104666",
+          "at": "2026-07-21T05:50:37.138614",
           "actor": "Ekip",
           "type": "not",
           "note": "İşlem üzerinde çalışılmaya başlandı."
@@ -205,26 +218,29 @@
       ],
       "audit": [
         {
-          "at": "2026-07-20T07:39:49",
+          "at": "2026-07-21T01:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 4,
-      "createdAt": "2026-07-19T23:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-20T17:50:37",
       "source": "chat",
-      "requester_name": "E** S**",
-      "requester_initials": "ES",
-      "title": "Müşteri hizmetlerine bir türlü ulaşamıyorum",
-      "body": "Çağrı merkezini defalarca aradım, hat düşüyor, canlı destek de yanıt vermiyor.",
+      "reporter_name": "E** S**",
+      "reporter_initials": "ES",
+      "summary": "Müşteri hizmetlerine bir türlü ulaşamıyorum",
+      "description": "Çağrı merkezini defalarca aradım, hat düşüyor, canlı destek de yanıt vermiyor.",
       "category": "Müşteri Hizmetleri",
+      "labels": [],
       "priority": "orta",
       "status": "beklemede",
       "assignee_team": "Müşteri Deneyimi Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-22T23:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-23T17:50:37",
       "resolved_at": null,
       "sentiment": "olumsuz",
       "merchant": null,
@@ -250,25 +266,25 @@
       "approvals": [],
       "timeline": [
         {
-          "at": "2026-07-19T23:39:49.104678",
+          "at": "2026-07-20T17:50:37.138626",
           "actor": "Canlı Destek",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-20T00:39:49.104678",
+          "at": "2026-07-20T18:50:37.138626",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-20T01:39:49.104678",
+          "at": "2026-07-20T19:50:37.138626",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
         },
         {
-          "at": "2026-07-20T03:39:49.104678",
+          "at": "2026-07-20T21:50:37.138626",
           "actor": "Ekip",
           "type": "not",
           "note": "İşlem üzerinde çalışılmaya başlandı."
@@ -276,26 +292,29 @@
       ],
       "audit": [
         {
-          "at": "2026-07-19T23:39:49",
+          "at": "2026-07-20T17:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 5,
-      "createdAt": "2026-07-20T19:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-21T13:50:37",
       "source": "email",
-      "requester_name": "C** T**",
-      "requester_initials": "CT",
-      "title": "Link ile ödeme sayfası açılmıyor",
-      "body": "Müşterilerime gönderdiğim ödeme linki bazı cihazlarda hata veriyor.",
+      "reporter_name": "C** T**",
+      "reporter_initials": "CT",
+      "summary": "Link ile ödeme sayfası açılmıyor",
+      "description": "Müşterilerime gönderdiğim ödeme linki bazı cihazlarda hata veriyor.",
       "category": "Ödeme Linki",
+      "labels": [],
       "priority": "yuksek",
       "status": "atandi",
       "assignee_team": "Ürün & Mühendislik Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-21T19:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-22T13:50:37",
       "resolved_at": null,
       "sentiment": "olumsuz",
       "merchant": null,
@@ -326,19 +345,19 @@
       ],
       "timeline": [
         {
-          "at": "2026-07-20T19:39:49.104688",
+          "at": "2026-07-21T13:50:37.138635",
           "actor": "E-posta",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-20T20:39:49.104688",
+          "at": "2026-07-21T14:50:37.138635",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-20T21:39:49.104688",
+          "at": "2026-07-21T15:50:37.138635",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
@@ -346,26 +365,29 @@
       ],
       "audit": [
         {
-          "at": "2026-07-20T19:39:49",
+          "at": "2026-07-21T13:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 6,
-      "createdAt": "2026-07-19T05:39:49",
+      "issuetype": "task",
+      "createdAt": "2026-07-19T23:50:37",
       "source": "self-service",
-      "requester_name": "S** A**",
-      "requester_initials": "SA",
-      "title": "Hesap doğrulama süreci çok uzadı",
-      "body": "Gerekli tüm evrakları yükledim ancak hesabım hâlâ onaylanmadı.",
+      "reporter_name": "S** A**",
+      "reporter_initials": "SA",
+      "summary": "Hesap doğrulama süreci çok uzadı",
+      "description": "Gerekli tüm evrakları yükledim ancak hesabım hâlâ onaylanmadı.",
       "category": "Hesap & Doğrulama",
+      "labels": [],
       "priority": "orta",
       "status": "islemde",
       "assignee_team": "Uyum & Doğrulama (KYC) Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-22T05:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-22T23:50:37",
       "resolved_at": null,
       "sentiment": "olumsuz",
       "merchant": null,
@@ -391,25 +413,25 @@
       "approvals": [],
       "timeline": [
         {
-          "at": "2026-07-19T05:39:49.104701",
+          "at": "2026-07-19T23:50:37.138643",
           "actor": "Self-Servis",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-19T06:39:49.104701",
+          "at": "2026-07-20T00:50:37.138643",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-19T07:39:49.104701",
+          "at": "2026-07-20T01:50:37.138643",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
         },
         {
-          "at": "2026-07-19T09:39:49.104701",
+          "at": "2026-07-20T03:50:37.138643",
           "actor": "Ekip",
           "type": "not",
           "note": "İşlem üzerinde çalışılmaya başlandı."
@@ -417,26 +439,29 @@
       ],
       "audit": [
         {
-          "at": "2026-07-19T05:39:49",
+          "at": "2026-07-19T23:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 7,
-      "createdAt": "2026-07-21T02:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-21T20:50:37",
       "source": "whatsapp",
-      "requester_name": "B** Ö**",
-      "requester_initials": "BÖ",
-      "title": "Dijital cüzdan bakiyem aktarılmadı",
-      "body": "Cüzdanımdaki bakiyeyi banka hesabıma aktarmak istedim, işlem askıda kaldı.",
+      "reporter_name": "B** Ö**",
+      "reporter_initials": "BÖ",
+      "summary": "Dijital cüzdan bakiyem aktarılmadı",
+      "description": "Cüzdanımdaki bakiyeyi banka hesabıma aktarmak istedim, işlem askıda kaldı.",
       "category": "Dijital Cüzdan",
+      "labels": [],
       "priority": "yuksek",
       "status": "yeni",
       "assignee_team": "Finans & Ödemeler Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-22T02:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-22T20:50:37",
       "resolved_at": null,
       "sentiment": "olumsuz",
       "merchant": null,
@@ -467,7 +492,7 @@
       ],
       "timeline": [
         {
-          "at": "2026-07-21T02:39:49.104710",
+          "at": "2026-07-21T20:50:37.138651",
           "actor": "WhatsApp",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
@@ -475,26 +500,29 @@
       ],
       "audit": [
         {
-          "at": "2026-07-21T02:39:49",
+          "at": "2026-07-21T20:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 8,
-      "createdAt": "2026-07-20T15:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-21T09:50:37",
       "source": "ai",
-      "requester_name": "D** K**",
-      "requester_initials": "DK",
-      "title": "Uygulama sürekli hata veriyor",
-      "body": "Son güncellemeden sonra uygulamaya giriş yapamıyorum, ödeme alırken kapanıyor.",
+      "reporter_name": "D** K**",
+      "reporter_initials": "DK",
+      "summary": "Uygulama sürekli hata veriyor",
+      "description": "Son güncellemeden sonra uygulamaya giriş yapamıyorum, ödeme alırken kapanıyor.",
       "category": "Uygulama & Teknik",
+      "labels": [],
       "priority": "orta",
       "status": "atandi",
       "assignee_team": "Ürün & Mühendislik Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-23T15:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-24T09:50:37",
       "resolved_at": null,
       "sentiment": "olumsuz",
       "merchant": null,
@@ -520,19 +548,19 @@
       "approvals": [],
       "timeline": [
         {
-          "at": "2026-07-20T15:39:49.104717",
+          "at": "2026-07-21T09:50:37.138658",
           "actor": "Yapay Zeka",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-20T16:39:49.104717",
+          "at": "2026-07-21T10:50:37.138658",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-20T17:39:49.104717",
+          "at": "2026-07-21T11:50:37.138658",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
@@ -540,27 +568,30 @@
       ],
       "audit": [
         {
-          "at": "2026-07-20T15:39:49",
+          "at": "2026-07-21T09:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 9,
-      "createdAt": "2026-07-17T05:39:49",
+      "issuetype": "task",
+      "createdAt": "2026-07-17T23:50:37",
       "source": "email",
-      "requester_name": "G** M**",
-      "requester_initials": "GM",
-      "title": "Sanal POS başvurum haftalardır sonuçlanmadı",
-      "body": "Başvuru yaptığımda 3 iş günü içinde dönüş yapılacağı belirtilmişti, üç hafta oldu.",
+      "reporter_name": "G** M**",
+      "reporter_initials": "GM",
+      "summary": "Sanal POS başvurum haftalardır sonuçlanmadı",
+      "description": "Başvuru yaptığımda 3 iş günü içinde dönüş yapılacağı belirtilmişti, üç hafta oldu.",
       "category": "Sanal POS & Başvuru",
+      "labels": [],
       "priority": "orta",
       "status": "cozuldu",
       "assignee_team": "Satış & Onboarding Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-20T05:39:49",
-      "resolved_at": "2026-07-19T15:15:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-20T23:50:37",
+      "resolved_at": "2026-07-20T09:26:37",
       "sentiment": "notr",
       "merchant": null,
       "attachments": [],
@@ -585,31 +616,31 @@
       "approvals": [],
       "timeline": [
         {
-          "at": "2026-07-17T05:39:49.104724",
+          "at": "2026-07-17T23:50:37.138665",
           "actor": "E-posta",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-17T06:39:49.104724",
+          "at": "2026-07-18T00:50:37.138665",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-17T07:39:49.104724",
+          "at": "2026-07-18T01:50:37.138665",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
         },
         {
-          "at": "2026-07-17T09:39:49.104724",
+          "at": "2026-07-18T03:50:37.138665",
           "actor": "Ekip",
           "type": "not",
           "note": "İşlem üzerinde çalışılmaya başlandı."
         },
         {
-          "at": "2026-07-17T13:39:49.104724",
+          "at": "2026-07-18T07:50:37.138665",
           "actor": "Ekip",
           "type": "cozuldu",
           "note": "Talep çözüldü olarak işaretlendi."
@@ -617,26 +648,29 @@
       ],
       "audit": [
         {
-          "at": "2026-07-17T05:39:49",
+          "at": "2026-07-17T23:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 10,
-      "createdAt": "2026-07-20T03:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-20T21:50:37",
       "source": "self-service",
-      "requester_name": "A** R**",
-      "requester_initials": "AR",
-      "title": "Gün sonu mutabakatı tutmuyor",
-      "body": "Panelde görünen işlem tutarları ile hesabıma geçen tutarlar farklı.",
+      "reporter_name": "A** R**",
+      "reporter_initials": "AR",
+      "summary": "Gün sonu mutabakatı tutmuyor",
+      "description": "Panelde görünen işlem tutarları ile hesabıma geçen tutarlar farklı.",
       "category": "Mutabakat & Rapor",
+      "labels": [],
       "priority": "yuksek",
       "status": "islemde",
       "assignee_team": "Finans & Ödemeler Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-21T03:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-21T21:50:37",
       "resolved_at": null,
       "sentiment": "olumsuz",
       "merchant": null,
@@ -667,25 +701,25 @@
       ],
       "timeline": [
         {
-          "at": "2026-07-20T03:39:49.104737",
+          "at": "2026-07-20T21:50:37.138679",
           "actor": "Self-Servis",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-20T04:39:49.104737",
+          "at": "2026-07-20T22:50:37.138679",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-20T05:39:49.104737",
+          "at": "2026-07-20T23:50:37.138679",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
         },
         {
-          "at": "2026-07-20T07:39:49.104737",
+          "at": "2026-07-21T01:50:37.138679",
           "actor": "Ekip",
           "type": "not",
           "note": "İşlem üzerinde çalışılmaya başlandı."
@@ -693,26 +727,29 @@
       ],
       "audit": [
         {
-          "at": "2026-07-20T03:39:49",
+          "at": "2026-07-20T21:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 11,
-      "createdAt": "2026-07-18T17:39:49",
+      "issuetype": "task",
+      "createdAt": "2026-07-19T11:50:37",
       "source": "chat",
-      "requester_name": "K** B**",
-      "requester_initials": "KB",
-      "title": "Sözleşmeyi iptal etmek istiyorum ama edemiyorum",
-      "body": "Hizmeti kullanmayı bırakmak istiyorum fakat panelde iptal seçeneği yok.",
+      "reporter_name": "K** B**",
+      "reporter_initials": "KB",
+      "summary": "Sözleşmeyi iptal etmek istiyorum ama edemiyorum",
+      "description": "Hizmeti kullanmayı bırakmak istiyorum fakat panelde iptal seçeneği yok.",
       "category": "Sözleşme & İptal",
+      "labels": [],
       "priority": "dusuk",
       "status": "beklemede",
       "assignee_team": "Hukuk & Sözleşme Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-23T17:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-24T11:50:37",
       "resolved_at": null,
       "sentiment": "notr",
       "merchant": null,
@@ -738,25 +775,25 @@
       "approvals": [],
       "timeline": [
         {
-          "at": "2026-07-18T17:39:49.104746",
+          "at": "2026-07-19T11:50:37.138687",
           "actor": "Canlı Destek",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-18T18:39:49.104746",
+          "at": "2026-07-19T12:50:37.138687",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-18T19:39:49.104746",
+          "at": "2026-07-19T13:50:37.138687",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
         },
         {
-          "at": "2026-07-18T21:39:49.104746",
+          "at": "2026-07-19T15:50:37.138687",
           "actor": "Ekip",
           "type": "not",
           "note": "İşlem üzerinde çalışılmaya başlandı."
@@ -764,27 +801,30 @@
       ],
       "audit": [
         {
-          "at": "2026-07-18T17:39:49",
+          "at": "2026-07-19T11:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 12,
-      "createdAt": "2026-07-17T21:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-18T15:50:37",
       "source": "self-service",
-      "requester_name": "M** İ**",
-      "requester_initials": "Mİ",
-      "title": "İşlem ücreti hakkında bilgilendirilmedim",
-      "body": "Hesabımdan adını bilmediğim bir işlem ücreti kesilmiş.",
+      "reporter_name": "M** İ**",
+      "reporter_initials": "Mİ",
+      "summary": "İşlem ücreti hakkında bilgilendirilmedim",
+      "description": "Hesabımdan adını bilmediğim bir işlem ücreti kesilmiş.",
       "category": "Komisyon & Ücret",
+      "labels": [],
       "priority": "orta",
       "status": "cozuldu",
       "assignee_team": "Finans & Ödemeler Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-20T21:39:49",
-      "resolved_at": "2026-07-19T21:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-21T15:50:37",
+      "resolved_at": "2026-07-20T15:50:37",
       "sentiment": "notr",
       "merchant": null,
       "attachments": [],
@@ -809,31 +849,31 @@
       "approvals": [],
       "timeline": [
         {
-          "at": "2026-07-17T21:39:49.104755",
+          "at": "2026-07-18T15:50:37.138698",
           "actor": "Self-Servis",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-17T22:39:49.104755",
+          "at": "2026-07-18T16:50:37.138698",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-17T23:39:49.104755",
+          "at": "2026-07-18T17:50:37.138698",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
         },
         {
-          "at": "2026-07-18T01:39:49.104755",
+          "at": "2026-07-18T19:50:37.138698",
           "actor": "Ekip",
           "type": "not",
           "note": "İşlem üzerinde çalışılmaya başlandı."
         },
         {
-          "at": "2026-07-18T05:39:49.104755",
+          "at": "2026-07-18T23:50:37.138698",
           "actor": "Ekip",
           "type": "cozuldu",
           "note": "Talep çözüldü olarak işaretlendi."
@@ -841,26 +881,31 @@
       ],
       "audit": [
         {
-          "at": "2026-07-17T21:39:49",
+          "at": "2026-07-18T15:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 13,
-      "createdAt": "2026-07-21T03:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-21T21:50:37",
       "source": "ai",
-      "requester_name": "O** B**",
-      "requester_initials": "OB",
-      "title": "Bilgim dışında hesabımdan üyelik ücreti çekilmiş",
-      "body": "Onaylamadığım bir üyelik için hesabımdan aylık ücret kesilmeye başlanmış.",
+      "reporter_name": "O** B**",
+      "reporter_initials": "OB",
+      "summary": "Bilgim dışında hesabımdan üyelik ücreti çekilmiş",
+      "description": "Onaylamadığım bir üyelik için hesabımdan aylık ücret kesilmeye başlanmış.",
       "category": "Yetkisiz İşlem",
+      "labels": [
+        "olasi-fraud-ring"
+      ],
       "priority": "kritik",
       "status": "siniflandirildi",
       "assignee_team": "Güvenlik & Fraud Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-21T07:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-22T01:50:37",
       "resolved_at": null,
       "sentiment": "ofkeli",
       "merchant": "Yıldız Elektronik",
@@ -891,13 +936,13 @@
       ],
       "timeline": [
         {
-          "at": "2026-07-21T03:39:49.104766",
+          "at": "2026-07-21T21:50:37.138710",
           "actor": "Yapay Zeka",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-21T04:39:49.104766",
+          "at": "2026-07-21T22:50:37.138710",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
@@ -905,27 +950,32 @@
       ],
       "audit": [
         {
-          "at": "2026-07-21T03:39:49",
+          "at": "2026-07-21T21:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 14,
-      "createdAt": "2026-07-15T19:39:49",
+      "issuetype": "bug",
+      "createdAt": "2026-07-16T13:50:37",
       "source": "ai",
-      "requester_name": "S** A**",
-      "requester_initials": "SA",
-      "title": "Kartımdan onayım olmadan tahsilat yapıldı",
-      "body": "Kartımdan başlatmadığım bir işlem için tahsilat gerçekleştirilmiş.",
+      "reporter_name": "S** A**",
+      "reporter_initials": "SA",
+      "summary": "Kartımdan onayım olmadan tahsilat yapıldı",
+      "description": "Kartımdan başlatmadığım bir işlem için tahsilat gerçekleştirilmiş.",
       "category": "Yetkisiz İşlem",
+      "labels": [
+        "olasi-fraud-ring"
+      ],
       "priority": "kritik",
       "status": "cozuldu",
       "assignee_team": "Güvenlik & Fraud Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-15T23:39:49",
-      "resolved_at": "2026-07-19T01:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-16T17:50:37",
+      "resolved_at": "2026-07-19T19:50:37",
       "sentiment": "olumlu",
       "merchant": "Yıldız Elektronik",
       "attachments": [],
@@ -955,31 +1005,31 @@
       ],
       "timeline": [
         {
-          "at": "2026-07-15T19:39:49.104773",
+          "at": "2026-07-16T13:50:37.138717",
           "actor": "Yapay Zeka",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-15T20:39:49.104773",
+          "at": "2026-07-16T14:50:37.138717",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-15T21:39:49.104773",
+          "at": "2026-07-16T15:50:37.138717",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
         },
         {
-          "at": "2026-07-15T23:39:49.104773",
+          "at": "2026-07-16T17:50:37.138717",
           "actor": "Ekip",
           "type": "not",
           "note": "İşlem üzerinde çalışılmaya başlandı."
         },
         {
-          "at": "2026-07-16T03:39:49.104773",
+          "at": "2026-07-16T21:50:37.138717",
           "actor": "Ekip",
           "type": "cozuldu",
           "note": "Talep çözüldü olarak işaretlendi."
@@ -987,27 +1037,30 @@
       ],
       "audit": [
         {
-          "at": "2026-07-15T19:39:49",
+          "at": "2026-07-16T13:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     },
     {
       "id": 15,
-      "createdAt": "2026-07-12T21:39:49",
+      "issuetype": "task",
+      "createdAt": "2026-07-13T15:50:37",
       "source": "email",
-      "requester_name": "T** E**",
-      "requester_initials": "TE",
-      "title": "POS cihazım hâlâ teslim edilmedi",
-      "body": "Sanal POS onayının ardından fiziki POS cihazının 3 iş günü içinde teslim edileceği söylendi.",
+      "reporter_name": "T** E**",
+      "reporter_initials": "TE",
+      "summary": "POS cihazım hâlâ teslim edilmedi",
+      "description": "Sanal POS onayının ardından fiziki POS cihazının 3 iş günü içinde teslim edileceği söylendi.",
       "category": "POS & Teslimat",
+      "labels": [],
       "priority": "dusuk",
       "status": "kapandi",
       "assignee_team": "Operasyon & Lojistik Ekibi",
       "assignee_user": null,
-      "sla_due_at": "2026-07-17T21:39:49",
-      "resolved_at": "2026-07-17T21:39:49",
+      "story_points": null,
+      "sla_due_at": "2026-07-18T15:50:37",
+      "resolved_at": "2026-07-18T15:50:37",
       "sentiment": "olumlu",
       "merchant": null,
       "attachments": [],
@@ -1032,31 +1085,31 @@
       "approvals": [],
       "timeline": [
         {
-          "at": "2026-07-12T21:39:49.104784",
+          "at": "2026-07-13T15:50:37.138727",
           "actor": "E-posta",
           "type": "olusturuldu",
           "note": "Talep oluşturuldu."
         },
         {
-          "at": "2026-07-12T22:39:49.104784",
+          "at": "2026-07-13T16:50:37.138727",
           "actor": "Sistem",
           "type": "siniflandirildi",
           "note": "Kategori otomatik belirlendi."
         },
         {
-          "at": "2026-07-12T23:39:49.104784",
+          "at": "2026-07-13T17:50:37.138727",
           "actor": "Sistem",
           "type": "atandi",
           "note": "İlgili ekibe yönlendirildi."
         },
         {
-          "at": "2026-07-13T01:39:49.104784",
+          "at": "2026-07-13T19:50:37.138727",
           "actor": "Ekip",
           "type": "not",
           "note": "İşlem üzerinde çalışılmaya başlandı."
         },
         {
-          "at": "2026-07-13T05:39:49.104784",
+          "at": "2026-07-13T23:50:37.138727",
           "actor": "Ekip",
           "type": "cozuldu",
           "note": "Talep çözüldü olarak işaretlendi."
@@ -1064,9 +1117,9 @@
       ],
       "audit": [
         {
-          "at": "2026-07-12T21:39:49",
+          "at": "2026-07-13T15:50:37",
           "actor": "sistem",
-          "action": "ticket_created"
+          "action": "issue_created"
         }
       ]
     }

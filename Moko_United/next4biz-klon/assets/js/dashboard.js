@@ -27,7 +27,8 @@
       ['Açık Talep', num(k.open), num(k.closed) + ' kapalı'],
       ['SLA Aşan', num(k.sla_breach), 'acil müdahale gerekli'],
       ['SLA Riskli', num(k.sla_risk), 'yakında aşılabilir'],
-      ['Ort. Yaş', (k.avg_age_hours != null ? k.avg_age_hours : '—') + ' sa.', 'talep açık kalma süresi'],
+      ['Ort. Açık Yaş', (k.avg_open_age_hours != null ? k.avg_open_age_hours : '—') + ' sa.', 'açık taleplerin ortalama yaşı'],
+      ['Ort. Çözüm Süresi', (k.avg_resolution_hours != null ? k.avg_resolution_hours : '—') + ' sa.', 'oluşturmadan çözüme kadar'],
     ];
     items.forEach(function (it) {
       var c = el('div', 'n4b-kpi');
@@ -92,6 +93,15 @@
     catCard.appendChild(barChart(d.category_dist.slice(0, 8), 'category', 'count'));
     row2.appendChild(catCard);
     dash.appendChild(row2);
+
+    if (d.sentiment_dist && d.sentiment_dist.length) {
+      var sentCard = card('Duygu Dağılımı', 'talep açıklamalarının duygu tonu');
+      sentCard.style.marginTop = '20px';
+      sentCard.appendChild(barChart(d.sentiment_dist, 'label', 'count', function (r) {
+        return r.sentiment === 'ofkeli' ? 'danger' : (r.sentiment === 'olumsuz' ? 'warn' : '');
+      }));
+      dash.appendChild(sentCard);
+    }
 
     var foot = el('p', null, 'Üretim: ' + d.generated_at);
     foot.style.cssText = 'font-size:11px;color:var(--n4b-slate-500);margin-top:20px;';
