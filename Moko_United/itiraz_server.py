@@ -422,7 +422,9 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     load_data()
     os.makedirs(UPLOAD_DIR, exist_ok=True)
-    server = ThreadingHTTPServer(('0.0.0.0', PORT), Handler)
+    # Yalnızca localhost'a bağlan: dışarıdan doğrudan erişim yok, yalnızca aynı
+    # makinedeki nginx reverse proxy üzerinden ulaşılabilir.
+    server = ThreadingHTTPServer(('127.0.0.1', PORT), Handler)
     print(f"İtiraz API çalışıyor:  http://localhost:{PORT}")
     print(f"Veri dosyası: {DATA_FILE}")
     try:
