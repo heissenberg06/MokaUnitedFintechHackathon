@@ -77,8 +77,11 @@
       var tr = el('tr', 'n4b-row-link');
       tr.innerHTML =
         '<td class="n4b-tid">#' + t.id + '</td>' +
-        '<td><div class="n4b-ttitle">' + t.title + '</div>' +
-        '<div class="n4b-tmeta">' + t.category + (t.merchant ? ' · ' + t.merchant : '') + '</div></td>' +
+        '<td><div class="n4b-row-user">' +
+        '<span class="n4b-avatar" title="' + t.requester_name + '">' + t.requester_initials + '</span>' +
+        '<div><div class="n4b-ttitle">' + t.title + '</div>' +
+        '<div class="n4b-tmeta">' + t.category + (t.merchant ? ' · ' + t.merchant : '') + '</div></div>' +
+        '</div></td>' +
         '<td>' + badge(PRIORITY_BADGE[t.priority] || '', t.priority_label) + '</td>' +
         '<td>' + badge(STATUS_BADGE[t.status] || '', t.status_label) + '</td>' +
         '<td style="font-size:12.5px;">' + t.assignee_team + '</td>' +

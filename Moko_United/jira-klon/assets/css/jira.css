@@ -1,0 +1,334 @@
+/* Moka Akış — Jira klonu bileşen kütüphanesi (bkz. JIRA_KLON_ANALIZ.md §3) */
+
+/* ============================================================
+   1. UYGULAMA KABUĞU (global nav)
+   ============================================================ */
+.j-topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--j-topbar-h);
+  background: var(--j-brand-boldest);
+  display: flex; align-items: center; gap: var(--j-space-200);
+  padding: 0 var(--j-space-200);
+  z-index: 100;
+}
+.j-topbar-logo {
+  display: flex; align-items: center; gap: var(--j-space-075);
+  color: #fff; font-weight: 700; font-size: 16px; white-space: nowrap;
+}
+.j-topbar-logo .j-logo-mark {
+  width: 24px; height: 24px; border-radius: var(--j-radius-sm);
+  background: var(--j-brand-bold);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 13px;
+}
+.j-topbar-search {
+  flex: 1; max-width: 560px;
+  display: flex; align-items: center; gap: var(--j-space-075);
+  background: rgba(255,255,255,.12);
+  border: 1px solid transparent;
+  border-radius: var(--j-radius-sm);
+  padding: 0 var(--j-space-100);
+  height: 32px;
+}
+.j-topbar-search:focus-within { background: #fff; }
+.j-topbar-search input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: #fff; font-size: 14px; height: 30px;
+}
+.j-topbar-search:focus-within input { color: var(--j-text); }
+.j-topbar-search svg { flex-shrink: 0; opacity: .8; }
+.j-topbar-spacer { flex: 1; }
+.j-topbar-right { display: flex; align-items: center; gap: var(--j-space-100); }
+.j-topbar-iconbtn {
+  width: 32px; height: 32px; border-radius: var(--j-radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; background: transparent; border: none; cursor: pointer;
+}
+.j-topbar-iconbtn:hover { background: rgba(255,255,255,.15); }
+
+.j-sidebar {
+  position: fixed; top: var(--j-topbar-h); left: 0; bottom: 0;
+  width: var(--j-sidebar-w);
+  background: var(--j-surface);
+  border-right: 1px solid var(--j-border);
+  padding: var(--j-space-200) var(--j-space-150);
+  overflow-y: auto;
+  transition: width .15s ease, padding .15s ease;
+  z-index: 90;
+}
+.j-sidebar.j-collapsed { width: 56px; padding: var(--j-space-200) var(--j-space-075); }
+.j-sidebar.j-collapsed .j-sidebar-label,
+.j-sidebar.j-collapsed .j-sidebar-title { display: none; }
+.j-sidebar-title {
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--j-text-subtlest); padding: 0 var(--j-space-100);
+  margin-bottom: var(--j-space-150);
+}
+.j-sidebar-item {
+  display: flex; align-items: center; gap: var(--j-space-150);
+  padding: var(--j-space-075) var(--j-space-100);
+  border-radius: var(--j-radius-sm);
+  color: var(--j-text-subtle);
+  font-size: 14px; font-weight: 500;
+  cursor: pointer; margin-bottom: 2px;
+  white-space: nowrap;
+}
+.j-sidebar-item:hover { background: var(--j-neutral-subtle); text-decoration: none; color: var(--j-text); }
+.j-sidebar-item.j-active { background: var(--j-selected-bg); color: var(--j-brand-bold); }
+.j-sidebar-item svg { flex-shrink: 0; }
+.j-sidebar-collapse-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 28px; margin-top: var(--j-space-200);
+  border: none; background: transparent; color: var(--j-text-subtlest);
+  border-radius: var(--j-radius-sm); cursor: pointer;
+}
+.j-sidebar-collapse-btn:hover { background: var(--j-neutral-subtle); }
+
+.j-shell-main {
+  margin-left: var(--j-sidebar-w);
+  margin-top: var(--j-topbar-h);
+  padding: var(--j-space-300) var(--j-space-400);
+  min-height: calc(100vh - var(--j-topbar-h));
+  transition: margin-left .15s ease;
+}
+.j-shell-main.j-sidebar-collapsed { margin-left: 56px; }
+
+@media (max-width: 900px) {
+  .j-sidebar { transform: translateX(-100%); }
+  .j-sidebar.j-mobile-open { transform: translateX(0); width: 240px; padding: var(--j-space-200) var(--j-space-150); }
+  .j-shell-main { margin-left: 0; }
+  .j-topbar-search { display: none; }
+}
+
+.j-page-head { margin-bottom: var(--j-space-300); }
+.j-breadcrumb {
+  display: flex; align-items: center; gap: var(--j-space-075);
+  font-size: 12px; color: var(--j-text-subtlest); margin-bottom: var(--j-space-100);
+}
+.j-breadcrumb a { color: var(--j-text-subtlest); }
+.j-breadcrumb .j-crumb-sep { opacity: .6; }
+.j-breadcrumb .j-crumb-current { color: var(--j-text-subtle); font-weight: 500; }
+
+/* ============================================================
+   2. LOZENGE (durum rozeti) — en kritik görsel imza
+   ============================================================ */
+.j-lozenge {
+  display: inline-flex; align-items: center;
+  padding: 2px var(--j-space-075);
+  border-radius: 3px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+  line-height: 16px; white-space: nowrap;
+}
+.j-lozenge-default   { background: var(--j-neutral-subtle); color: var(--j-text-subtle); }
+.j-lozenge-new       { background: var(--j-discovery-bg); color: var(--j-discovery-text); }
+.j-lozenge-inprogress{ background: var(--j-info-bg); color: var(--j-info-text); }
+.j-lozenge-moved     { background: var(--j-warning-bg); color: var(--j-warning-text); }
+.j-lozenge-success   { background: var(--j-success-bg); color: var(--j-success-text); }
+.j-lozenge-removed   { background: var(--j-danger-bg); color: var(--j-danger-text); }
+
+/* ============================================================
+   3. ISSUE TYPE İKONU (16x16, dolu zemin + beyaz simge)
+   ============================================================ */
+.j-type-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 3px;
+  flex-shrink: 0; color: #fff;
+}
+.j-type-icon svg { width: 11px; height: 11px; }
+.j-type-story  { background: var(--j-icon-green); }
+.j-type-task   { background: var(--j-icon-blue); }
+.j-type-bug    { background: var(--j-icon-red); }
+.j-type-epic   { background: var(--j-icon-purple); }
+.j-type-subtask{ background: var(--j-icon-blue); }
+
+/* ============================================================
+   4. PRIORITY İKONU (renkli ok, zemin yok)
+   ============================================================ */
+.j-priority-icon { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; flex-shrink: 0; }
+.j-priority-kritik, .j-priority-yuksek { color: var(--j-icon-red); }
+.j-priority-orta { color: var(--j-icon-orange); }
+.j-priority-dusuk { color: var(--j-icon-blue); }
+
+/* ============================================================
+   5. AVATAR
+   ============================================================ */
+.j-avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; color: #fff; font-weight: 600; flex-shrink: 0;
+  font-size: 11px;
+}
+.j-avatar-sm { width: 20px; height: 20px; font-size: 9px; }
+.j-avatar-md { width: 24px; height: 24px; font-size: 10px; }
+.j-avatar-lg { width: 32px; height: 32px; font-size: 12px; }
+.j-avatar-xl { width: 48px; height: 48px; font-size: 16px; }
+.j-avatar-unassigned {
+  background: var(--j-neutral-subtle); color: var(--j-text-subtlest);
+  border: 1.5px dashed var(--j-border-bold);
+}
+
+/* ============================================================
+   6. BUTON
+   ============================================================ */
+.j-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--j-space-075);
+  height: 32px; padding: 0 var(--j-space-150);
+  border-radius: var(--j-radius-sm); border: none;
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  white-space: nowrap;
+}
+.j-btn-primary { background: var(--j-brand-bold); color: #fff; }
+.j-btn-primary:hover { background: var(--j-brand-bold-hover); }
+.j-btn-primary:active { background: var(--j-brand-bold-pressed); }
+.j-btn-default { background: var(--j-neutral-subtle); color: var(--j-text); }
+.j-btn-default:hover { background: var(--j-neutral-subtle-hover); }
+.j-btn-subtle { background: transparent; color: var(--j-text-subtle); }
+.j-btn-subtle:hover { background: var(--j-neutral-subtle); }
+.j-btn-danger { background: var(--j-danger-bg-bold); color: #fff; }
+.j-btn-danger:hover { background: var(--j-danger-text); }
+.j-btn-sm { height: 28px; padding: 0 var(--j-space-100); font-size: 13px; }
+.j-btn:disabled { opacity: .5; cursor: default; }
+
+/* ============================================================
+   7. TAG / LABEL çipi
+   ============================================================ */
+.j-tag {
+  display: inline-flex; align-items: center;
+  background: var(--j-neutral-subtle); color: var(--j-text);
+  border-radius: 3px; padding: 2px var(--j-space-075);
+  font-size: 12px; line-height: 16px;
+}
+
+/* ============================================================
+   8. FIELD (satır-içi düzenlenebilir alan)
+   ============================================================ */
+.j-field-row { margin-bottom: var(--j-space-200); }
+.j-field-label {
+  font-size: 12px; font-weight: 600; color: var(--j-text-subtlest);
+  margin-bottom: var(--j-space-050);
+  text-transform: none;
+}
+.j-field-value {
+  min-height: 32px; display: flex; align-items: center;
+  padding: var(--j-space-050) var(--j-space-075);
+  border-radius: var(--j-radius-sm); cursor: pointer;
+  font-size: 14px; color: var(--j-text);
+}
+.j-field-value:hover { background: var(--j-neutral-subtle); }
+.j-field-value.j-empty { color: var(--j-text-subtlest); }
+.j-field-editing select,
+.j-field-editing input[type="text"] {
+  width: 100%; height: 32px; padding: 0 var(--j-space-075);
+  border: 2px solid var(--j-border-focused); border-radius: var(--j-radius-sm);
+  outline: none;
+}
+
+/* ============================================================
+   9. ISSUE CARD (board kartı)
+   ============================================================ */
+.j-card {
+  background: var(--j-surface);
+  border-radius: 3px;
+  box-shadow: var(--j-shadow-raised);
+  padding: var(--j-space-100) var(--j-space-100) var(--j-space-075);
+  margin-bottom: var(--j-space-100);
+  cursor: pointer;
+}
+.j-card:hover { box-shadow: 0 0 0 1px var(--j-border-selected), var(--j-shadow-raised); }
+.j-card-summary { font-size: 14px; color: var(--j-text); margin-bottom: var(--j-space-100); }
+.j-card-footer { display: flex; align-items: center; gap: var(--j-space-075); }
+.j-card-key { font-size: 12px; color: var(--j-text-subtlest); font-family: var(--j-font-mono); }
+.j-card-spacer { flex: 1; }
+
+/* ============================================================
+   10. BREADCRUMB / DROPDOWN / TAB / BANNER
+   ============================================================ */
+.j-dropdown-panel {
+  position: absolute; background: var(--j-surface);
+  box-shadow: var(--j-shadow-overlay); border-radius: var(--j-radius-md);
+  padding: var(--j-space-050); z-index: 200; min-width: 180px;
+}
+.j-dropdown-item {
+  display: flex; align-items: center; gap: var(--j-space-075);
+  padding: var(--j-space-075) var(--j-space-100);
+  border-radius: var(--j-radius-sm); cursor: pointer; font-size: 14px;
+}
+.j-dropdown-item:hover { background: var(--j-neutral-subtle); }
+
+.j-tabs { display: flex; gap: var(--j-space-300); border-bottom: 1px solid var(--j-border); margin-bottom: var(--j-space-200); }
+.j-tab {
+  padding: var(--j-space-100) 0; font-size: 14px; font-weight: 500;
+  color: var(--j-text-subtle); cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.j-tab:hover { color: var(--j-text); }
+.j-tab.j-active { color: var(--j-brand-bold); border-bottom-color: var(--j-brand-bold); }
+
+.j-banner {
+  display: flex; align-items: flex-start; gap: var(--j-space-100);
+  padding: var(--j-space-100) var(--j-space-150);
+  border-radius: var(--j-radius-md); font-size: 14px; margin-bottom: var(--j-space-200);
+}
+.j-banner-info { background: var(--j-info-bg); color: var(--j-info-text); }
+.j-banner-warning { background: var(--j-warning-bg); color: var(--j-warning-text); }
+.j-banner-danger { background: var(--j-danger-bg); color: var(--j-danger-text); }
+
+/* ============================================================
+   11. PANEL / KART kabuğu (genel amaçlı beyaz kutu)
+   ============================================================ */
+.j-panel {
+  background: var(--j-surface);
+  border-radius: var(--j-radius-md);
+  box-shadow: var(--j-shadow-raised);
+  padding: var(--j-space-200);
+}
+.j-empty { padding: var(--j-space-400); text-align: center; color: var(--j-text-subtlest); }
+
+/* ============================================================
+   12. FORM elemanları (genel)
+   ============================================================ */
+.j-input, .j-select, .j-textarea {
+  width: 100%; padding: var(--j-space-075) var(--j-space-100);
+  border: 1px solid var(--j-border-input); border-radius: var(--j-radius-sm);
+  font-size: 14px; color: var(--j-text); background: var(--j-surface);
+  outline: none;
+}
+.j-input:focus, .j-select:focus, .j-textarea:focus { border-color: var(--j-border-focused); box-shadow: 0 0 0 1px var(--j-border-focused); }
+.j-textarea { resize: vertical; min-height: 96px; font-family: var(--j-font-body); }
+.j-form-group { margin-bottom: var(--j-space-200); }
+.j-form-label { display: block; font-size: 12px; font-weight: 600; color: var(--j-text-subtle); margin-bottom: var(--j-space-050); }
+
+/* ============================================================
+   13. MODAL
+   ============================================================ */
+.j-modal-overlay {
+  position: fixed; inset: 0; background: rgba(9,30,66,.54);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 64px; z-index: 300;
+}
+.j-modal {
+  background: var(--j-surface); border-radius: var(--j-radius-md);
+  box-shadow: var(--j-shadow-overlay); width: 100%; max-width: 560px;
+  max-height: calc(100vh - 128px); overflow-y: auto;
+  padding: var(--j-space-300);
+}
+.j-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--j-space-200); }
+.j-modal-close { background: none; border: none; cursor: pointer; color: var(--j-text-subtle); width: 28px; height: 28px; border-radius: var(--j-radius-sm); }
+.j-modal-close:hover { background: var(--j-neutral-subtle); }
+.j-modal-footer { display: flex; justify-content: flex-end; gap: var(--j-space-100); margin-top: var(--j-space-300); }
+
+/* ============================================================
+   14. TOAST (kısa ömürlü kayıt geri bildirimi, bkz. §11.1 F4)
+   ============================================================ */
+.j-toast-stack {
+  position: fixed; right: var(--j-space-200); bottom: var(--j-space-200);
+  z-index: 400; display: flex; flex-direction: column; gap: var(--j-space-100);
+}
+.j-toast {
+  background: var(--j-neutral-bold); color: var(--j-text-inverse);
+  padding: var(--j-space-100) var(--j-space-150);
+  border-radius: var(--j-radius-sm); box-shadow: var(--j-shadow-overlay);
+  font-size: 13px; opacity: 0; transform: translateY(6px);
+  transition: opacity .15s ease, transform .15s ease;
+}
+.j-toast.j-toast-in { opacity: 1; transform: translateY(0); }
+.j-toast.j-toast-danger { background: var(--j-danger-bg-bold); }

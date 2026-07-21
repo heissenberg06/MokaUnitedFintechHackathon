@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Moka Akış — next4biz BPM/CSM klonu (bkz. ANALIZ.md).
+"""Moka Akış — Jira (iş/talep yönetimi) klonu (bkz. JIRA_KLON_ANALIZ.md).
 Sıfır bağımlılık: yalnız Python stdlib. Statik dosyalar + JSON API aynı porttan.
-Veri kalıcılığı: next4biz-klon/data/tickets.json (atomic write + Lock).
-Bu sürümde AI (sikayetvar/analysis.py) <-> ticket bağlantısı YOKTUR (kasıtlı,
-bkz. ANALIZ.md Bölüm 6 Faz 4). Seed veri ve tüm içerik KURGUDUR.
-Çalıştır: python3 next4biz-klon/server.py  ->  http://localhost:8770
+Veri kalıcılığı: jira-klon/data/issues.json (atomic write + Lock).
+Bu sürümde AI (sikayetvar/analysis.py) <-> issue bağlantısı YOKTUR (kasıtlı,
+bkz. JIRA_KLON_ANALIZ.md §5/§10). Seed veri ve tüm içerik KURGUDUR.
+Çalıştır: python3 jira-klon/server.py  ->  http://localhost:8780
 """
-import html
 import json
 import os
 import re
@@ -18,16 +17,17 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(ROOT, 'data')
-DATA_FILE = os.path.join(DATA_DIR, 'tickets.json')
-PORT = 8770
+DATA_FILE = os.path.join(DATA_DIR, 'issues.json')
+PORT = 8780
 MAX_BODY = 16 * 1024
+PROJECT_KEY = "MOKA"
 
 LOCK = threading.Lock()
 _RATE = {}
 
 # ----------------------------------------------------------------------------
 # Taksonomi (sikayetvar/analysis.py ile hizalı — ileride AI köprüsü bu değerleri
-# doğrudan üretecek; bkz. ANALIZ.md Bölüm 3.2)
+# doğrudan üretecek; bkz. JIRA_KLON_ANALIZ.md §5)
 # ----------------------------------------------------------------------------
 CATEGORIES = [
     "Yetkisiz İşlem", "Para İadesi", "Komisyon & Ücret", "POS & Teslimat",
@@ -52,25 +52,49 @@ TEAM_ROUTING = {
 }
 TEAMS = sorted(set(TEAM_ROUTING.values()))
 
+# kategori -> varsayılan issue türü (bkz. JIRA_KLON_ANALIZ.md §5)
+CATEGORY_ISSUETYPE = {
+    "Yetkisiz İşlem": "bug", "Para İadesi": "bug", "Komisyon & Ücret": "bug",
+    "POS & Teslimat": "task", "Sanal POS & Başvuru": "task",
+    "Müşteri Hizmetleri": "bug", "Uygulama & Teknik": "bug",
+    "Ödeme Linki": "bug", "Dijital Cüzdan": "bug",
+    "Hesap & Doğrulama": "task", "Mutabakat & Rapor": "bug",
+    "Sözleşme & İptal": "task",
+}
+
+ISSUE_TYPES = ["bug", "task", "story", "epic", "subtask"]
+ISSUE_TYPE_LABEL = {
+    "bug": "Arıza/Şikayet", "task": "Görev", "story": "Talep",
+    "epic": "Konu", "subtask": "Alt Görev",
+}
+ISSUE_TYPE_COLOR = {"bug": "red", "task": "blue", "story": "green", "epic": "purple", "subtask": "blue"}
+
 PRIORITIES = ["dusuk", "orta", "yuksek", "kritik"]
 PRIORITY_LABEL = {"dusuk": "Düşük", "orta": "Orta", "yuksek": "Yüksek", "kritik": "Kritik"}
-# öncelik -> toplam akış SLA penceresi (saat) — bkz. ANALIZ.md Bölüm 3.4
+# öncelik -> toplam akış SLA penceresi (saat)
 SLA_HOURS = {"kritik": 4, "yuksek": 24, "orta": 72, "dusuk": 120}
 
 STATUSES = ["yeni", "siniflandirildi", "atandi", "islemde", "beklemede",
             "cozuldu", "kapandi", "yeniden-acildi"]
 STATUS_LABEL = {
     "yeni": "Yeni", "siniflandirildi": "Sınıflandırıldı", "atandi": "Atandı",
-    "islemde": "İşlemde", "beklemede": "Beklemede", "cozuldu": "Çözüldü",
+    "islemde": "Devam Ediyor", "beklemede": "Beklemede", "cozuldu": "Bitti",
     "kapandi": "Kapandı", "yeniden-acildi": "Yeniden Açıldı",
 }
 OPEN_STATUSES = {"yeni", "siniflandirildi", "atandi", "islemde", "beklemede", "yeniden-acildi"}
+# durum -> lozenge renk kategorisi (bkz. JIRA_KLON_ANALIZ.md §3.1)
+STATUS_CATEGORY = {
+    "yeni": "new", "siniflandirildi": "default", "atandi": "default",
+    "islemde": "inprogress", "beklemede": "moved",
+    "cozuldu": "success", "kapandi": "success", "yeniden-acildi": "removed",
+}
 SOURCES = ["ai", "self-service", "email", "chat", "whatsapp"]
+SOURCE_LABEL = {"ai": "Yapay Zeka", "self-service": "Self-Servis", "email": "E-posta",
+                "chat": "Canlı Destek", "whatsapp": "WhatsApp"}
 SENTIMENTS = ["ofkeli", "olumsuz", "notr", "olumlu"]
 SENTIMENT_LABEL = {"ofkeli": "Öfkeli", "olumsuz": "Olumsuz", "notr": "Nötr", "olumlu": "Olumlu"}
 
-# durum makinesi: her durumdan hangi durumlara geçilebilir (bkz. DUZENLEME_PLANI.md C1 /
-# ANALIZ.md Bölüm 3.1). Aynı duruma "geçiş" her zaman izinli sayılır (no-op).
+# durum makinesi: her durumdan hangi durumlara geçilebilir. Aynı duruma "geçiş" her zaman izinlidir (no-op).
 ALLOWED_TRANSITIONS = {
     "yeni": {"siniflandirildi", "kapandi"},
     "siniflandirildi": {"yeni", "atandi", "kapandi"},
@@ -84,6 +108,7 @@ ALLOWED_TRANSITIONS = {
 
 TR_LETTERS = "A-Za-zÇĞİıÖŞÜçğıöşü"
 NAME_RE = re.compile(f"^[{TR_LETTERS} .'-]+$")
+LABEL_RE = re.compile(r"^[a-z0-9\-]{2,30}$")
 
 # ----------------------------------------------------------------------------
 # Yardımcılar
@@ -92,8 +117,10 @@ def now_iso():
     return datetime.now().replace(microsecond=0).isoformat()
 
 def clean(s):
-    """Sunucu tarafı XSS savunması: string girdi HTML-escape edilir."""
-    return html.escape(str(s).strip())
+    """Girdiyi yalnızca kırpar (strip); HTML-escape burada YAPILMAZ.
+    Tek escape noktası istemcidir (assets/js/components.js MokaUI.esc, render sırasında).
+    Burada da escape edilirse çift-escape oluşur (bkz. JIRA_KLON_ANALIZ.md §11.1 F1)."""
+    return str(s).strip()
 
 def mask_name(name):
     parts = [p for p in name.strip().split() if p]
@@ -120,13 +147,13 @@ def _parse_dt(s):
     except Exception:
         return None
 
-def sla_state_of(ticket, now=None):
+def sla_state_of(issue, now=None):
     """ok | risk | breach — kapanmış/çözülmüş taleplerde her zaman 'ok'."""
     now = now or datetime.now()
-    if ticket['status'] in ('cozuldu', 'kapandi'):
+    if issue['status'] in ('cozuldu', 'kapandi'):
         return 'ok'
-    due = _parse_dt(ticket.get('sla_due_at', ''))
-    created = _parse_dt(ticket.get('createdAt', ''))
+    due = _parse_dt(issue.get('sla_due_at', ''))
+    created = _parse_dt(issue.get('createdAt', ''))
     if not due or not created:
         return 'ok'
     if now >= due:
@@ -137,12 +164,12 @@ def sla_state_of(ticket, now=None):
         return 'risk'
     return 'ok'
 
-def sla_remaining_label(ticket, now=None):
+def sla_remaining_label(issue, now=None):
     now = now or datetime.now()
-    due = _parse_dt(ticket.get('sla_due_at', ''))
+    due = _parse_dt(issue.get('sla_due_at', ''))
     if not due:
         return '—'
-    if ticket['status'] in ('cozuldu', 'kapandi'):
+    if issue['status'] in ('cozuldu', 'kapandi'):
         return 'tamamlandı'
     delta = due - now
     hours = delta.total_seconds() / 3600
@@ -152,12 +179,19 @@ def sla_remaining_label(ticket, now=None):
         return f"{int(delta.total_seconds() / 60)} dk. kaldı"
     return f"{hours:.0f} sa. kaldı"
 
+def _auto_labels(category, merchant):
+    """Basit, deterministik otomatik etiketleme: aynı işyerinden gelen yetkisiz işlem
+    şikayetleri olası bir dolandırıcılık halkasını işaret eder (demo senaryosu)."""
+    labels = []
+    if category == "Yetkisiz İşlem" and merchant:
+        labels.append("olasi-fraud-ring")
+    return labels
+
 # ----------------------------------------------------------------------------
 # Seed (tamamen kurgu içerik)
 # ----------------------------------------------------------------------------
-# (isim, başlık, gövde, kategori, öncelik, durum, kaç_saat_önce, işyeri, kaynak, duygu)
-# Not: sentiment sabittir (deterministik) — bkz. DUZENLEME_PLANI.md C10.
-SEED_TICKETS = [
+# (isim, özet, açıklama, kategori, öncelik, durum, kaç_saat_önce, işyeri, kaynak, duygu)
+SEED_ISSUES = [
     ("Zeynep Kaya", "Kartımdan onayım olmadan tahsilat yapıldı",
      "Hızlı Ödeme Bayii'nde benim başlatmadığım bir işlem gerçekleşmiş, itiraz ediyorum.",
      "Yetkisiz İşlem", "kritik", "yeni", 6, "Hızlı Ödeme Bayii", "ai", "ofkeli"),
@@ -243,28 +277,31 @@ def _make_timeline(name, created, status, source):
     return tl
 
 def build_seed():
-    tickets = []
+    issues = []
     seq = 0
-    for name, title, body, category, priority, status, hours_ago, merchant, source, sentiment in SEED_TICKETS:
+    for name, summary, description, category, priority, status, hours_ago, merchant, source, sentiment in SEED_ISSUES:
         seq += 1
         created = datetime.now() - timedelta(hours=hours_ago)
         team = TEAM_ROUTING[category]
         resolved_at = None
         if status in ("cozuldu", "kapandi"):
             resolved_at = (created + timedelta(hours=hours_ago * 0.6)).replace(microsecond=0).isoformat()
-        tickets.append({
+        issues.append({
             "id": seq,
+            "issuetype": CATEGORY_ISSUETYPE[category],
             "createdAt": created.replace(microsecond=0).isoformat(),
             "source": source,
-            "requester_name": mask_name(name),
-            "requester_initials": initials(name),
-            "title": clean(title),
-            "body": clean(body),
+            "reporter_name": mask_name(name),
+            "reporter_initials": initials(name),
+            "summary": clean(summary),
+            "description": clean(description),
             "category": category,
+            "labels": _auto_labels(category, merchant),
             "priority": priority,
             "status": status,
             "assignee_team": team,
             "assignee_user": None,
+            "story_points": None,
             "sla_due_at": _sla_due(created, priority).replace(microsecond=0).isoformat(),
             "resolved_at": resolved_at,
             "sentiment": sentiment,
@@ -274,14 +311,14 @@ def build_seed():
             "approvals": _make_approvals(priority, status),
             "timeline": _make_timeline(name, created, status, source),
             "audit": [{"at": created.replace(microsecond=0).isoformat(), "actor": "sistem",
-                      "action": "ticket_created"}],
+                      "action": "issue_created"}],
         })
-    return {"seq": seq, "tickets": tickets}
+    return {"seq": seq, "issues": issues}
 
 # ----------------------------------------------------------------------------
 # Kalıcılık
 # ----------------------------------------------------------------------------
-_CACHE = None  # bellek-içi önbellek (bkz. DUZENLEME_PLANI.md C4) — her istekte disk okumayı önler
+_CACHE = None  # bellek-içi önbellek — her istekte disk okumayı önler
 
 def load_data():
     global _CACHE
@@ -327,24 +364,38 @@ def v_choice(val, choices, label):
         return f"{label} geçersiz."
     return None
 
+def v_labels(labels):
+    if not isinstance(labels, list):
+        return "Etiketler bir liste olmalı."
+    if len(labels) > 5:
+        return "En fazla 5 etiket eklenebilir."
+    for l in labels:
+        if not isinstance(l, str) or not LABEL_RE.match(l):
+            return "Etiketler yalnızca küçük harf/rakam/tire içerebilir (2-30 karakter)."
+    return None
+
 # ----------------------------------------------------------------------------
 # Sunum katmanı yardımcıları
 # ----------------------------------------------------------------------------
 def _decorate(t):
-    """Ham kayda türetilmiş (computed) alanları ekler: sla_state, sla_remaining, label'lar."""
+    """Ham kayda türetilmiş (computed) alanları ekler: key, status_category, sla, label'lar."""
     now = datetime.now()
     out = dict(t)
+    out["key"] = f"{PROJECT_KEY}-{t['id']}"
     out["sla_state"] = sla_state_of(t, now)
     out["sla_remaining"] = sla_remaining_label(t, now)
     out["status_label"] = STATUS_LABEL.get(t["status"], t["status"])
+    out["status_category"] = STATUS_CATEGORY.get(t["status"], "default")
     out["priority_label"] = PRIORITY_LABEL.get(t["priority"], t["priority"])
+    out["issuetype_label"] = ISSUE_TYPE_LABEL.get(t.get("issuetype"), t.get("issuetype"))
+    out["source_label"] = SOURCE_LABEL.get(t.get("source"), t.get("source"))
     return out
 
-def compute_dashboard(tickets):
-    """KPI + dağılım verisi (dashboard.html için) — admin.html'deki dil ile tutarlı."""
-    total = len(tickets)
+def compute_dashboard(issues):
+    """KPI + dağılım verisi (dashboard.html için)."""
+    total = len(issues)
     now = datetime.now()
-    decorated = [_decorate(t) for t in tickets]
+    decorated = [_decorate(t) for t in issues]
     open_count = sum(1 for t in decorated if t['status'] in OPEN_STATUSES)
     closed_count = total - open_count
     breach_count = sum(1 for t in decorated if t['sla_state'] == 'breach')
@@ -353,7 +404,8 @@ def compute_dashboard(tickets):
     by_status = {s: 0 for s in STATUSES}
     for t in decorated:
         by_status[t['status']] += 1
-    status_dist = [{"status": s, "label": STATUS_LABEL[s], "count": by_status[s]} for s in STATUSES if by_status[s]]
+    status_dist = [{"status": s, "label": STATUS_LABEL[s], "category": STATUS_CATEGORY[s], "count": by_status[s]}
+                   for s in STATUSES if by_status[s]]
 
     by_team = {}
     for t in decorated:
@@ -380,8 +432,12 @@ def compute_dashboard(tickets):
         [{"category": k, "count": v} for k, v in by_category.items()],
         key=lambda x: x['count'], reverse=True)
 
-    # C2: "ortalama yaş" tek başına yanıltıcıydı (kapananları da katıyordu) — açık talep yaşı
-    # ile çözüm süresi ayrı KPI'lara bölündü (bkz. DUZENLEME_PLANI.md C2/C3).
+    by_issuetype = {it: 0 for it in ISSUE_TYPES}
+    for t in decorated:
+        by_issuetype[t.get('issuetype', 'task')] += 1
+    issuetype_dist = [{"issuetype": it, "label": ISSUE_TYPE_LABEL[it], "count": by_issuetype[it]}
+                       for it in ISSUE_TYPES if by_issuetype[it]]
+
     open_ages = [(now - _parse_dt(t['createdAt'])).total_seconds() / 3600
                  for t in decorated if t['status'] in OPEN_STATUSES and _parse_dt(t['createdAt'])]
     avg_open_age_hours = round(sum(open_ages) / len(open_ages), 1) if open_ages else None
@@ -411,6 +467,7 @@ def compute_dashboard(tickets):
         "team_load": team_load,
         "priority_dist": priority_dist,
         "category_dist": category_dist,
+        "issuetype_dist": issuetype_dist,
         "sentiment_dist": sentiment_dist,
     }
 
@@ -420,7 +477,7 @@ PAGE_SIZE = 10
 # HTTP Handler
 # ----------------------------------------------------------------------------
 class Handler(BaseHTTPRequestHandler):
-    server_version = "N4BClone/1.0"
+    server_version = "JiraKlon/1.0"
 
     def log_message(self, fmt, *args):
         pass
@@ -452,7 +509,6 @@ class Handler(BaseHTTPRequestHandler):
         ip = self.client_address[0]
         now = time.time()
         with LOCK:
-            # süresi dolmuş diğer IP kayıtlarını da temizle — aksi halde _RATE süresiz büyür (bkz. C11)
             for other_ip in list(_RATE.keys()):
                 if other_ip == ip:
                     continue
@@ -480,24 +536,30 @@ class Handler(BaseHTTPRequestHandler):
     def _api_get(self, path, qs):
         if path == '/api/meta':
             return self._json({
+                "project_key": PROJECT_KEY,
                 "categories": CATEGORIES, "teams": TEAMS, "priorities": PRIORITIES,
                 "priority_label": PRIORITY_LABEL, "statuses": STATUSES,
-                "status_label": STATUS_LABEL, "sources": SOURCES,
+                "status_label": STATUS_LABEL, "status_category": STATUS_CATEGORY,
+                "sources": SOURCES, "source_label": SOURCE_LABEL,
                 "allowed_transitions": {k: sorted(v) for k, v in ALLOWED_TRANSITIONS.items()},
                 "sentiment_label": SENTIMENT_LABEL,
+                "issue_types": ISSUE_TYPES, "issuetype_label": ISSUE_TYPE_LABEL,
+                "issuetype_color": ISSUE_TYPE_COLOR,
+                "category_issuetype": CATEGORY_ISSUETYPE,
+                "category_team": TEAM_ROUTING,
             })
         if path == '/api/dashboard':
             with LOCK:
                 data = load_data()
-            return self._json(compute_dashboard(data['tickets']))
-        if path == '/api/tickets':
-            return self._list_tickets(qs)
-        m = re.fullmatch(r'/api/tickets/(\d+)', path)
+            return self._json(compute_dashboard(data['issues']))
+        if path == '/api/issues':
+            return self._list_issues(qs)
+        m = re.fullmatch(r'/api/issues/(\d+)', path)
         if m:
-            return self._get_ticket(int(m.group(1)))
+            return self._get_issue(int(m.group(1)))
         return self._json({"error": "not_found"}, 404)
 
-    def _list_tickets(self, qs):
+    def _list_issues(self, qs):
         def q1(key, default=''):
             return (qs.get(key, [default])[0] or '').strip()
         status = q1('status')
@@ -505,12 +567,15 @@ class Handler(BaseHTTPRequestHandler):
         team = q1('team')
         source = q1('source')
         sla = q1('sla')
+        issuetype = q1('issuetype')
+        priority = q1('priority')
         search = q1('q')
         page = max(1, int(q1('page', '1') or 1))
+        page_size = min(200, max(1, int(q1('pageSize', str(PAGE_SIZE)) or PAGE_SIZE)))
 
         with LOCK:
             data = load_data()
-            items = list(reversed(data['tickets']))
+            items = list(reversed(data['issues']))
         items = [_decorate(t) for t in items]
 
         if status:
@@ -523,23 +588,28 @@ class Handler(BaseHTTPRequestHandler):
             items = [t for t in items if t['source'] == source]
         if sla:
             items = [t for t in items if t['sla_state'] == sla]
+        if issuetype:
+            items = [t for t in items if t['issuetype'] == issuetype]
+        if priority:
+            items = [t for t in items if t['priority'] == priority]
         if search:
             nq = tr_lower(search)
-            items = [t for t in items if nq in tr_lower(t['title']) or nq in tr_lower(t['body'])]
+            items = [t for t in items if nq in tr_lower(t['summary']) or nq in tr_lower(t['description'])
+                     or nq in tr_lower(t['key'])]
 
         total = len(items)
-        start = (page - 1) * PAGE_SIZE
-        page_items = items[start:start + PAGE_SIZE]
+        start = (page - 1) * page_size
+        page_items = items[start:start + page_size]
         return self._json({
-            "total": total, "page": page, "pageSize": PAGE_SIZE,
-            "totalPages": max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE),
+            "total": total, "page": page, "pageSize": page_size,
+            "totalPages": max(1, (total + page_size - 1) // page_size),
             "items": page_items,
         })
 
-    def _get_ticket(self, tid):
+    def _get_issue(self, tid):
         with LOCK:
             data = load_data()
-            t = next((x for x in data['tickets'] if x['id'] == tid), None)
+            t = next((x for x in data['issues'] if x['id'] == tid), None)
         if not t:
             return self._json({"error": "not_found"}, 404)
         return self._json(_decorate(t))
@@ -564,40 +634,44 @@ class Handler(BaseHTTPRequestHandler):
         if err == "invalid_json" or body is None:
             return self._json({"error": "invalid_json"}, 400)
 
-        if method == 'POST' and path == '/api/tickets':
-            return self._create_ticket(body)
-        m = re.fullmatch(r'/api/tickets/(\d+)', path)
+        if method == 'POST' and path == '/api/issues':
+            return self._create_issue(body)
+        m = re.fullmatch(r'/api/issues/(\d+)', path)
         if method == 'PATCH' and m:
-            return self._update_ticket(int(m.group(1)), body)
-        m = re.fullmatch(r'/api/tickets/(\d+)/tasks/(\d+)', path)
+            return self._update_issue(int(m.group(1)), body)
+        m = re.fullmatch(r'/api/issues/(\d+)/tasks/(\d+)', path)
         if method == 'PATCH' and m:
             return self._toggle_task(int(m.group(1)), int(m.group(2)), body)
-        m = re.fullmatch(r'/api/tickets/(\d+)/notes', path)
+        m = re.fullmatch(r'/api/issues/(\d+)/notes', path)
         if method == 'POST' and m:
             return self._add_note(int(m.group(1)), body)
-        m = re.fullmatch(r'/api/tickets/(\d+)/approvals/(\d+)', path)
+        m = re.fullmatch(r'/api/issues/(\d+)/approvals/(\d+)', path)
         if method == 'PATCH' and m:
             return self._update_approval(int(m.group(1)), int(m.group(2)), body)
-        m = re.fullmatch(r'/api/tickets/(\d+)/attachments', path)
+        m = re.fullmatch(r'/api/issues/(\d+)/attachments', path)
         if method == 'POST' and m:
             return self._add_attachment(int(m.group(1)), body)
         return self._json({"error": "not_found"}, 404)
 
-    def _create_ticket(self, body):
-        name = str(body.get('requester_name', ''))
-        title = str(body.get('title', ''))
-        text = str(body.get('body', ''))
+    def _create_issue(self, body):
+        name = str(body.get('reporter', ''))
+        summary = str(body.get('summary', ''))
+        description = str(body.get('description', ''))
         category = str(body.get('category', ''))
         priority = str(body.get('priority', 'orta'))
         source = str(body.get('source', 'self-service'))
         merchant = str(body.get('merchant', '')).strip()
+        issuetype = str(body.get('issuetype', '')) or CATEGORY_ISSUETYPE.get(category, 'task')
+        labels = body.get('labels', [])
 
-        for chk, field in ((v_name(name), 'requester_name'),
-                           (v_len(title, 10, 120, 'Başlık'), 'title'),
-                           (v_len(text, 20, 2000, 'Açıklama'), 'body'),
+        for chk, field in ((v_name(name), 'reporter'),
+                           (v_len(summary, 10, 120, 'Özet'), 'summary'),
+                           (v_len(description, 20, 2000, 'Açıklama'), 'description'),
                            (v_choice(category, CATEGORIES, 'Kategori'), 'category'),
                            (v_choice(priority, PRIORITIES, 'Öncelik'), 'priority'),
-                           (v_choice(source, SOURCES, 'Kaynak'), 'source')):
+                           (v_choice(source, SOURCES, 'Kaynak'), 'source'),
+                           (v_choice(issuetype, ISSUE_TYPES, 'Issue türü'), 'issuetype'),
+                           (v_labels(labels), 'labels')):
             if chk:
                 return self._json({"error": chk, "field": field}, 400)
         if merchant and len(merchant) > 80:
@@ -610,17 +684,20 @@ class Handler(BaseHTTPRequestHandler):
             data['seq'] += 1
             rec = {
                 "id": data['seq'],
+                "issuetype": issuetype,
                 "createdAt": created.replace(microsecond=0).isoformat(),
                 "source": source,
-                "requester_name": mask_name(name),
-                "requester_initials": initials(name),
-                "title": clean(title),
-                "body": clean(text),
+                "reporter_name": mask_name(name),
+                "reporter_initials": initials(name),
+                "summary": clean(summary),
+                "description": clean(description),
                 "category": category,
+                "labels": list(labels) + _auto_labels(category, merchant),
                 "priority": priority,
                 "status": "yeni",
                 "assignee_team": team,
                 "assignee_user": None,
+                "story_points": None,
                 "sla_due_at": _sla_due(created, priority).replace(microsecond=0).isoformat(),
                 "resolved_at": None,
                 "sentiment": "notr",
@@ -629,23 +706,48 @@ class Handler(BaseHTTPRequestHandler):
                 "tasks": _make_tasks("yeni"),
                 "approvals": _make_approvals(priority, "yeni"),
                 "timeline": _make_timeline(name, created, "yeni", source),
-                "audit": [{"at": now_iso(), "actor": "kullanici", "action": "ticket_created"}],
+                "audit": [{"at": now_iso(), "actor": "kullanici", "action": "issue_created"}],
             }
-            data['tickets'].append(rec)
+            data['issues'].append(rec)
             _write(data)
         return self._json(_decorate(rec), 201)
 
-    def _update_ticket(self, tid, body):
-        allowed_status = STATUSES
+    def _update_issue(self, tid, body):
         with LOCK:
             data = load_data()
-            t = next((x for x in data['tickets'] if x['id'] == tid), None)
+            t = next((x for x in data['issues'] if x['id'] == tid), None)
             if not t:
                 return self._json({"error": "not_found"}, 404)
 
+            if 'summary' in body:
+                new_summary = str(body['summary'])
+                chk = v_len(new_summary, 10, 120, 'Özet')
+                if chk:
+                    return self._json({"error": chk, "field": "summary"}, 400)
+                old_summary = t['summary']
+                new_summary = clean(new_summary)
+                if new_summary != old_summary:
+                    t['summary'] = new_summary
+                    t['timeline'].append({"at": now_iso(), "actor": "yonetici", "type": "ozet_degisti",
+                                          "note": "Özet güncellendi."})
+                    t['audit'].append({"at": now_iso(), "actor": "yonetici", "action": "summary_updated"})
+
+            if 'description' in body:
+                new_desc = str(body['description'])
+                chk = v_len(new_desc, 20, 2000, 'Açıklama')
+                if chk:
+                    return self._json({"error": chk, "field": "description"}, 400)
+                old_desc = t['description']
+                new_desc = clean(new_desc)
+                if new_desc != old_desc:
+                    t['description'] = new_desc
+                    t['timeline'].append({"at": now_iso(), "actor": "yonetici", "type": "aciklama_degisti",
+                                          "note": "Açıklama güncellendi."})
+                    t['audit'].append({"at": now_iso(), "actor": "yonetici", "action": "description_updated"})
+
             if 'status' in body:
                 new_status = str(body['status'])
-                if new_status not in allowed_status:
+                if new_status not in STATUSES:
                     return self._json({"error": "Geçersiz durum.", "field": "status"}, 400)
                 old_status = t['status']
                 if new_status != old_status:
@@ -702,6 +804,27 @@ class Handler(BaseHTTPRequestHandler):
                                           "note": f"Atanan kişi '{old_user or '—'}' -> '{new_user or '—'}' olarak güncellendi."})
                     t['audit'].append({"at": now_iso(), "actor": "yonetici", "action": f"assignee_user:{old_user}->{new_user}"})
 
+            if 'labels' in body:
+                chk = v_labels(body['labels'])
+                if chk:
+                    return self._json({"error": chk, "field": "labels"}, 400)
+                old_labels = t.get('labels', [])
+                new_labels = list(body['labels'])
+                if new_labels != old_labels:
+                    t['labels'] = new_labels
+                    t['audit'].append({"at": now_iso(), "actor": "yonetici", "action": "labels_updated"})
+
+            if 'story_points' in body:
+                raw_sp = body['story_points']
+                if raw_sp is not None:
+                    try:
+                        raw_sp = int(raw_sp)
+                        if not (0 <= raw_sp <= 100):
+                            raise ValueError
+                    except (TypeError, ValueError):
+                        return self._json({"error": "Puan 0-100 arası bir sayı olmalı.", "field": "story_points"}, 400)
+                t['story_points'] = raw_sp
+
             _write(data)
         return self._json(_decorate(t))
 
@@ -711,7 +834,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({"error": "Geçersiz onay durumu.", "field": "state"}, 400)
         with LOCK:
             data = load_data()
-            t = next((x for x in data['tickets'] if x['id'] == tid), None)
+            t = next((x for x in data['issues'] if x['id'] == tid), None)
             if not t:
                 return self._json({"error": "not_found"}, 404)
             if not (0 <= idx < len(t['approvals'])):
@@ -730,7 +853,7 @@ class Handler(BaseHTTPRequestHandler):
     def _toggle_task(self, tid, task_idx, body):
         with LOCK:
             data = load_data()
-            t = next((x for x in data['tickets'] if x['id'] == tid), None)
+            t = next((x for x in data['issues'] if x['id'] == tid), None)
             if not t:
                 return self._json({"error": "not_found"}, 404)
             if not (0 <= task_idx < len(t['tasks'])):
@@ -748,7 +871,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({"error": chk, "field": "note"}, 400)
         with LOCK:
             data = load_data()
-            t = next((x for x in data['tickets'] if x['id'] == tid), None)
+            t = next((x for x in data['issues'] if x['id'] == tid), None)
             if not t:
                 return self._json({"error": "not_found"}, 404)
             t['timeline'].append({"at": now_iso(), "actor": "yonetici", "type": "not", "note": clean(text)})
@@ -756,15 +879,14 @@ class Handler(BaseHTTPRequestHandler):
         return self._json(_decorate(t), 201)
 
     def _add_attachment(self, tid, body):
-        """Minimal ek listesi: yalnızca ad/etiket kaydeder, gerçek dosya yükleme yoktur
-        (bkz. DUZENLEME_PLANI.md C9 — kapsam kararı)."""
+        """Minimal ek listesi: yalnızca ad/etiket kaydeder, gerçek dosya yükleme yoktur."""
         name = str(body.get('name', ''))
         chk = v_len(name, 2, 80, 'Ek adı')
         if chk:
             return self._json({"error": chk, "field": "name"}, 400)
         with LOCK:
             data = load_data()
-            t = next((x for x in data['tickets'] if x['id'] == tid), None)
+            t = next((x for x in data['issues'] if x['id'] == tid), None)
             if not t:
                 return self._json({"error": "not_found"}, 404)
             clean_name = clean(name)
@@ -778,10 +900,10 @@ class Handler(BaseHTTPRequestHandler):
     # --- statik dosyalar ---
     def _static(self, path):
         if path == '/' or path == '':
-            path = '/index.html'
+            path = '/board.html'
         rel = unquote(path).lstrip('/')
         full = os.path.normpath(os.path.join(ROOT, rel))
-        if not full.startswith(ROOT + os.sep) and full != os.path.join(ROOT, 'index.html'):
+        if not full.startswith(ROOT + os.sep) and full != os.path.join(ROOT, 'board.html'):
             return self._json({"error": "forbidden"}, 403)
         if not os.path.isfile(full):
             self.send_response(404)
@@ -811,17 +933,18 @@ class Handler(BaseHTTPRequestHandler):
             '.js': 'application/javascript; charset=utf-8',
             '.json': 'application/json; charset=utf-8',
             '.svg': 'image/svg+xml',
+            '.woff2': 'font/woff2',
             '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon',
         }.get(ext, 'application/octet-stream')
 
 
 def main():
     load_data()
-    # yerel demo sunucusu — yalnızca localhost'a bağlanır (bkz. DUZENLEME_PLANI.md C7)
     server = ThreadingHTTPServer(('127.0.0.1', PORT), Handler)
-    print(f"Moka Akış klonu çalışıyor:  http://localhost:{PORT}")
-    print(f"Talep listesi:              http://localhost:{PORT}/tickets.html")
-    print(f"Kontrol paneli:              http://localhost:{PORT}/dashboard.html")
+    print(f"Moka Akış (Jira klonu) çalışıyor:  http://localhost:{PORT}")
+    print(f"Pano:                              http://localhost:{PORT}/board.html")
+    print(f"Liste:                             http://localhost:{PORT}/list.html")
+    print(f"Kontrol paneli:                    http://localhost:{PORT}/dashboard.html")
     print(f"Veri dosyası: {DATA_FILE}")
     try:
         server.serve_forever()

@@ -19,6 +19,7 @@
     'yuksek': 'n4b-badge-risk', 'kritik': 'n4b-badge-breach',
   };
   var SLA_BADGE = { 'ok': 'n4b-badge-ok', 'risk': 'n4b-badge-risk', 'breach': 'n4b-badge-breach' };
+  var SENTIMENT_BADGE = { 'ofkeli': 'n4b-badge-breach', 'olumsuz': 'n4b-badge-risk', 'notr': 'n4b-badge-neutral', 'olumlu': 'n4b-badge-ok' };
   var SRC_LABEL = { ai: 'Yapay Zeka', 'self-service': 'Self-Servis', email: 'E-posta', chat: 'Canlı Destek', whatsapp: 'WhatsApp' };
   var MAIN_FLOW = ['yeni', 'siniflandirildi', 'atandi', 'islemde', 'cozuldu', 'kapandi'];
 
@@ -54,6 +55,8 @@
 
     var head = el('div', 'n4b-detail-head');
     head.innerHTML =
+      '<div style="display:flex;gap:14px;align-items:flex-start;">' +
+      '<span class="n4b-avatar n4b-avatar-lg" title="' + t.requester_name + '">' + t.requester_initials + '</span>' +
       '<div><h1>#' + t.id + ' — ' + t.title + '</h1>' +
       '<div class="n4b-detail-meta">' +
       '<span>' + t.category + '</span>' +
@@ -61,8 +64,10 @@
       '<span class="sep">·</span><span>' + SRC_LABEL[t.source] + '</span>' +
       '<span class="sep">·</span><span>' + t.requester_name + '</span>' +
       '<span class="sep">·</span><span>' + fmtDateTime(t.createdAt) + '</span>' +
-      '</div></div>' +
-      '<div style="display:flex;gap:8px;">' + badge(PRIORITY_BADGE[t.priority], t.priority_label) + badge(SLA_BADGE[t.sla_state], t.sla_remaining) + '</div>';
+      '</div></div></div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + badge(PRIORITY_BADGE[t.priority], t.priority_label) +
+      badge(SLA_BADGE[t.sla_state], t.sla_remaining) +
+      badge(SENTIMENT_BADGE[t.sentiment] || 'n4b-badge-neutral', (meta.sentiment_label && meta.sentiment_label[t.sentiment]) || t.sentiment) + '</div>';
     c.appendChild(head);
 
     var stepperWrap = el('div');
@@ -102,8 +107,14 @@
       '<div class="n4b-side-block"><div class="n4b-side-lbl">Durum</div><select id="selStatus"></select></div>' +
       '<div class="n4b-side-block"><div class="n4b-side-lbl">Öncelik</div><select id="selPriority"></select></div>' +
       '<div class="n4b-side-block"><div class="n4b-side-lbl">Atanan Ekip</div><select id="selTeam"></select></div>' +
+      '<div class="n4b-side-block"><div class="n4b-side-lbl">Atanan Kişi</div><input type="text" id="inpAssignee" maxlength="60" placeholder="İsim girin (opsiyonel)" value="' + (t.assignee_user || '') + '"></div>' +
       '<div class="n4b-side-block"><div class="n4b-side-lbl">Görevler</div><div id="taskList"></div></div>' +
-      (t.approvals && t.approvals.length ? '<div class="n4b-side-block"><div class="n4b-side-lbl">Onaylar</div><div id="approvalList"></div></div>' : '');
+      (t.approvals && t.approvals.length ? '<div class="n4b-side-block"><div class="n4b-side-lbl">Onaylar</div><div id="approvalList"></div></div>' : '') +
+      '<div class="n4b-side-block"><div class="n4b-side-lbl">Ekler</div><div id="attachList"></div>' +
+      '<form id="attachForm" style="display:flex;gap:6px;margin-top:8px;">' +
+      '<input type="text" id="attachInput" placeholder="Dosya/doküman adı..." maxlength="80" style="flex:1;">' +
+      '<button type="submit" style="font-size:12px;font-weight:600;padding:8px 12px;border-radius:8px;background:var(--n4b-cyan);color:#fff;">Ekle</button>' +
+      '</form></div>';
     grid.appendChild(right);
 
     c.appendChild(grid);
@@ -114,13 +125,18 @@
 
     // selects doldur
     var selStatus = $('#selStatus'), selPriority = $('#selPriority'), selTeam = $('#selTeam');
-    meta.statuses.forEach(function (s) { selStatus.appendChild(new Option(meta.status_label[s], s, false, s === t.status)); });
+    var allowedNext = (meta.allowed_transitions && meta.allowed_transitions[t.status]) || [];
+    selStatus.appendChild(new Option(meta.status_label[t.status], t.status, true, true));
+    allowedNext.forEach(function (s) { selStatus.appendChild(new Option(meta.status_label[s], s)); });
     meta.priorities.forEach(function (p) { selPriority.appendChild(new Option(meta.priority_label[p], p, false, p === t.priority)); });
     meta.teams.forEach(function (tm) { selTeam.appendChild(new Option(tm, tm, false, tm === t.assignee_team)); });
 
     selStatus.addEventListener('change', function () { patch({ status: selStatus.value }); });
     selPriority.addEventListener('change', function () { patch({ priority: selPriority.value }); });
     selTeam.addEventListener('change', function () { patch({ assignee_team: selTeam.value }); });
+
+    var inpAssignee = $('#inpAssignee');
+    inpAssignee.addEventListener('change', function () { patch({ assignee_user: inpAssignee.value }); });
 
     var taskList = $('#taskList');
     (t.tasks || []).forEach(function (task, idx) {
@@ -137,14 +153,42 @@
 
     if (t.approvals && t.approvals.length) {
       var apList = $('#approvalList');
-      t.approvals.forEach(function (a) {
+      t.approvals.forEach(function (a, aIdx) {
         var row = el('div', 'n4b-approval-item');
         var cls = a.state === 'onaylandi' ? 'n4b-badge-ok' : (a.state === 'reddedildi' ? 'n4b-badge-breach' : 'n4b-badge-risk');
         var lbl = a.state === 'onaylandi' ? 'Onaylandı' : (a.state === 'reddedildi' ? 'Reddedildi' : 'Bekliyor');
-        row.innerHTML = '<span>' + a.role + '</span>' + badge(cls, lbl);
+        var actions = a.state === 'bekliyor'
+          ? '<button type="button" class="n4b-approve-btn">Onayla</button><button type="button" class="n4b-reject-btn">Reddet</button>'
+          : '';
+        row.innerHTML = '<span>' + a.role + '</span><span class="n4b-approval-actions">' + badge(cls, lbl) + actions + '</span>';
         apList.appendChild(row);
+        if (a.state === 'bekliyor') {
+          row.querySelector('.n4b-approve-btn').addEventListener('click', function () { patchApproval(aIdx, 'onaylandi'); });
+          row.querySelector('.n4b-reject-btn').addEventListener('click', function () { patchApproval(aIdx, 'reddedildi'); });
+        }
       });
     }
+
+    var attachList = $('#attachList');
+    if (t.attachments && t.attachments.length) {
+      t.attachments.forEach(function (a) {
+        var row = el('div', 'n4b-task-item');
+        row.innerHTML = '<span>📎 ' + a.name + '</span>';
+        attachList.appendChild(row);
+      });
+    } else {
+      attachList.innerHTML = '<div style="font-size:12px;color:var(--n4b-slate-500);">Henüz ek yok.</div>';
+    }
+    $('#attachForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var input = $('#attachInput');
+      var val = input.value.trim();
+      if (val.length < 2) return;
+      fetch('/api/tickets/' + id + '/attachments', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: val }),
+      }).then(function (r) { return r.json(); }).then(function (d) { render(d); });
+    });
 
     $('#noteInput').closest('form').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -162,6 +206,21 @@
     fetch('/api/tickets/' + id, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) {
+          alert(res.d.error || 'Güncelleme başarısız oldu.');
+          load();
+          return;
+        }
+        render(res.d);
+      });
+  }
+
+  function patchApproval(idx, state) {
+    fetch('/api/tickets/' + id + '/approvals/' + idx, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state: state }),
     }).then(function (r) { return r.json(); }).then(function (d) { render(d); });
   }
 
