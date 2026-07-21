@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pano | Moka Akış</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%231868DB'/%3E%3Ctext x='12' y='17' font-family='Arial' font-size='14' font-weight='700' fill='white' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/fonts.css?v=1">
+<link rel="stylesheet" href="assets/css/tokens.css?v=1">
+<link rel="stylesheet" href="assets/css/jira.css?v=1">
+<style>
+  .j-board-wrap { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; align-items: flex-start; }
+  .j-board-col { flex: 0 0 270px; width: 270px; }
+  .j-board-col-head {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700; color: var(--j-text-subtlest);
+    text-transform: uppercase; letter-spacing: .04em;
+    padding: 8px 8px; margin-bottom: 4px;
+  }
+  .j-board-col-count { background: var(--j-neutral-subtle); border-radius: 10px; padding: 1px 7px; font-weight: 600; }
+  .j-board-col-body {
+    background: var(--j-surface-sunken);
+    border-radius: var(--j-radius-md);
+    padding: 8px;
+    min-height: 200px;
+  }
+  .j-status-menu-anchor { position: relative; display: inline-block; }
+</style>
+</head>
+<body>
+
+<div id="jTopbar"></div>
+<div id="jSidebar"></div>
+
+<main class="j-shell-main" id="jMain">
+  <div class="j-page-head">
+    <div class="j-breadcrumb"><span>MOKA</span><span class="j-crumb-sep">/</span><span class="j-crumb-current">Pano</span></div>
+    <h1 class="j-heading-l">Pano</h1>
+  </div>
+  <div id="boardBody">
+    <div class="j-empty">Yükleniyor...</div>
+  </div>
+</main>
+
+<script src="assets/js/shell.js?v=1"></script>
+<script src="assets/js/components.js?v=1"></script>
+<script src="assets/js/create-modal.js?v=1"></script>
+<script src="assets/js/board.js?v=1"></script>
+</body>
+</html>

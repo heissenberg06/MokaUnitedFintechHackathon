@@ -229,6 +229,7 @@
     }
     const payload = {
       name: form.name.value.trim(), title: form.title.value.trim(), body: form.body.value.trim(),
+      merchant: form.merchant.value.trim(),
       phone: form.phone.value.trim(), email: form.email.value.trim(),
       kvkkConsent: true, marketingConsent: $('#cMarketing').checked,
     };

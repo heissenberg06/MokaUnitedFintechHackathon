@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talep Yönetimi | Moka Akış</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%2300A0C7'/%3E%3Cpath d='M6 12h4l2-6 4 12 2-6h0' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/fonts.css?v=1">
+<link rel="stylesheet" href="assets/css/n4b.css?v=4">
+</head>
+<body>
+
+<header class="n4b-app-header">
+  <div class="n4b-container">
+    <a href="index.html" class="n4b-logo">moka<span>akış</span></a>
+    <nav class="n4b-app-nav">
+      <a href="tickets.html" class="active">Talepler</a>
+      <a href="dashboard.html">Kontrol Paneli</a>
+      <a href="index.html">Tanıtım</a>
+    </nav>
+  </div>
+</header>
+
+<main class="n4b-container">
+  <div class="n4b-page-head">
+    <h1>Talep Yönetimi</h1>
+    <p>Tüm talepleri durum, ekip ve SLA riskine göre görüntüleyin ve yönetin.</p>
+  </div>
+
+  <div class="n4b-form-card" id="newTicketCard">
+    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" id="newTicketToggle">
+      <h3 class="n4b-h3-sm" style="margin:0;">+ Yeni Talep Oluştur</h3>
+      <span id="newTicketChevron" style="color:var(--n4b-slate-500);">▾</span>
+    </div>
+    <form id="newTicketForm" style="margin-top:16px;display:none;">
+      <div class="n4b-form-grid">
+        <div class="n4b-field">
+          <label for="ntName">Ad Soyad</label>
+          <input type="text" id="ntName" maxlength="40" placeholder="Ör. Ayşe Yılmaz" required>
+        </div>
+        <div class="n4b-field">
+          <label for="ntCategory">Kategori</label>
+          <select id="ntCategory" required></select>
+        </div>
+      </div>
+      <div class="n4b-form-grid">
+        <div class="n4b-field">
+          <label for="ntPriority">Öncelik</label>
+          <select id="ntPriority" required></select>
+        </div>
+        <div class="n4b-field">
+          <label for="ntSource">Kaynak</label>
+          <select id="ntSource" required></select>
+        </div>
+      </div>
+      <div class="n4b-form-grid n4b-form-full">
+        <div class="n4b-field">
+          <label for="ntTitle">Başlık</label>
+          <input type="text" id="ntTitle" maxlength="120" placeholder="Talebi kısaca özetleyin" required>
+        </div>
+      </div>
+      <div class="n4b-form-grid n4b-form-full">
+        <div class="n4b-field">
+          <label for="ntBody">Açıklama</label>
+          <textarea id="ntBody" maxlength="2000" placeholder="Talebin detayını yazın (en az 20 karakter)" required></textarea>
+        </div>
+      </div>
+      <div class="n4b-form-grid n4b-form-full">
+        <div class="n4b-field">
+          <label for="ntMerchant">İşyeri (opsiyonel)</label>
+          <input type="text" id="ntMerchant" maxlength="80" placeholder="İlgiliyse işyeri/marka adı">
+        </div>
+      </div>
+      <button type="submit" class="n4b-btn n4b-btn-primary" style="padding:11px 24px;font-size:14px;">Talebi Oluştur</button>
+      <div id="ntMsg"></div>
+    </form>
+  </div>
+
+  <div class="n4b-filterbar">
+    <input type="text" id="fSearch" placeholder="Başlık veya açıklamada ara...">
+    <select id="fStatus"><option value="">Tüm Durumlar</option></select>
+    <select id="fCategory"><option value="">Tüm Kategoriler</option></select>
+    <select id="fTeam"><option value="">Tüm Ekipler</option></select>
+    <select id="fSla">
+      <option value="">Tüm SLA Durumları</option>
+      <option value="ok">SLA: Normal</option>
+      <option value="risk">SLA: Risk</option>
+      <option value="breach">SLA: Aşıldı</option>
+    </select>
+    <select id="fSource">
+      <option value="">Tüm Kaynaklar</option>
+      <option value="ai">Yapay Zeka</option>
+      <option value="self-service">Self-Servis</option>
+      <option value="email">E-posta</option>
+      <option value="chat">Canlı Destek</option>
+      <option value="whatsapp">WhatsApp</option>
+    </select>
+    <button class="n4b-btn n4b-btn-outline" id="fClear">Filtreleri Temizle</button>
+  </div>
+
+  <div class="n4b-table-wrap">
+    <table class="n4b-ttable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Talep</th>
+          <th>Öncelik</th>
+          <th>Durum</th>
+          <th>Ekip</th>
+          <th>SLA</th>
+          <th>Oluşturma</th>
+        </tr>
+      </thead>
+      <tbody id="ticketRows">
+        <tr><td colspan="7" class="n4b-empty">Yükleniyor...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="n4b-pagination" id="pagination"></div>
+</main>
+
+<script src="assets/js/tickets.js?v=2"></script>
+</body>
+</html>

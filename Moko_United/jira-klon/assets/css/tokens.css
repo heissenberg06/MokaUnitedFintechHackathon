@@ -1,0 +1,134 @@
+/* Moka Akış — Jira klonu tasarım token'ları.
+   Kaynak: Atlassian'ın canlı @atlaskit/tokens@16.1.0 ham token paketi (bkz. JIRA_KLON_ANALIZ.md §2).
+   Değerler kamuya açık tasarım tokenlarıdır (renk/boşluk/radius/tip ölçeği); "Jira" adı/logosu ve
+   "Atlassian Sans" fontu kullanılmaz — ürün adı Moka Akış, font Inter (self-host, bkz. fonts.css). */
+:root {
+  /* --- Marka / birincil (mavi) --- */
+  --j-brand-bold: #1868DB;
+  --j-brand-bold-hover: #1558BC;
+  --j-brand-bold-pressed: #144794;
+  --j-brand-boldest: #1C2B42;
+  --j-selected-bg: #E9F2FE;
+  --j-selected-bg-hover: #CFE1FD;
+  --j-selected-bg-pressed: #8FB8F6;
+  --j-link: #1868DB;
+  --j-link-pressed: #1558BC;
+  --j-border-selected: #1868DB;
+  --j-border-focused: #4688EC;
+
+  /* --- Metin --- */
+  --j-text: #292A2E;
+  --j-text-subtle: #505258;
+  --j-text-subtlest: #6B6E76;
+  --j-text-inverse: #FFFFFF;
+  --j-text-brand: #1868DB;
+  --j-text-disabled: #080F214A;
+
+  /* --- Yüzey / arka plan --- */
+  --j-surface: #FFFFFF;
+  --j-surface-hover: #F0F1F2;
+  --j-surface-pressed: #DDDEE1;
+  --j-surface-sunken: #F8F8F8;
+  --j-surface-raised: #FFFFFF;
+  --j-neutral-subtle: #0515240F;
+  --j-neutral-subtle-hover: #0B120E24;
+
+  /* --- Kenarlık --- */
+  --j-border: #0B120E24;
+  --j-border-input: #8C8F97;
+  --j-border-bold: #7D818A;
+  --j-border-disabled: #0515240F;
+
+  /* --- Durum renkleri (lozenge / mesajlar) --- */
+  --j-success-bg: #EFFFD6;
+  --j-success-bg-bold: #5B7F24;
+  --j-success-text: #4C6B1F;
+  --j-danger-bg: #FFECEB;
+  --j-danger-bg-bold: #C9372C;
+  --j-danger-text: #AE2E24;
+  --j-warning-bg: #FFF5DB;
+  --j-warning-bg-bold: #FBC828;
+  --j-warning-text: #9E4C00;
+  --j-info-bg: #E9F2FE;
+  --j-info-bg-bold: #1868DB;
+  --j-info-text: #1558BC;
+  --j-discovery-bg: #F8EEFE;
+  --j-discovery-bg-bold: #964AC0;
+  --j-discovery-text: #803FA5;
+  --j-neutral-bold: #292A2E;
+
+  /* --- İkon aksan renkleri (issue type / priority) --- */
+  --j-icon-green: #22A06B;
+  --j-icon-blue: #357DE8;
+  --j-icon-red: #C9372C;
+  --j-icon-purple: #AF59E1;
+  --j-icon-orange: #E06C00;
+  --j-icon-teal: #2898BD;
+  --j-icon-yellow: #B38600;
+  --j-icon-subtle: #505258;
+
+  /* --- Tipografi --- */
+  --j-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --j-font-mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* --- Boşluk (8px grid) --- */
+  --j-space-025: 2px;
+  --j-space-050: 4px;
+  --j-space-075: 6px;
+  --j-space-100: 8px;
+  --j-space-150: 12px;
+  --j-space-200: 16px;
+  --j-space-250: 20px;
+  --j-space-300: 24px;
+  --j-space-400: 32px;
+  --j-space-500: 40px;
+  --j-space-600: 48px;
+  --j-space-800: 64px;
+
+  /* --- Radius --- */
+  --j-radius-xs: 2px;
+  --j-radius-sm: 4px;
+  --j-radius-md: 6px;
+  --j-radius-lg: 8px;
+  --j-radius-xl: 12px;
+  --j-radius-full: 9999px;
+
+  /* --- Gölge --- */
+  --j-shadow-raised: 0 1px 1px #1E1F211f, 0 0 1px #1E1F2129;
+  --j-shadow-overlay: 0 4px 8px #1E1F211f, 0 0 1px #1E1F2129;
+
+  /* --- Layout ölçüleri --- */
+  --j-topbar-h: 56px;
+  --j-sidebar-w: 240px;
+  --j-detail-col-w: 720px;
+  --j-detail-panel-w: 360px;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--j-surface-sunken);
+  color: var(--j-text);
+  font-family: var(--j-font-body);
+  font-size: 14px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--j-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3, h4, p, ul, ol { margin: 0; }
+button { font-family: inherit; }
+input, select, textarea { font-family: inherit; font-size: 14px; }
+
+.j-heading-xxl { font-size: 32px; line-height: 36px; font-weight: 600; }
+.j-heading-xl  { font-size: 28px; line-height: 32px; font-weight: 600; }
+.j-heading-l   { font-size: 24px; line-height: 28px; font-weight: 600; }
+.j-heading-m   { font-size: 20px; line-height: 24px; font-weight: 600; }
+.j-heading-s   { font-size: 16px; line-height: 20px; font-weight: 600; }
+.j-heading-xs  { font-size: 14px; line-height: 20px; font-weight: 600; }
+.j-heading-xxs { font-size: 12px; line-height: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.j-body-lg     { font-size: 16px; line-height: 24px; font-weight: 400; }
+.j-body-sm     { font-size: 12px; line-height: 16px; font-weight: 400; }
+.j-text-subtle    { color: var(--j-text-subtle); }
+.j-text-subtlest  { color: var(--j-text-subtlest); }
