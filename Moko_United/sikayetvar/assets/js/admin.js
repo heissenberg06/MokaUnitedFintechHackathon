@@ -23,13 +23,19 @@
     render(data);
   }
 
+  let lastData = null;
+
   function render(d) {
+    lastData = d;
     const dash = $('#dash');
     dash.innerHTML = '';
     dash.appendChild(kpiRow(d.kpis));
+    dash.appendChild(fraudRingCard(d.fraud_rings));
     dash.appendChild(aiCard(d.ai_summary, d.generated_at));
+    dash.appendChild(twoCol(hourlyCard(d.hourly), merchantRiskCard(d.merchant_risk)));
     dash.appendChild(twoCol(emergingCard(d.emerging), timeseriesCard(d.timeseries)));
     dash.appendChild(criticalCard(d.critical_issues));
+    dash.appendChild(teamRoutingCard(d.team_routing));
     dash.appendChild(twoCol(categoriesCard(d.categories), segmentsCard(d.segments)));
     dash.appendChild(twoCol(sentimentCard(d.sentiment), benchmarkCard(d.benchmark)));
     if (d.clusters && d.clusters.length) dash.appendChild(clustersCard(d.clusters));
@@ -74,6 +80,78 @@
       wrap.appendChild(c);
     });
     return wrap;
+  }
+
+  /* ---- Sahtekarlık ağı ---- */
+  function fraudRingCard(rings) {
+    const c = card('Sahtekarlık Ağı Tespiti', 'aynı işyerinde, kısa sürede birikmiş farklı şikayetler');
+    c.classList.add('ring-card');
+    if (!rings || !rings.length) {
+      c.appendChild(el('p', 'ring-clear-txt', '✓ Şu an aktif bir sahtekarlık ağı sinyali tespit edilmedi.'));
+      return c;
+    }
+    rings.forEach(r => {
+      const box = el('div', 'ring-alert');
+      const titles = (r.sample_titles || []).map(t => '<li>' + t + '</li>').join('');
+      box.innerHTML =
+        '<div class="ring-top"><span class="ring-ic">⚠</span>' +
+        '<span class="ring-merchant">' + r.merchant + '</span>' +
+        '<span class="ring-badge">' + r.count + ' farklı şikayet</span></div>' +
+        '<div class="ring-meta">Son ' + r.window_hours + ' saat içinde ' + r.count +
+        ' farklı kullanıcıdan "Yetkisiz İşlem" şikayeti geldi — organize bir saldırı sinyali olabilir.</div>' +
+        '<ul class="ring-samples">' + titles + '</ul>' +
+        '<div class="ring-action"><strong>Önerilen aksiyon:</strong> Bu işyerine ait işlemleri geçici ' +
+        'olarak inceleme kuyruğuna al; etkilenen kart ailelerini fraud izleme listesine ekle.</div>';
+      c.appendChild(box);
+    });
+    return c;
+  }
+
+  /* ---- Saatlik yoğunluk ---- */
+  function hourlyCard(h) {
+    const c = card('Saatlik Yoğunluk', 'şikayetlerin/işlemlerin geldiği saat dağılımı (00-23)');
+    if (!h || !h.buckets || !h.buckets.some(x => x > 0)) { c.appendChild(el('p', 'muted', 'Veri yok.')); return c; }
+    const max = Math.max(1, ...h.buckets);
+    const W = 300, H = 130, n = 24, bw = W / n * 0.6, gap = W / n;
+    let bars = '';
+    h.buckets.forEach((v, i) => {
+      const barH = Math.round(v / max * (H - 26));
+      const x = i * gap + (gap - bw) / 2, y = H - barH - 18;
+      const isPeak = i === h.peak_hour && v > 0;
+      bars += '<rect x="' + x + '" y="' + y + '" width="' + bw + '" height="' + Math.max(barH, 1) +
+        '" rx="2" fill="' + (isPeak ? 'var(--sv-red)' : 'var(--sv-primary)') + '"><title>' +
+        String(i).padStart(2, '0') + ':00 — ' + v + ' şikayet</title></rect>';
+      if (i % 3 === 0) {
+        bars += '<text x="' + (x + bw / 2) + '" y="' + (H - 4) + '" text-anchor="middle" class="ax">' + i + '</text>';
+      }
+    });
+    c.appendChild(el('div', 'chart', '<svg viewBox="0 0 ' + W + ' ' + H + '" class="svg-chart hourly-chart">' + bars + '</svg>'));
+    if (h.peak_count > 0) {
+      c.appendChild(el('p', 'hourly-foot',
+        'En yoğun saat: <strong>' + String(h.peak_hour).padStart(2, '0') + ':00</strong> (' + h.peak_count + ' şikayet) · ' +
+        'Mesai saatleri (09-18): <strong>%' + h.business_hours_pct + '</strong> · Mesai dışı: <strong>%' + h.off_hours_pct + '</strong>'));
+    }
+    return c;
+  }
+
+  /* ---- İşyeri risk sıralaması ---- */
+  function merchantRiskCard(rows) {
+    const c = card('İşyeri Risk Sıralaması', 'işyeri bazında şikayet yoğunluğu × aciliyet');
+    if (!rows || !rows.length) { c.appendChild(el('p', 'muted', 'İşyeri bazlı şikayet kaydı yok.')); return c; }
+    const max = Math.max(...rows.map(r => r.risk_score));
+    rows.slice(0, 8).forEach(r => {
+      const row = el('div', 'mrisk-row' + (r.is_ring ? ' mrisk-danger' : ''));
+      row.innerHTML =
+        '<div class="mrisk-top"><span class="mrisk-name">' + r.merchant +
+        (r.is_ring ? ' <span class="mrisk-flag">⚠ Ağ</span>' : '') + '</span>' +
+        '<span class="mrisk-score">Risk ' + r.risk_score + '</span></div>' +
+        '<div class="bar-track"><span class="bar-fill' + (r.is_ring ? ' danger' : '') +
+        '" style="width:' + (r.risk_score / max * 100) + '%"></span></div>' +
+        '<div class="mrisk-meta">' + r.count + ' şikayet · ort. aciliyet ' + r.avg_urgency +
+        '/10 · ' + r.pending + ' bekliyor</div>';
+      c.appendChild(row);
+    });
+    return c;
   }
 
   /* ---- AI özet ---- */
@@ -149,6 +227,23 @@
         '<div class="urg-bar"><span style="width:' + (it.urgency * 10) + '%;background:' + URG_COLOR(it.urgency) + '"></span></div>' +
         '<ul class="crit-samples">' + samples + '</ul>' +
         '<div class="crit-action"><strong>Öneri:</strong> ' + it.action + '</div>';
+      c.appendChild(box);
+    });
+    return c;
+  }
+
+  /* ---- Ekip yönlendirme ---- */
+  function teamRoutingCard(rows) {
+    const c = card('İlgili Ekibe Yönlendirme', 'kategoriye göre otomatik triage — hangi sorun hangi ekibe düşüyor');
+    if (!rows || !rows.length) { c.appendChild(el('p', 'muted', 'Veri yok.')); return c; }
+    rows.forEach(r => {
+      const box = el('div', 'team-row' + (r.pending > 0 && r.avg_urgency >= 6 ? ' team-hot' : ''));
+      const samples = (r.samples || []).map(s => '<li>' + s + '</li>').join('');
+      box.innerHTML =
+        '<div class="team-top"><span class="team-name">→ ' + r.team + '</span>' +
+        '<span class="team-badge">' + r.pending + ' bekliyor / ' + r.count + ' toplam</span></div>' +
+        '<div class="team-meta">En sık: ' + r.top_category + ' · ort. aciliyet ' + r.avg_urgency + '/10</div>' +
+        '<ul class="team-samples">' + samples + '</ul>';
       c.appendChild(box);
     });
     return c;
@@ -237,6 +332,121 @@
     c.appendChild(ol);
     return c;
   }
+
+  /* ---- Rapor oluşturma ---- */
+  function buildReportText(d) {
+    const L = [];
+    const line = (s) => L.push(s || '');
+    const rule = () => line('-'.repeat(48));
+    const now = new Date();
+    line('MOKA MÜŞTERİ ZEKÂ PANELİ — YÖNETİCİ RAPORU');
+    line('Oluşturulma: ' + now.toLocaleString('tr-TR'));
+    line('Veri üretimi: ' + (d.generated_at || '—'));
+    rule();
+
+    const k = d.kpis || {};
+    line('GENEL DURUM');
+    line('  Toplam şikayet     : ' + num(k.total));
+    line('  Çözüm oranı        : %' + (k.resolution_rate ?? 0) + '  (' + (k.solved ?? 0) + ' çözüldü, ' + (k.pending ?? 0) + ' bekliyor)');
+    line('  Ort. yanıt süresi  : ' + (k.avg_response_hours ?? '—') + ' saat');
+    line('  Güven puanı        : ' + (k.trust_score ?? '—') + '/100');
+    line('  Toplam destek/gör. : ' + num(k.total_supports) + ' / ' + num(k.total_views));
+    line('');
+
+    line('SAHTEKARLIK AĞI TESPİTİ');
+    if (d.fraud_rings && d.fraud_rings.length) {
+      d.fraud_rings.forEach(r => {
+        line('  ⚠ ' + r.merchant + ' — ' + r.count + ' farklı şikayet, son ' + r.window_hours + ' saat içinde');
+      });
+    } else {
+      line('  Aktif bir sahtekarlık ağı sinyali tespit edilmedi.');
+    }
+    line('');
+
+    if (d.hourly) {
+      line('SAATLİK YOĞUNLUK');
+      line('  En yoğun saat      : ' + String(d.hourly.peak_hour).padStart(2, '0') + ':00 (' + d.hourly.peak_count + ' şikayet)');
+      line('  Mesai saatleri (09-18): %' + d.hourly.business_hours_pct + '   Mesai dışı: %' + d.hourly.off_hours_pct);
+      line('');
+    }
+
+    if (d.merchant_risk && d.merchant_risk.length) {
+      line('İŞYERİ RİSK SIRALAMASI (ilk 8)');
+      d.merchant_risk.slice(0, 8).forEach((r, i) => {
+        line('  ' + (i + 1) + '. ' + r.merchant + (r.is_ring ? ' [AĞ]' : '') +
+          ' — risk ' + r.risk_score + ' (' + r.count + ' şikayet, ort. aciliyet ' + r.avg_urgency + '/10, ' + r.pending + ' bekliyor)');
+      });
+      line('');
+    }
+
+    line('KRİTİK SORUNLAR (ilk 5)');
+    if (d.critical_issues && d.critical_issues.length) {
+      d.critical_issues.slice(0, 5).forEach((it, i) => {
+        line('  ' + (i + 1) + '. ' + it.issue + ' — aciliyet ' + it.urgency + '/10, ' + it.count + ' şikayet, ' + it.pending + ' bekliyor');
+        line('     Öneri: ' + it.action);
+      });
+    } else { line('  Kayıt yok.'); }
+    line('');
+
+    if (d.team_routing && d.team_routing.length) {
+      line('İLGİLİ EKİBE YÖNLENDİRME');
+      d.team_routing.forEach(r => {
+        line('  → ' + r.team + ' — ' + r.pending + ' bekliyor / ' + r.count + ' toplam (en sık: ' + r.top_category + ', ort. aciliyet ' + r.avg_urgency + '/10)');
+      });
+      line('');
+    }
+
+    if (d.categories && d.categories.length) {
+      line('KATEGORİ DAĞILIMI');
+      d.categories.slice(0, 8).forEach(c => line('  ' + c.name + ': ' + c.count));
+      line('');
+    }
+
+    if (d.segments && d.segments.length) {
+      line('MÜŞTERİ SEGMENTLERİ');
+      d.segments.forEach(s => line('  ' + s.name + ': %' + s.share + ' (' + s.count + ' şikayet, en sık: ' + s.top_issue + ')'));
+      line('');
+    }
+
+    if (d.sentiment && d.sentiment.length) {
+      line('DUYGU DAĞILIMI');
+      d.sentiment.forEach(s => line('  ' + s.name + ': ' + s.count));
+      line('');
+    }
+
+    if (d.recommendations && d.recommendations.length) {
+      line('AKSİYON ÖNERİLERİ');
+      d.recommendations.forEach((r, i) => line('  ' + (i + 1) + '. [' + r.category + '] ' + r.text));
+      line('');
+    }
+
+    if (d.ai_summary && d.ai_summary.text) {
+      rule();
+      line('YÖNETİCİ ÖZETİ (' + (d.ai_summary.source || 'kural-tabanlı') + ')');
+      line(d.ai_summary.text);
+    }
+    rule();
+    line('Bu rapor yalnızca eğitim/demo amaçlıdır; tüm veriler kurgudur.');
+    return L.join('\n');
+  }
+
+  function downloadReport() {
+    if (!lastData) return;
+    const text = buildReportText(lastData);
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = el('a');
+    const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '').replace(/(\d{8})(\d{4})/, '$1-$2');
+    a.href = url;
+    a.download = 'moka-yonetici-raporu-' + stamp + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  const btnReport = $('#btnReport');
+  if (btnReport) btnReport.addEventListener('click', downloadReport);
 
   load();
   // AI özeti arka planda hazırlanırken paneli sessizce tazele (en fazla ~2 dk)

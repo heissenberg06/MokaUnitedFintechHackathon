@@ -125,8 +125,32 @@ RECOMMENDATIONS = {
              "kümesi tespit edilmedi.",
 }
 
+# Kategori -> sorumlu iç ekip (otomatik yönlendirme/triage için)
+TEAM_ROUTING = {
+    "Yetkisiz İşlem": "Güvenlik & Fraud Ekibi",
+    "Para İadesi": "Finans & Ödemeler Ekibi",
+    "Komisyon & Ücret": "Finans & Ödemeler Ekibi",
+    "POS & Teslimat": "Operasyon & Lojistik Ekibi",
+    "Sanal POS & Başvuru": "Satış & Onboarding Ekibi",
+    "Müşteri Hizmetleri": "Müşteri Deneyimi Ekibi",
+    "Uygulama & Teknik": "Ürün & Mühendislik Ekibi",
+    "Ödeme Linki": "Ürün & Mühendislik Ekibi",
+    "Dijital Cüzdan": "Finans & Ödemeler Ekibi",
+    "Hesap & Doğrulama": "Uyum & Doğrulama (KYC) Ekibi",
+    "Mutabakat & Rapor": "Finans & Ödemeler Ekibi",
+    "Sözleşme & İptal": "Hukuk & Sözleşme Ekibi",
+    "Diğer": "Müşteri Deneyimi Ekibi",
+}
+
 # Benchmark — temsilî rakip değerleri (KURGU)
 BENCHMARK_PEERS = {"Sektör Ort.": 71, "Rakip A": 85, "Rakip B": 72}
+
+# Sahtekarlık ağı tespiti: aynı işyerinde, kısa bir zaman penceresinde,
+# farklı kullanıcılardan gelen "Yetkisiz İşlem" şikayetleri organize bir
+# saldırı/güvenlik açığı sinyali olabilir.
+FRAUD_RING_CATEGORY = "Yetkisiz İşlem"
+FRAUD_RING_WINDOW_HOURS = 48
+FRAUD_RING_MIN_COUNT = 3
 
 # ----------------------------------------------------------------------------
 # Çekirdek analiz
@@ -228,6 +252,111 @@ def find_clusters(complaints, threshold=0.15):
     clusters.sort(key=len, reverse=True)
     return clusters
 
+def detect_fraud_rings(enriched, window_hours=FRAUD_RING_WINDOW_HOURS,
+                        min_count=FRAUD_RING_MIN_COUNT):
+    """Aynı (normalize edilmiş) işyeri adı altında `window_hours` içinde en az
+    `min_count` farklı 'Yetkisiz İşlem' şikayeti varsa, olası bir sahtekarlık
+    ağı/saldırısı olarak raporla. Tek bir müşterinin tekrarlı şikayeti değil,
+    FARKLI şikayetlerin aynı işyerinde kümelenmesi aranır."""
+    by_merchant = defaultdict(list)
+    for e in enriched:
+        merchant = norm(e.get('merchant') or '').strip()
+        if not merchant or e['_cat'] != FRAUD_RING_CATEGORY or e['_dt'] is None:
+            continue
+        by_merchant[tr_lower(merchant)].append(e)
+
+    rings = []
+    for items in by_merchant.values():
+        items.sort(key=lambda x: x['_dt'])
+        n = len(items)
+        for i in range(n):
+            window_end = items[i]['_dt'] + timedelta(hours=window_hours)
+            group = [x for x in items[i:] if x['_dt'] <= window_end]
+            if len(group) >= min_count:
+                display_name = group[0].get('merchant') or '—'
+                rings.append({
+                    "merchant": display_name,
+                    "count": len(group),
+                    "first_at": group[0]['_dt'].replace(microsecond=0).isoformat(),
+                    "last_at": group[-1]['_dt'].replace(microsecond=0).isoformat(),
+                    "window_hours": window_hours,
+                    "sample_titles": [g.get('title', '') for g in group[:4]],
+                    "complaint_ids": [g.get('id') for g in group],
+                })
+                break  # bu işyeri için ilk (en erken) tetiklenen pencereyi raporla
+    rings.sort(key=lambda r: r['count'], reverse=True)
+    return rings
+
+def hourly_distribution(enriched):
+    """24 saatlik şikayet yoğunluğu — hangi saatlerde daha çok şikayet/işlem geliyor
+    (grafikte kırmızıyla vurgulanan en yoğun saat + mesai içi/dışı oranı)."""
+    buckets = [0] * 24
+    for e in enriched:
+        if e['_dt'] is not None:
+            buckets[e['_dt'].hour] += 1
+    total = sum(buckets)
+    peak_hour = max(range(24), key=lambda h: buckets[h]) if total else 0
+    business = sum(buckets[9:18])  # 09:00-17:59 mesai saatleri
+    return {
+        "buckets": buckets,
+        "peak_hour": peak_hour,
+        "peak_count": buckets[peak_hour] if total else 0,
+        "business_hours_pct": round(business / total * 100) if total else 0,
+        "off_hours_pct": round((total - business) / total * 100) if total else 0,
+    }
+
+def merchant_risk_ranking(enriched, ring_keys=None):
+    """`merchant` alanı dolu olan tüm şikayetleri işyeri bazında toplayıp
+    risk puanına (adet × ortalama aciliyet) göre sıralar; sahtekarlık ağı
+    eşiğini geçen işyerleri `is_ring` ile işaretler."""
+    ring_keys = ring_keys or set()
+    by_merchant = defaultdict(list)
+    for e in enriched:
+        m = norm(e.get('merchant') or '').strip()
+        if m:
+            by_merchant[m].append(e)
+    rows = []
+    for name, items in by_merchant.items():
+        avg_urg = round(sum(i['_urg'] for i in items) / len(items), 1)
+        rows.append({
+            "merchant": name,
+            "count": len(items),
+            "avg_urgency": avg_urg,
+            "pending": sum(1 for i in items if i.get('status') != 'cozuldu'),
+            "risk_score": round(len(items) * avg_urg, 1),
+            "is_ring": tr_lower(name) in ring_keys,
+        })
+    rows.sort(key=lambda r: r['risk_score'], reverse=True)
+    return rows
+
+def route_to_teams(enriched):
+    """Her şikayeti kategorisine göre sorumlu iç ekibe (Güvenlik, Finans, Ürün...)
+    yönlendirir; ekip bazında yük (adet, bekleyen, ortalama aciliyet) çıkarır.
+    Yükü en ağır ekip (bekleyen × aciliyet) en üstte listelenir."""
+    by_team = defaultdict(list)
+    for e in enriched:
+        team = TEAM_ROUTING.get(e['_cat'], TEAM_ROUTING["Diğer"])
+        by_team[team].append(e)
+    rows = []
+    for team, items in by_team.items():
+        cat_counts = defaultdict(int)
+        for i in items:
+            cat_counts[i['_cat']] += 1
+        top_category = max(cat_counts.items(), key=lambda x: x[1])[0]
+        pending = sum(1 for i in items if i.get('status') != 'cozuldu')
+        avg_urg = round(sum(i['_urg'] for i in items) / len(items), 1)
+        samples = sorted(items, key=lambda x: x['_urg'], reverse=True)
+        rows.append({
+            "team": team,
+            "count": len(items),
+            "pending": pending,
+            "avg_urgency": avg_urg,
+            "top_category": top_category,
+            "samples": [s.get('title', '') for s in samples[:3]],
+        })
+    rows.sort(key=lambda r: r['pending'] * r['avg_urgency'], reverse=True)
+    return rows
+
 def analyze(data, now=None):
     """Ana giriş: complaints listesi -> tam içgörü sözlüğü."""
     complaints = data.get('complaints', []) if isinstance(data, dict) else data
@@ -235,7 +364,10 @@ def analyze(data, now=None):
     total = len(complaints)
     if total == 0:
         return {"kpis": {}, "categories": [], "critical_issues": [], "trend": {},
-                "segments": [], "benchmark": {}, "recommendations": [], "clusters": []}
+                "segments": [], "benchmark": {}, "recommendations": [], "clusters": [],
+                "fraud_rings": [], "merchant_risk": [], "team_routing": [],
+                "hourly": {"buckets": [0] * 24, "peak_hour": 0, "peak_count": 0,
+                           "business_hours_pct": 0, "off_hours_pct": 0}}
 
     solved = sum(1 for c in complaints if c.get('status') == 'cozuldu')
     pending = total - solved
@@ -347,6 +479,17 @@ def analyze(data, now=None):
     for e in enriched:
         sent_map[e['_sent']] += 1
 
+    # sahtekarlık ağı: aynı işyerinde, kısa sürede biriken farklı şikayetler
+    fraud_rings = detect_fraud_rings(enriched)
+    ring_keys = {tr_lower(r['merchant']) for r in fraud_rings}
+
+    # işyeri risk sıralaması + saatlik yoğunluk
+    merchant_risk = merchant_risk_ranking(enriched, ring_keys)
+    hourly = hourly_distribution(enriched)
+
+    # şikayetlerin ilgili iç ekiplere otomatik yönlendirilmesi
+    team_routing = route_to_teams(enriched)
+
     # kümeler (tekrar eden sorunlar)
     clusters_raw = find_clusters(enriched)
     clusters = [{
@@ -383,6 +526,10 @@ def analyze(data, now=None):
         "benchmark": {"moka": resolution_rate, "peers": BENCHMARK_PEERS},
         "recommendations": recommendations,
         "clusters": clusters,
+        "fraud_rings": fraud_rings,
+        "merchant_risk": merchant_risk,
+        "hourly": hourly,
+        "team_routing": team_routing,
     }
 
 # ----------------------------------------------------------------------------
