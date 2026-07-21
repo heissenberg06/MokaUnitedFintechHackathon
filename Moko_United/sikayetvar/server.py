@@ -540,7 +540,9 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     load_data()  # seed'i garantile
     _trigger_ai_refresh()  # AI özetini arka planda önceden hazırla (ısınma)
-    server = ThreadingHTTPServer(('0.0.0.0', PORT), Handler)
+    # Yalnızca localhost'a bağlan: dışarıdan doğrudan erişim yok, yalnızca aynı
+    # makinedeki nginx reverse proxy üzerinden ulaşılabilir.
+    server = ThreadingHTTPServer(('127.0.0.1', PORT), Handler)
     print(f"Şikayetvar klonu çalışıyor:  http://localhost:{PORT}")
     print(f"Yönetici paneli:            http://localhost:{PORT}/admin.html")
     print(f"Veri dosyası: {DATA_FILE}")

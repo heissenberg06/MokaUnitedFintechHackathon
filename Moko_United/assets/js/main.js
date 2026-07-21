@@ -337,7 +337,9 @@ document.addEventListener('components:ready', () => {
 // --- İtiraz / İşlem Sorgulama sihirbazı ---
 // İşlem eşleştirme (mock veri) client'ta kalır; rate-limit, itiraz oluşturma (dosya yükleme dahil)
 // ve durum sorgulama gerçek backend'e (itiraz_server.py, IP bazlı brute-force koruması) bağlıdır.
-const ITIRAZ_API = 'http://localhost:8757';
+// Prod'da nginx aynı origin üzerinden /api/itiraz/'ı proxy'lediği için varsayılan boş (relative) bırakılır.
+// Yerelde ayrı port üzerinden test etmek gerekirse: window.MOKA_ITIRAZ_API_URL = 'http://localhost:8757'
+const ITIRAZ_API = window.MOKA_ITIRAZ_API_URL || '';
 
 // ---- İtiraz: paylaşılan takip + kalıcılık yardımcıları (hem oluşturma hem durum sorgu sayfası kullanır) ----
 // Not: tam itiraz kaydı artık backend'de saklanır; localStorage yalnızca "bu cihazda görüntülenen
