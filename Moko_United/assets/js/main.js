@@ -417,6 +417,18 @@ function initDisputeWizard() {
   const lockedMsgEl = document.querySelector('[data-screen="locked"] .step-sub');
   const lockedDefaultMsg = lockedMsgEl ? lockedMsgEl.textContent : '';
 
+  // Hızlı test butonları (jüri değerlendirmesi için) — formu örnek verilerle doldurur
+  wizard.querySelectorAll('.qf-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      wizard.querySelectorAll('.qf-chip').forEach(c => c.classList.remove('qf-active'));
+      chip.classList.add('qf-active');
+      queryForm.TxnKurum.value = chip.dataset.kurum;
+      queryForm.TxnCuzdanId.value = chip.dataset.cuzdan;
+      queryForm.TxnAmount.value = chip.dataset.amount;
+      queryForm.TxnDate.value = chip.dataset.date;
+    });
+  });
+
   let currentTxn = null;
 
   function showScreen(name) {

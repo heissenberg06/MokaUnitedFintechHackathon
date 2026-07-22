@@ -63,6 +63,11 @@ MAX_FILES = 5
 CLOSED_STAGE = 4
 OPEN_STAGES = (1, 2, 3)
 
+# Mükerrer itiraz engeli yalnızca bu süre içinde geçerlidir (demo/test kolaylığı):
+# aynı işlem için tekrar test edildiğinde "zaten açık itirazınız var" bloğuna takılmasın diye
+# bu süreden eski açık itirazlar mükerrer kontrolünde yok sayılır.
+DISPUTE_DEDUP_WINDOW_S = 60 * 60  # 1 saat
+
 # ----------------------------------------------------------------------------
 # Yardımcılar
 # ----------------------------------------------------------------------------
@@ -109,8 +114,15 @@ def _write(data):
     os.replace(tmp, DATA_FILE)
 
 def find_open_case_by_ref(data, ref):
+    now = time.time()
     for c in data['cases'].values():
-        if c.get('ref') == ref and c.get('stage', 1) in OPEN_STAGES:
+        if c.get('ref') != ref or c.get('stage', 1) not in OPEN_STAGES:
+            continue
+        try:
+            created_ts = datetime.fromisoformat(c['createdAt']).timestamp()
+        except Exception:
+            created_ts = 0
+        if now - created_ts < DISPUTE_DEDUP_WINDOW_S:
             return c
     return None
 
