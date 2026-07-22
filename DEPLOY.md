@@ -2,43 +2,47 @@
 
 VPS bilgileri: Ubuntu 22.04 LTS · 2 vCPU · 8GB RAM · IP `72.61.90.76` · kullanıcı `root`
 
-Mimari: **iki alt alan adı**
-- `berkopasha.com` → Moka United kurumsal site + chatbot + İtiraz sistemi
-- `sikayetvar.berkopasha.com` → Şikayetvar klonu + Yönetici AI paneli
+Mimari: **dört alt alan adı**, tek VPS, tek nginx:
+
+| Subdomain | İçerik | Yerel port(lar) |
+|---|---|---|
+| `berkopasha.com` / `www` | Moka United kurumsal site + chatbot + İtiraz sistemi | 8000 (chat), 8757 (itiraz) — statik dosyalar nginx'ten direkt |
+| `sikayetvar.berkopasha.com` | Şikayetvar klonu + Yönetici AI paneli | 8756 |
+| `next4biz.berkopasha.com` | next4biz-klon | 8770 |
+| `jira.berkopasha.com` | jira-klon | 8780 |
+| `juri.berkopasha.com` | Jüri değerlendirme merkezi (tek statik sayfa, `Moko_United/juri.html`) | yok — statik |
 
 Her adımı sırayla, kendi terminalinizden VPS'e SSH ile bağlanarak çalıştırın:
 ```bash
 ssh root@72.61.90.76
 ```
-(Aksi belirtilmedikçe tüm komutlar VPS içindedir.)
 
 ---
 
-## Adım 0 — DNS (en başta yapın, yayılması 10 dk–birkaç saat sürebilir)
+## Adım 0 — DNS (en başta yapın, yayılması zaman alır)
 
-Domain sağlayıcınızın (berkopasha.com'u aldığınız yer) DNS panelinden:
+Domain panelinizden 5 A kaydı:
 
 | Tip | Ad (Host) | Değer |
 |---|---|---|
 | A | `@` | `72.61.90.76` |
 | A | `www` | `72.61.90.76` |
 | A | `sikayetvar` | `72.61.90.76` |
+| A | `next4biz` | `72.61.90.76` |
+| A | `jira` | `72.61.90.76` |
 
-Yayılıp yayılmadığını kontrol etmek için (kendi bilgisayarınızdan):
+Kontrol (kendi bilgisayarınızdan):
 ```bash
-dig +short berkopasha.com
-dig +short sikayetvar.berkopasha.com
+dig +short berkopasha.com sikayetvar.berkopasha.com next4biz.berkopasha.com jira.berkopasha.com
 ```
-İkisi de `72.61.90.76` döndürene kadar sonraki adımlara geçebilirsiniz ama HTTPS (Adım 8) için mutlaka yayılmış olması gerekir.
+Hepsi `72.61.90.76` dönene kadar bekleyin (HTTPS adımından önce mutlaka yayılmış olmalı).
 
 ---
 
-## Adım 1 — VPS temel güncelleme + güvenlik
+## Adım 1 — Sistem güncelleme + firewall
 
 ```bash
 apt update && apt upgrade -y
-
-# Basit firewall: yalnızca SSH, HTTP, HTTPS açık
 apt install -y ufw
 ufw allow OpenSSH
 ufw allow 80/tcp
@@ -59,33 +63,30 @@ apt install -y python3 python3-venv python3-pip git nginx certbot python3-certbo
 
 ## Adım 3 — Uygulama kullanıcısı ve dizini
 
-Servisleri root yerine ayrı, yetkisiz bir sistem kullanıcısıyla çalıştırıyoruz (güvenlik):
-
 ```bash
-useradd --system --home /var/www/moka --shell /usr/sbin/nologin moka
+id moka &>/dev/null || useradd --system --home /var/www/moka --shell /usr/sbin/nologin moka
+rm -rf /var/www/moka
 mkdir -p /var/www/moka
 chown moka:moka /var/www/moka
 ```
 
 ---
 
-## Adım 4 — Kodu GitHub'dan çek
+## Adım 4 — Kodu GitHub'dan çek (master)
 
 ```bash
 cd /var/www
-git clone -b vedat https://github.com/heissenberg06/MokaUnitedFintechHackathon.git moka
+git clone -b master https://github.com/heissenberg06/MokaUnitedFintechHackathon.git moka
 chown -R moka:moka /var/www/moka
+ls /var/www/moka/Moko_United
 ```
-
-> Repo private ise bu komut şifre soracaktır — GitHub artık şifreyle push/clone'a izin vermiyor, bunun yerine bir **Personal Access Token** üretip (GitHub → Settings → Developer settings → Personal access tokens) şifre yerine onu girmeniz gerekir.
-
-> Not: Modeller (`moka-intent-model/`, `moka-sikayet-model/`) `.gitignore`'da olduğu için bu klonda **gelmeyecek** — Adım 6'da ayrıca taşıyacağız.
+Çıktıda `jira-klon`, `next4biz-klon`, `sikayetvar`, `itiraz.html` gibi klasör/dosyaları görmelisiniz.
 
 ---
 
 ## Adım 5 — Python ortamı (chatbot + şikayet sınıflandırıcı için)
 
-`itiraz_server.py` ve `sikayetvar/server.py` saf stdlib'dir, venv gerekmez. Yalnızca FastAPI tabanlı iki servis (`main_classifier.py`, `sikayet_api.py`) için:
+`itiraz_server.py`, `sikayetvar/server.py`, `next4biz-klon/server.py`, `jira-klon/server.py` saf stdlib'dir, venv gerekmez. Yalnızca 2 FastAPI servisi için:
 
 ```bash
 cd /var/www/moka
@@ -93,35 +94,32 @@ sudo -u moka python3 -m venv venv
 sudo -u moka ./venv/bin/pip install --upgrade pip
 sudo -u moka ./venv/bin/pip install fastapi "uvicorn[standard]" transformers torch --index-url https://download.pytorch.org/whl/cpu
 ```
-(`--index-url .../cpu` CPU-only PyTorch indirir — VPS'te GPU olmadığı için hem çok daha küçük hem yeterli.)
 
 ---
 
 ## Adım 6 — Modelleri kendi Mac'inizden VPS'e taşıyın
 
-Bu komutu VPS'te **değil**, kendi bilgisayarınızın terminalinde çalıştırın:
-
+**Kendi bilgisayarınızın terminalinde** (VPS'te değil):
 ```bash
 cd /Users/berk/Desktop/moka
 scp -r moka-intent-model moka-sikayet-model root@72.61.90.76:/var/www/moka/
 ```
 
-Sonra VPS'e dönüp sahipliği düzeltin:
-
+VPS'e dönüp sahipliği düzeltin:
 ```bash
 chown -R moka:moka /var/www/moka/moka-intent-model /var/www/moka/moka-sikayet-model
 ```
 
 ---
 
-## Adım 7 — systemd servisleri
+## Adım 7 — systemd servisleri (6 tane)
 
-Dört servis dosyası oluşturacağız. Her biri için:
+Her biri için dosya oluşturup içeriği yapıştıracaksınız: `nano /etc/systemd/system/<dosya-adı>` → yapıştır → `Ctrl+O`, `Enter`, `Ctrl+X`.
 
-**`/etc/systemd/system/moka-chatbot.service`**
+**`moka-chatbot.service`**
 ```ini
 [Unit]
-Description=Moka Chatbot Sınıflandırıcı (main_classifier.py, port 8000)
+Description=Moka Chatbot Sınıflandırıcı (port 8000)
 After=network.target
 
 [Service]
@@ -135,10 +133,10 @@ RestartSec=3
 WantedBy=multi-user.target
 ```
 
-**`/etc/systemd/system/moka-sikayet-api.service`**
+**`moka-sikayet-api.service`**
 ```ini
 [Unit]
-Description=Moka Şikayet Sınıflandırıcı (sikayet_api.py, port 8020)
+Description=Moka Şikayet Sınıflandırıcı (port 8020)
 After=network.target
 
 [Service]
@@ -152,10 +150,10 @@ RestartSec=3
 WantedBy=multi-user.target
 ```
 
-**`/etc/systemd/system/moka-itiraz.service`**
+**`moka-itiraz.service`**
 ```ini
 [Unit]
-Description=Moka İtiraz Backend (itiraz_server.py, port 8757)
+Description=Moka İtiraz Backend (port 8757)
 After=network.target
 
 [Service]
@@ -169,10 +167,10 @@ RestartSec=3
 WantedBy=multi-user.target
 ```
 
-**`/etc/systemd/system/moka-sikayetvar.service`**
+**`moka-sikayetvar.service`**
 ```ini
 [Unit]
-Description=Şikayetvar Klonu + Admin Paneli (server.py, port 8756)
+Description=Şikayetvar Klonu + Admin Paneli (port 8756)
 After=network.target moka-sikayet-api.service
 
 [Service]
@@ -186,25 +184,51 @@ RestartSec=3
 WantedBy=multi-user.target
 ```
 
-Bu 4 dosyayı oluşturmak için (her biri ayrı ayrı):
-```bash
-nano /etc/systemd/system/moka-chatbot.service        # içeriği yapıştır, Ctrl+O, Enter, Ctrl+X
-nano /etc/systemd/system/moka-sikayet-api.service
-nano /etc/systemd/system/moka-itiraz.service
-nano /etc/systemd/system/moka-sikayetvar.service
+**`moka-next4biz.service`**
+```ini
+[Unit]
+Description=next4biz-klon (port 8770)
+After=network.target
+
+[Service]
+User=moka
+WorkingDirectory=/var/www/moka/Moko_United/next4biz-klon
+ExecStart=/usr/bin/python3 server.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-Sonra hepsini etkinleştirip başlatın:
+**`moka-jira.service`**
+```ini
+[Unit]
+Description=jira-klon (port 8780)
+After=network.target
+
+[Service]
+User=moka
+WorkingDirectory=/var/www/moka/Moko_United/jira-klon
+ExecStart=/usr/bin/python3 server.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Hepsini etkinleştirip başlatın:
 ```bash
 systemctl daemon-reload
-systemctl enable --now moka-chatbot moka-sikayet-api moka-itiraz moka-sikayetvar
-systemctl status moka-chatbot moka-sikayet-api moka-itiraz moka-sikayetvar --no-pager
+systemctl enable --now moka-chatbot moka-sikayet-api moka-itiraz moka-sikayetvar moka-next4biz moka-jira
+systemctl status moka-chatbot moka-sikayet-api moka-itiraz moka-sikayetvar moka-next4biz moka-jira --no-pager
 ```
-Hepsi `active (running)` olmalı. Model yükleme (chatbot + sikayet-api) birkaç saniye sürebilir; `journalctl -u moka-chatbot -f` ile canlı log izleyebilirsiniz (çıkmak için `Ctrl+C`).
+Hepsi `active (running)` olmalı.
 
 ---
 
-## Adım 8 — Nginx (HTTP, henüz HTTPS'siz)
+## Adım 8 — Nginx (4 site, HTTP)
 
 **`/etc/nginx/sites-available/berkopasha.com`**
 ```nginx
@@ -229,7 +253,7 @@ server {
         proxy_pass http://127.0.0.1:8757;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        client_max_body_size 20M;   # kanıt belgesi yükleme (toplam 15MB + form payı)
+        client_max_body_size 20M;
     }
 }
 ```
@@ -239,7 +263,6 @@ server {
 server {
     listen 80;
     server_name sikayetvar.berkopasha.com;
-
     location / {
         proxy_pass http://127.0.0.1:8756;
         proxy_set_header Host $host;
@@ -248,57 +271,80 @@ server {
 }
 ```
 
-Oluştur ve etkinleştir:
+**`/etc/nginx/sites-available/next4biz.berkopasha.com`**
+```nginx
+server {
+    listen 80;
+    server_name next4biz.berkopasha.com;
+    location / {
+        proxy_pass http://127.0.0.1:8770;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+**`/etc/nginx/sites-available/jira.berkopasha.com`**
+```nginx
+server {
+    listen 80;
+    server_name jira.berkopasha.com;
+    location / {
+        proxy_pass http://127.0.0.1:8780;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+Oluşturup etkinleştirin:
 ```bash
-nano /etc/nginx/sites-available/berkopasha.com              # yukarıdaki ilk bloğu yapıştır
-nano /etc/nginx/sites-available/sikayetvar.berkopasha.com    # ikinci bloğu yapıştır
+nano /etc/nginx/sites-available/berkopasha.com
+nano /etc/nginx/sites-available/sikayetvar.berkopasha.com
+nano /etc/nginx/sites-available/next4biz.berkopasha.com
+nano /etc/nginx/sites-available/jira.berkopasha.com
 
 ln -s /etc/nginx/sites-available/berkopasha.com /etc/nginx/sites-enabled/
 ln -s /etc/nginx/sites-available/sikayetvar.berkopasha.com /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/next4biz.berkopasha.com /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/jira.berkopasha.com /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
-nginx -t          # syntax kontrolü — "syntax is ok" görmelisiniz
+nginx -t
 systemctl reload nginx
 ```
 
-Bu noktada (DNS yayılmışsa) `http://berkopasha.com` ve `http://sikayetvar.berkopasha.com` açılıyor olmalı.
+Bu noktada (DNS yayılmışsa) 4 site de `http://` ile açılıyor olmalı.
 
 ---
 
-## Adım 9 — HTTPS (Let's Encrypt, ücretsiz)
+## Adım 9 — HTTPS (Let's Encrypt)
 
 ```bash
-certbot --nginx -d berkopasha.com -d www.berkopasha.com -d sikayetvar.berkopasha.com
+certbot --nginx -d berkopasha.com -d www.berkopasha.com -d sikayetvar.berkopasha.com -d next4biz.berkopasha.com -d jira.berkopasha.com
 ```
-Sorulan e-posta adresini girin, şartları kabul edin. Certbot nginx config'lerinizi otomatik günceller ve otomatik yenileme kurar (test etmek için: `certbot renew --dry-run`).
 
 ---
 
 ## Adım 10 — Son kontrol listesi
 
-- [ ] `https://berkopasha.com` → ana sayfa açılıyor, sağ altta chatbot ("yarim") çalışıyor
-- [ ] `https://berkopasha.com/itiraz.html` → sorgu yapılabiliyor, talep oluşturulabiliyor
-- [ ] `https://berkopasha.com/itiraz-durum.html` → oluşturulan case ID ile durum sorgulanabiliyor
-- [ ] `https://sikayetvar.berkopasha.com` → şikayet gönderilebiliyor, otomatik "Marka Yanıtı" geliyor
-- [ ] `https://sikayetvar.berkopasha.com/admin.html` → AI paneli açılıyor
+- [ ] `https://berkopasha.com` → ana sayfa + chatbot ("yarim")
+- [ ] `https://berkopasha.com/itiraz.html` → sorgu + talep oluşturma
+- [ ] `https://berkopasha.com/itiraz-durum.html` → durum sorgulama
+- [ ] `https://sikayetvar.berkopasha.com` + `/admin.html`
+- [ ] `https://next4biz.berkopasha.com`
+- [ ] `https://jira.berkopasha.com`
 
 ---
 
-## Bakım / faydalı komutlar
+## Bakım
 
 ```bash
-# Servis durumu / loglar
 systemctl status moka-chatbot
 journalctl -u moka-sikayetvar -f
 
-# Kod güncellemesi sonrası
-cd /var/www/moka && sudo -u moka git pull origin vedat
-systemctl restart moka-chatbot moka-sikayet-api moka-itiraz moka-sikayetvar
+cd /var/www/moka && sudo -u moka git pull origin master
+systemctl restart moka-chatbot moka-sikayet-api moka-itiraz moka-sikayetvar moka-next4biz moka-jira
 
-# Nginx config değişikliği sonrası
 nginx -t && systemctl reload nginx
 ```
-
-## Bilinen sınırlamalar (canlıya çıkmadan önce hatırlatma)
-
-`README.md`'de detaylandırıldığı gibi: işlem eşleştirmesi hâlâ istemci tarafında (tüm mock veri seti tarayıcıya gönderiliyor) ve kart hamili doğrulama adımı yok. Bu bir hackathon demosu için kabul edilebilir ama gerçek müşteri verisiyle çalışacak bir sürüm için üretime geçmeden ele alınmalı.

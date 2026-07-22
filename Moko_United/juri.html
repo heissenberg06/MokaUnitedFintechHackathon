@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moka United — Jüri Değerlendirme Merkezi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0F172A;
+      --paper: #EEF1F6;
+      --surface: #FFFFFF;
+      --brand: #0d3c94;
+      --brand-2: #082a6b;
+      --neon: #2bfb97;
+      --muted: #5A6472;
+      --border: #E2E6EF;
+      --r: 18px;
+      --shadow: 0 16px 40px rgba(13, 60, 148, .10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", system-ui, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: "Poppins", sans-serif;
+      letter-spacing: -.01em;
+      text-wrap: balance;
+    }
+
+    .top {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 56px 24px 8px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--brand);
+      background: rgba(13, 60, 148, .08);
+      padding: 7px 14px;
+      border-radius: 100px;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--neon);
+      box-shadow: 0 0 0 3px rgba(43, 251, 151, .25);
+    }
+
+    .top h1 {
+      font-size: clamp(28px, 4.4vw, 44px);
+      margin: 0 0 14px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .top p {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 56ch;
+      margin: 0 auto;
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 24px 100px;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .section-label::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-bottom: 64px;
+    }
+
+    @media(max-width:720px) {
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dest {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 26px 26px 24px;
+      text-decoration: none;
+      color: var(--ink);
+      transition: transform .18s, box-shadow .18s;
+      overflow: hidden;
+    }
+
+    .dest:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+
+    .dest::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      background: var(--accent, var(--brand));
+    }
+
+    .dest .d-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dest .d-ic {
+      width: 46px;
+      height: 46px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: var(--accent, var(--brand));
+      flex-shrink: 0;
+    }
+
+    .d-ic svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .d-ic .mk-letter {
+      font-family: "Poppins", sans-serif;
+      font-weight: 800;
+      font-size: 19px;
+      color: #fff;
+    }
+
+    .dest .d-name {
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    .dest .d-url {
+      font-size: 12.5px;
+      color: var(--muted);
+      font-family: ui-monospace, "SF Mono", monospace;
+    }
+
+    .dest p {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .dest .d-go {
+      margin-top: auto;
+      padding-top: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent, var(--brand));
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dest .d-go svg {
+      width: 14px;
+      height: 14px;
+      transition: transform .18s;
+    }
+
+    .dest:hover .d-go svg {
+      transform: translateX(3px);
+    }
+
+    .dest.site {
+      --accent: #0d3c94;
+    }
+
+    .dest.sikayetvar {
+      --accent: #695de9;
+    }
+
+    .dest.admin {
+      --accent: #695de9;
+    }
+
+    .dest.jira {
+      --accent: #1868DB;
+    }
+
+    .kvkk-note {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: #FFF8EC;
+      border: 1px solid #F3DFAE;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 28px;
+      font-size: 13.5px;
+      color: #7A5A12;
+    }
+
+    .kvkk-note b {
+      color: #5C4109;
+    }
+
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    @media(max-width:720px) {
+      .test-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .test-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+    }
+
+    .test-card .tc-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .test-card .tc-merchant {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .test-card .tc-sub {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .flow-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .flow-badge.auto {
+      background: rgba(43, 251, 151, .16);
+      color: #0a8a52;
+    }
+
+    .flow-badge.forward {
+      background: rgba(13, 60, 148, .10);
+      color: var(--brand);
+    }
+
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px dashed var(--border);
+      gap: 10px;
+    }
+
+    .field-row:last-child {
+      border-bottom: none;
+    }
+
+    .field-row .f-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .field-row .f-val {
+      font-family: ui-monospace, "SF Mono", monospace;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--brand);
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s;
+    }
+
+    .copy-btn:hover {
+      background: rgba(13, 60, 148, .06);
+    }
+
+    .copy-btn.copied {
+      background: rgba(43, 251, 151, .18);
+      color: #0a8a52;
+      border-color: transparent;
+    }
+
+    .go-itiraz {
+      display: block;
+      text-align: center;
+      margin-top: 26px;
+      padding: 15px;
+      border-radius: 12px;
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14.5px;
+      box-shadow: 0 10px 24px rgba(13, 60, 148, .28);
+    }
+
+    .go-itiraz:hover {
+      background: var(--brand-2);
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 24px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="top">
+    <span class="eyebrow"><span class="dot"></span>Moka United AI Ideathon &amp; Hackathon</span>
+    <h1>Jüri Test Ekranı</h1>
+    <p>Aşağıdaki dört ekrandan istediğinizi açarak projeyi inceleyebilirsiniz. İtiraz sayfasını test etmek için alt
+      bölümdeki örnek verileri kullanabilirsiniz.</p>
+  </div>
+
+  <div class="wrap">
+
+    <div class="section-label">İncelenecek Ekranlar</div>
+    <div class="card-grid">
+
+      <a class="dest site" href="https://berkopasha.com" target="_blank" rel="noopener">
+        <div class="d-top">
+          <span class="d-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#fff" fill-opacity=".0"/><text x="4" y="18" font-family="Poppins, sans-serif" font-weight="800" font-size="15" fill="#fff">mu</text><circle cx="19" cy="6" r="2.6" fill="#2bfb97"/></svg></span>
+          <div>
+            <div class="d-name">Moka United — Ana Site</div>
+            <div class="d-url">berkopasha.com</div>
+          </div>
+        </div>
+        <p>Kurumsal site, AI destekli chatbot ("yarim" butonu) ve İşlem Sorgulama &amp; İtiraz sihirbazı.</p>
+        <span class="d-go">Siteyi Aç <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg></span>
+      </a>
+
+      <a class="dest sikayetvar" href="https://sikayetvar.berkopasha.com" target="_blank" rel="noopener">
+        <div class="d-top">
+          <span class="d-ic"><svg viewBox="0 0 64 64" fill="none"><path d="M16 20h32a4 4 0 0 1 4 4v14a4 4 0 0 1-4 4H30l-9 8v-8h-5a4 4 0 0 1-4-4V24a4 4 0 0 1 4-4z" fill="#fff"/><circle cx="24" cy="31" r="2.6" fill="#695de9"/><circle cx="32" cy="31" r="2.6" fill="#695de9"/><circle cx="40" cy="31" r="2.6" fill="#695de9"/></svg></span>
+          <div>
+            <div class="d-name">Şikayetvar Klonu</div>
+            <div class="d-url">sikayetvar.berkopasha.com</div>
+          </div>
+        </div>
+        <p>Şikayet gönderin — eğitilmiş model otomatik sınıflandırıp anında "Marka Yanıtı" olarak cevaplıyor.</p>
+        <span class="d-go">Siteyi Aç <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg></span>
+      </a>
+
+      <a class="dest admin" href="https://sikayetvar.berkopasha.com/admin.html" target="_blank" rel="noopener">
+        <div class="d-top">
+          <span class="d-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10M11 20V4M18 20v-7"/></svg></span>
+          <div>
+            <div class="d-name">Yönetici AI Zeka Paneli</div>
+            <div class="d-url">sikayetvar.berkopasha.com/admin.html</div>
+          </div>
+        </div>
+        <p>Kategori/duygu/segment analizi, sahtekarlık ağı tespiti, trend ve AI yönetici özeti — gerçek zamanlı.</p>
+        <span class="d-go">Paneli Aç <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg></span>
+      </a>
+
+      <a class="dest jira" href="https://jira.berkopasha.com" target="_blank" rel="noopener">
+        <div class="d-top">
+          <span class="d-ic"><span class="mk-letter">M</span></span>
+          <div>
+            <div class="d-name">jira-klon</div>
+            <div class="d-url">jira.berkopasha.com</div>
+          </div>
+        </div>
+        <p>Ekip içi iş takibi klonu.</p>
+        <span class="d-go">Siteyi Aç <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg></span>
+      </a>
+
+    </div>
+
+    <div class="section-label">İtiraz Sayfası İçin Örnek Test Verileri</div>
+    <div class="kvkk-note">
+      🔒 <div><b>Not:</b> İtiraz sayfası, gerçek bir kart hamilinin bilmesi gereken bilgilerle (kurum adı, cüzdan ID,
+        tutar, tarih) çalışır. Bu bilgiler gerçek bir müşteride saklı tutulur; test edebilmeniz için aşağıya <b>4 örnek
+          kurgusal kayıt</b> bilerek açık bırakılmıştır.</div>
+    </div>
+
+    <div class="test-grid">
+
+      <div class="test-card">
+        <div class="tc-head">
+          <div>
+            <div class="tc-merchant">Beymen – Akasya AVM</div>
+            <div class="tc-sub">Giyim &amp; Aksesuar</div>
+          </div>
+          <span class="flow-badge auto">Otomatik iade akışı</span>
+        </div>
+        <div class="field-row"><span class="f-label">Kurum Adı</span><span class="f-val">Beymen</span><button
+            class="copy-btn" data-copy="Beymen">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">Cüzdan ID</span><span class="f-val">CZD-356787</span><button
+            class="copy-btn" data-copy="CZD-356787">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">İşlem Tutarı</span><span class="f-val">7650.00</span><button
+            class="copy-btn" data-copy="7650.00">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">İşlem Tarihi</span><span class="f-val">23.06.2026</span><button
+            class="copy-btn" data-copy="2026-06-23">Kopyala</button></div>
+      </div>
+
+      <div class="test-card">
+        <div class="tc-head">
+          <div>
+            <div class="tc-merchant">Nike Store – Emaar Square</div>
+            <div class="tc-sub">Spor &amp; Outdoor · 12 taksit</div>
+          </div>
+          <span class="flow-badge forward">Üye işyerine yönlendirme</span>
+        </div>
+        <div class="field-row"><span class="f-label">Kurum Adı</span><span class="f-val">Nike</span><button
+            class="copy-btn" data-copy="Nike">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">Cüzdan ID</span><span class="f-val">CZD-331148</span><button
+            class="copy-btn" data-copy="CZD-331148">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">İşlem Tutarı</span><span class="f-val">2386.14</span><button
+            class="copy-btn" data-copy="2386.14">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">İşlem Tarihi</span><span class="f-val">19.05.2026</span><button
+            class="copy-btn" data-copy="2026-05-19">Kopyala</button></div>
+      </div>
+
+      <div class="test-card">
+        <div class="tc-head">
+          <div>
+            <div class="tc-merchant">Vakko – Nişantaşı</div>
+            <div class="tc-sub">Giyim &amp; Aksesuar</div>
+          </div>
+          <span class="flow-badge auto">Otomatik iade akışı</span>
+        </div>
+        <div class="field-row"><span class="f-label">Kurum Adı</span><span class="f-val">Vakko</span><button
+            class="copy-btn" data-copy="Vakko">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">Cüzdan ID</span><span class="f-val">CZD-809570</span><button
+            class="copy-btn" data-copy="CZD-809570">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">İşlem Tutarı</span><span class="f-val">2319.99</span><button
+            class="copy-btn" data-copy="2319.99">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">İşlem Tarihi</span><span class="f-val">01.07.2026</span><button
+            class="copy-btn" data-copy="2026-07-01">Kopyala</button></div>
+      </div>
+
+      <div class="test-card">
+        <div class="tc-head">
+          <div>
+            <div class="tc-merchant">Samsung – Panora AVM</div>
+            <div class="tc-sub">Elektronik · 12 taksit</div>
+          </div>
+          <span class="flow-badge forward">Üye işyerine yönlendirme</span>
+        </div>
+        <div class="field-row"><span class="f-label">Kurum Adı</span><span class="f-val">Samsung</span><button
+            class="copy-btn" data-copy="Samsung">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">Cüzdan ID</span><span class="f-val">CZD-456778</span><button
+            class="copy-btn" data-copy="CZD-456778">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">İşlem Tutarı</span><span class="f-val">10059.91</span><button
+            class="copy-btn" data-copy="10059.91">Kopyala</button></div>
+        <div class="field-row"><span class="f-label">İşlem Tarihi</span><span class="f-val">20.05.2026</span><button
+            class="copy-btn" data-copy="2026-05-20">Kopyala</button></div>
+      </div>
+
+    </div>
+
+    <a class="go-itiraz" href="https://berkopasha.com/itiraz.html" target="_blank" rel="noopener">İtiraz Sayfasını Aç
+      →</a>
+
+  </div>
+
+  <footer>Moka United AI Ideathon &amp; Hackathon — Jüri değerlendirme sayfası. Tüm veriler kurgudur.</footer>
+
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(btn.dataset.copy);
+          const original = btn.textContent;
+          btn.textContent = 'Kopyalandı ✓';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1400);
+        } catch (e) { /* pano izni yoksa sessizce yut */ }
+      });
+    });
+  </script>
+</body>
+
+</html>
