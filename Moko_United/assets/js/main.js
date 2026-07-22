@@ -408,7 +408,7 @@ function initDisputeWizard() {
 
   // Mock işlem kayıtları tek kaynaktan gelir: assets/data/dispute-txns.js (window.MOKA_DISPUTE_TXNS)
   const TXNS = window.MOKA_DISPUTE_TXNS || [];
-  const STEP_BY_SCREEN = { query: 1, notfound: 1, locked: 1, disclosure: 2, remembered: 2, request: 3, 'already-open': 3, 'request-done': 4 };
+  const STEP_BY_SCREEN = { query: 1, notfound: 1, locked: 1, disclosure: 2, remembered: 2, request: 3, otp: 3, 'already-open': 3, 'request-done': 4 };
 
   const screens = [...wizard.querySelectorAll('.dispute-screen')];
   const progress = [...wizard.querySelectorAll('.wp-step')];
@@ -426,10 +426,15 @@ function initDisputeWizard() {
       queryForm.TxnCuzdanId.value = chip.dataset.cuzdan;
       queryForm.TxnAmount.value = chip.dataset.amount;
       queryForm.TxnDate.value = chip.dataset.date;
+      queryForm.TxnPhone.value = chip.dataset.phone;
+      // E-posta kasıtlı olarak doldurulmuyor — jüri kendi gerçek adresini yazmalı (bilgilendirme maili gerçekten gönderilir).
     });
   });
 
   let currentTxn = null;
+  let currentPhone = '';
+  let currentEmail = '';
+  let pendingOtpCode = '';
 
   function showScreen(name) {
     screens.forEach(s => s.classList.toggle('active', s.dataset.screen === name));
@@ -495,6 +500,8 @@ function initDisputeWizard() {
     const amount = parseFloat(queryForm.TxnAmount.value);
     const date = queryForm.TxnDate.value;
     if (!kurum || !cuzdanId || !amount || !date) { queryForm.reportValidity(); return; }
+    if (!queryForm.TxnPhone.checkValidity()) { queryForm.reportValidity(); return; }
+    if (!queryForm.TxnEmail.checkValidity()) { queryForm.reportValidity(); return; }
 
     const match = findTxn(kurum, cuzdanId, amount, date);
     if (!match) {
@@ -502,6 +509,8 @@ function initDisputeWizard() {
       return;
     }
     currentTxn = match;
+    currentPhone = queryForm.TxnPhone.value.trim();
+    currentEmail = queryForm.TxnEmail.value.trim();
     const card = document.getElementById('disclosureCard');
     card.innerHTML = `
       <div class="dc-logo">${currentTxn.merchant.charAt(0)}</div>
@@ -527,8 +536,6 @@ function initDisputeWizard() {
   const txnTypeSel = document.getElementById('disputeTxnType');
   const txnWrap = document.getElementById('disputeTxnWrap');
   const txnListEl = document.getElementById('disputeTxnList');
-  const wantMail = document.getElementById('disputeWantMail');
-  const mailWrap = document.getElementById('disputeMailWrap');
 
   // İtiraz edilebilecek işlem havuzu: aynı işyerinden diğer işlemler
   function disputePool() {
@@ -603,7 +610,6 @@ function initDisputeWizard() {
   document.getElementById('btnNotRecall').addEventListener('click', () => {
     reqForm.reset();
     txnWrap.hidden = true; txnListEl.innerHTML = '';
-    mailWrap.hidden = true; mailWrap.querySelector('input').required = false;
     document.getElementById('disputeReqError').textContent = '';
     resetFiles();
     showScreen('request');
@@ -614,12 +620,9 @@ function initDisputeWizard() {
     if (txnTypeSel.value) { renderTxnList(txnTypeSel.value); txnWrap.hidden = false; }
     else { txnWrap.hidden = true; txnListEl.innerHTML = ''; }
   });
-  wantMail.addEventListener('change', () => {
-    mailWrap.hidden = !wantMail.checked;
-    mailWrap.querySelector('input').required = wantMail.checked;
-  });
 
-  reqForm.addEventListener('submit', async (e) => {
+  // Talep formu geçerliyse doğrudan oluşturmaz — önce (demo) telefon/OTP doğrulamasına gönderir.
+  reqForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const err = document.getElementById('disputeReqError');
     err.textContent = '';
@@ -628,14 +631,38 @@ function initDisputeWizard() {
     const selTxn = reqForm.querySelector('input[name="DisputeTxn"]:checked');
     if (!selTxn) { err.textContent = 'Lütfen itiraz edilecek işlemi seçin.'; return; }
     if (reqForm.Note.value.trim().length < 15) { err.textContent = 'Açıklama en az 15 karakter olmalıdır.'; reqForm.Note.focus(); return; }
-    if (reqForm.Phone.value.trim().length < 10) { err.textContent = 'Geçerli bir cep telefonu girin.'; reqForm.Phone.focus(); return; }
-    let email = '';
-    if (wantMail.checked) {
-      email = reqForm.Email.value.trim();
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'Geçerli bir e-posta girin.'; reqForm.Email.focus(); return; }
-    }
 
-    const txn = TXNS.find(t => t.ref === selTxn.value) || currentTxn;
+    pendingOtpCode = String(Math.floor(100000 + Math.random() * 900000));
+    const maskedPhone = currentPhone.length >= 8
+      ? currentPhone.slice(0, 4) + ' *** ** ' + currentPhone.slice(-2)
+      : currentPhone;
+    document.getElementById('otpPhoneDisplay').textContent = maskedPhone;
+    document.getElementById('otpInput').value = '';
+    document.getElementById('otpError').textContent = '';
+    showScreen('otp');
+  });
+
+  document.getElementById('otpBack').addEventListener('click', () => showScreen('request'));
+
+  document.getElementById('otpPasteBtn').addEventListener('click', () => {
+    document.getElementById('otpInput').value = pendingOtpCode;
+  });
+
+  document.getElementById('otpVerify').addEventListener('click', async () => {
+    const otpErr = document.getElementById('otpError');
+    const entered = document.getElementById('otpInput').value.trim();
+    if (entered !== pendingOtpCode) {
+      otpErr.textContent = 'Kod hatalı. Lütfen tekrar deneyin.';
+      return;
+    }
+    otpErr.textContent = '';
+    await submitDisputeRequest();
+  });
+
+  async function submitDisputeRequest() {
+    const err = document.getElementById('disputeReqError');
+    const selTxn = reqForm.querySelector('input[name="DisputeTxn"]:checked');
+    const txn = (selTxn && TXNS.find(t => t.ref === selTxn.value)) || currentTxn;
     const fd = new FormData();
     fd.append('Reason', reqForm.Reason.value);
     fd.append('TxnType', txnTypeSel.options[txnTypeSel.selectedIndex].text);
@@ -643,22 +670,22 @@ function initDisputeWizard() {
     fd.append('Merchant', txn.merchant);
     fd.append('Amount', String(txn.amount));
     fd.append('Note', reqForm.Note.value.trim());
-    fd.append('Phone', reqForm.Phone.value.trim());
-    fd.append('Email', email);
+    fd.append('Phone', currentPhone);
+    fd.append('Email', currentEmail);
     selectedFiles.forEach(f => fd.append('Evidence', f, f.name));
 
-    const submitBtn = reqForm.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
+    const verifyBtn = document.getElementById('otpVerify');
+    verifyBtn.disabled = true;
     let res, rec;
     try {
       res = await fetch(ITIRAZ_API + '/api/itiraz/create', { method: 'POST', body: fd });
       rec = await res.json();
     } catch (ex) {
-      submitBtn.disabled = false;
-      err.textContent = 'Sunucuya bağlanılamadı. İtiraz API çalışıyor mu? (itiraz_server.py)';
+      verifyBtn.disabled = false;
+      document.getElementById('otpError').textContent = 'Sunucuya bağlanılamadı. İtiraz API çalışıyor mu? (itiraz_server.py)';
       return;
     }
-    submitBtn.disabled = false;
+    verifyBtn.disabled = false;
 
     if (res.status === 409 && rec.error === 'already_open') {
       currentCaseId = rec.caseId;
@@ -672,10 +699,12 @@ function initDisputeWizard() {
     }
     if (res.status === 429) {
       err.textContent = rec.message || 'Çok fazla talep oluşturuldu. Lütfen daha sonra tekrar deneyin.';
+      showScreen('request');
       return;
     }
     if (!res.ok) {
       err.textContent = rec.error || 'İtiraz oluşturulamadı. Bilgilerinizi kontrol edip tekrar deneyin.';
+      showScreen('request');
       return;
     }
 
@@ -685,7 +714,7 @@ function initDisputeWizard() {
     mokaRenderTracker(document.getElementById('disputeTracker'), rec.stage);
     document.getElementById('disputeReqSummary').innerHTML = mokaDisputeSummary(rec);
     showScreen('request-done');
-  });
+  }
 
   document.getElementById('disputeTrackRefresh').addEventListener('click', async () => {
     if (!currentCaseId) return;

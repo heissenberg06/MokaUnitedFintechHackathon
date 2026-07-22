@@ -18,11 +18,13 @@ import io
 import json
 import os
 import re
+import smtplib
 import threading
 import time
 import uuid
 from collections import defaultdict
 from datetime import datetime
+from email.mime.text import MIMEText
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -67,6 +69,40 @@ OPEN_STAGES = (1, 2, 3)
 # aynı işlem için tekrar test edildiğinde "zaten açık itirazınız var" bloğuna takılmasın diye
 # bu süreden eski açık itirazlar mükerrer kontrolünde yok sayılır.
 DISPUTE_DEDUP_WINDOW_S = 60 * 60  # 1 saat
+
+# ----------------------------------------------------------------------------
+# E-posta bildirimi (opsiyonel, gerçek gönderim — stdlib smtplib)
+# Ortam değişkenleri tanımlı değilse sessizce atlanır (demo akışı hiçbir zaman bloklanmaz).
+# ----------------------------------------------------------------------------
+SMTP_HOST = os.environ.get('MOKA_SMTP_HOST', '')
+SMTP_PORT = int(os.environ.get('MOKA_SMTP_PORT', '465'))
+SMTP_USER = os.environ.get('MOKA_SMTP_USER', '')
+SMTP_PASS = os.environ.get('MOKA_SMTP_PASS', '')
+SMTP_FROM = os.environ.get('MOKA_SMTP_FROM', SMTP_USER)
+
+STAGE_LABELS = {1: 'Talep Alındı', 2: 'İnceleniyor', 3: 'Bankaya / İşyerine İletildi', 4: 'Sonuçlandırıldı'}
+
+def send_email(to_addr, subject, body):
+    """Gerçek e-posta gönderir; SMTP yapılandırılmamışsa veya gönderim başarısız olursa
+    sessizce loglar — itiraz akışını asla bloklamaz."""
+    if not (SMTP_HOST and SMTP_USER and SMTP_PASS and to_addr):
+        print(f"[email] SMTP yapılandırılmamış, atlandı -> {to_addr}: {subject}", flush=True)
+        return
+    try:
+        msg = MIMEText(body, 'plain', 'utf-8')
+        msg['Subject'] = subject
+        msg['From'] = f"Moka United <{SMTP_FROM}>"
+        msg['To'] = to_addr
+        with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=15) as server:
+            server.login(SMTP_USER, SMTP_PASS)
+            server.sendmail(SMTP_FROM, [to_addr], msg.as_string())
+        print(f"[email] gönderildi -> {to_addr}: {subject}", flush=True)
+    except Exception as e:
+        print(f"[email] gönderilemedi -> {to_addr}: {e}", flush=True)
+
+def send_email_async(to_addr, subject, body):
+    if to_addr:
+        threading.Thread(target=send_email, args=(to_addr, subject, body), daemon=True).start()
 
 # ----------------------------------------------------------------------------
 # Yardımcılar
@@ -277,6 +313,16 @@ class Handler(BaseHTTPRequestHandler):
             if c['stage'] < CLOSED_STAGE:
                 c['stage'] += 1
                 _write(data)
+        if c.get('email'):
+            label = STAGE_LABELS.get(c['stage'], '')
+            send_email_async(
+                c['email'],
+                f"İtiraz Durumu Güncellendi — {case_id}",
+                "Merhaba,\n\n"
+                f"{case_id} numaralı itiraz talebinizin durumu güncellendi: {label}.\n\n"
+                f"Güncel durumu https://berkopasha.com/itiraz-durum.html?case={case_id} "
+                "adresinden görüntüleyebilirsiniz.\n\nSaygılarımızla,\nMoka United"
+            )
         return self._json(c)
 
     def _attempt(self, ip):
@@ -427,6 +473,21 @@ class Handler(BaseHTTPRequestHandler):
             }
             data['cases'][case_id] = rec
             _write(data)
+
+        if rec['email']:
+            send_email_async(
+                rec['email'],
+                f"İtirazınız Alındı — {case_id}",
+                "Merhaba,\n\n"
+                f"{case_id} numaralı itiraz talebiniz sistemimize kaydedilmiştir.\n\n"
+                f"İşyeri: {rec['merchant']}\n"
+                f"İtiraz Sebebi: {rec['reason']}\n\n"
+                "Süreç ilerledikçe (inceleme, bankaya/işyerine iletilme ve sonuçlanma "
+                "aşamalarında) bu e-posta adresine bilgilendirme göndereceğiz. Talebinizin "
+                f"güncel durumunu https://berkopasha.com/itiraz-durum.html?case={case_id} "
+                "adresinden de takip edebilirsiniz.\n\n"
+                "Saygılarımızla,\nMoka United"
+            )
 
         return self._json(rec, 201)
 

@@ -56,10 +56,10 @@
         <div class="quick-fill-note">
           <span class="qf-label">Hızlı test (jüri değerlendirmesi için örnek veriler):</span>
           <div class="quick-fill-row">
-            <button type="button" class="qf-chip" data-kurum="Beymen" data-cuzdan="CZD-356787" data-amount="7650.00" data-date="2026-06-23">Beymen</button>
-            <button type="button" class="qf-chip" data-kurum="Nike" data-cuzdan="CZD-331148" data-amount="2386.14" data-date="2026-05-19">Nike</button>
-            <button type="button" class="qf-chip" data-kurum="Vakko" data-cuzdan="CZD-809570" data-amount="2319.99" data-date="2026-07-01">Vakko</button>
-            <button type="button" class="qf-chip" data-kurum="Samsung" data-cuzdan="CZD-456778" data-amount="10059.91" data-date="2026-05-20">Samsung</button>
+            <button type="button" class="qf-chip" data-kurum="Beymen" data-cuzdan="CZD-356787" data-amount="7650.00" data-date="2026-06-23" data-phone="05555555555">Beymen</button>
+            <button type="button" class="qf-chip" data-kurum="Nike" data-cuzdan="CZD-331148" data-amount="2386.14" data-date="2026-05-19" data-phone="05555555555">Nike</button>
+            <button type="button" class="qf-chip" data-kurum="Vakko" data-cuzdan="CZD-809570" data-amount="2319.99" data-date="2026-07-01" data-phone="05555555555">Vakko</button>
+            <button type="button" class="qf-chip" data-kurum="Samsung" data-cuzdan="CZD-456778" data-amount="10059.91" data-date="2026-05-20" data-phone="05555555555">Samsung</button>
           </div>
         </div>
         <form class="apply-light" id="disputeQueryForm" novalidate>
@@ -70,6 +70,10 @@
           <div class="form-row">
             <div class="form-group"><label class="fld-label">Kurum Adı</label><input class="form-control" name="TxnKurum" maxlength="60" placeholder="Örn. Beymen" required></div>
             <div class="form-group"><label class="fld-label">Cüzdan ID</label><input class="form-control" name="TxnCuzdanId" maxlength="20" placeholder="Örn. CZD-482911" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="fld-label">Cep Telefonu</label><input class="form-control only-number" type="tel" name="TxnPhone" maxlength="11" inputmode="numeric" placeholder="05xx xxx xx xx" required></div>
+            <div class="form-group"><label class="fld-label">E-Posta <span class="fld-optional">(opsiyonel)</span></label><input class="form-control" type="email" name="TxnEmail" placeholder="ornek@eposta.com"></div>
           </div>
           <div class="dispute-attempts" id="queryAttempts" hidden></div>
           <div class="step-nav"><span class="spacer"></span>
@@ -154,10 +158,6 @@
             <textarea class="form-control" name="Note" placeholder="İşlemle ilgili yaşadığınız durumu kısaca anlatın (en az 15 karakter)" required></textarea>
           </div>
           <div class="form-group">
-            <label class="fld-label">Cep Telefonu *</label>
-            <input class="form-control only-number" type="tel" name="Phone" maxlength="11" inputmode="numeric" placeholder="05xx xxx xx xx" required>
-          </div>
-          <div class="form-group">
             <label class="fld-label">Destekleyici Belge <span class="fld-optional">(opsiyonel)</span></label>
             <div class="dispute-file-drop" id="disputeFileDrop">
               <input class="file-input" type="file" name="Evidence" id="disputeFileInput" accept=".pdf,.jpg,.jpeg,.png,.heic" multiple hidden>
@@ -167,11 +167,6 @@
             <ul class="file-list" id="disputeFileList"></ul>
             <div class="field-error" id="disputeFileError"></div>
           </div>
-          <label class="opt-toggle"><input type="checkbox" id="disputeWantMail"> Süreç ilerlemesi hakkında e-posta ile bilgilendirilmek istiyorum</label>
-          <div class="form-group" id="disputeMailWrap" hidden>
-            <label class="fld-label">E-Posta</label>
-            <input class="form-control" type="email" name="Email" placeholder="ornek@eposta.com">
-          </div>
           <div class="field-error" id="disputeReqError"></div>
           <div class="step-nav">
             <button type="button" class="button button-secondary" id="disputeReqBack"><span>← GERİ</span></button>
@@ -179,6 +174,23 @@
             <button type="submit" class="button button-primary"><span>TALEP OLUŞTUR →</span></button>
           </div>
         </form>
+      </div>
+
+      <!-- EKRAN: telefon (OTP) doğrulama — demo amaçlı, gerçek SMS gönderilmez -->
+      <div class="dispute-screen" data-screen="otp">
+        <h3>Telefon Doğrulama</h3>
+        <p class="step-sub"><strong id="otpPhoneDisplay">0555 555 55 55</strong> numarasına gönderilen 6 haneli kodu girin. Bu, itirazı gerçekten kart/cüzdan sahibinin oluşturduğunu doğrulamak içindir.</p>
+        <div class="form-group">
+          <label class="fld-label">Doğrulama Kodu</label>
+          <input class="form-control only-number" id="otpInput" maxlength="6" inputmode="numeric" placeholder="••••••">
+        </div>
+        <button type="button" class="button button-secondary" id="otpPasteBtn"><span>📋 KODU YAPIŞTIR (DEMO)</span></button>
+        <div class="field-error" id="otpError"></div>
+        <div class="step-nav">
+          <button type="button" class="button button-secondary" id="otpBack"><span>← GERİ</span></button>
+          <span class="spacer"></span>
+          <button type="button" class="button button-primary" id="otpVerify"><span>DOĞRULA →</span></button>
+        </div>
       </div>
 
       <!-- EKRAN: bu işlem için zaten açık bir itiraz var — mükerrer talep engellendi -->
