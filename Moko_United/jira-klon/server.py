@@ -663,6 +663,11 @@ class Handler(BaseHTTPRequestHandler):
         merchant = str(body.get('merchant', '')).strip()
         issuetype = str(body.get('issuetype', '')) or CATEGORY_ISSUETYPE.get(category, 'task')
         labels = body.get('labels', [])
+        # Normalde her issue "yeni" ile başlar; entegrasyonlar (ör. itiraz sistemi) doğrudan
+        # belirli bir durumla (ör. "beklemede") oluşturabilsin diye opsiyonel override.
+        initial_status = str(body.get('status', 'yeni'))
+        if initial_status not in STATUSES:
+            initial_status = 'yeni'
 
         for chk, field in ((v_name(name), 'reporter'),
                            (v_len(summary, 10, 120, 'Özet'), 'summary'),
@@ -694,7 +699,7 @@ class Handler(BaseHTTPRequestHandler):
                 "category": category,
                 "labels": list(labels) + _auto_labels(category, merchant),
                 "priority": priority,
-                "status": "yeni",
+                "status": initial_status,
                 "assignee_team": team,
                 "assignee_user": None,
                 "story_points": None,
@@ -703,9 +708,9 @@ class Handler(BaseHTTPRequestHandler):
                 "sentiment": "notr",
                 "merchant": clean(merchant) if merchant else None,
                 "attachments": [],
-                "tasks": _make_tasks("yeni"),
-                "approvals": _make_approvals(priority, "yeni"),
-                "timeline": _make_timeline(name, created, "yeni", source),
+                "tasks": _make_tasks(initial_status),
+                "approvals": _make_approvals(priority, initial_status),
+                "timeline": _make_timeline(name, created, initial_status, source),
                 "audit": [{"at": now_iso(), "actor": "kullanici", "action": "issue_created"}],
             }
             data['issues'].append(rec)

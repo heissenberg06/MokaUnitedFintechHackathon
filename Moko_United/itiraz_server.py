@@ -21,6 +21,8 @@ import re
 import smtplib
 import threading
 import time
+import urllib.error
+import urllib.request
 import uuid
 from collections import defaultdict
 from datetime import datetime
@@ -81,6 +83,38 @@ SMTP_PASS = os.environ.get('MOKA_SMTP_PASS', '')
 SMTP_FROM = os.environ.get('MOKA_SMTP_FROM', SMTP_USER)
 
 STAGE_LABELS = {1: 'Talep Alındı', 2: 'İnceleniyor', 3: 'Bankaya / İşyerine İletildi', 4: 'Sonuçlandırıldı'}
+
+# ----------------------------------------------------------------------------
+# jira-klon entegrasyonu — yeni itiraz açıldığında oraya "beklemede" bir kayıt düşer.
+# Aynı VPS üzerinde çalışan ayrı bir servis (127.0.0.1:8780); erişilemezse itiraz akışı
+# hiçbir şekilde bloklanmaz (sessizce loglanır).
+# ----------------------------------------------------------------------------
+JIRA_API_URL = "http://127.0.0.1:8780/api/issues"
+
+def create_jira_issue_async(case_id, merchant, reason, note):
+    def _send():
+        payload = json.dumps({
+            "reporter": "Kart Hamili",
+            "summary": f"İtiraz talebi — {merchant} ({case_id})",
+            "description": f"Moka United itiraz sayfasından otomatik açıldı.\n\n"
+                            f"İşlem numarası: {case_id}\nİşyeri: {merchant}\n"
+                            f"İtiraz sebebi: {reason}\n\nAçıklama: {note}",
+            "category": "Yetkisiz İşlem",
+            "priority": "yuksek",
+            "source": "self-service",
+            "status": "beklemede",
+            "merchant": merchant,
+        }).encode('utf-8')
+        try:
+            req = urllib.request.Request(
+                JIRA_API_URL, data=payload,
+                headers={'Content-Type': 'application/json'}, method='POST')
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                resp.read()
+            print(f"[jira] oluşturuldu -> {case_id}", flush=True)
+        except Exception as e:
+            print(f"[jira] oluşturulamadı -> {case_id}: {e}", flush=True)
+    threading.Thread(target=_send, daemon=True).start()
 
 def send_email(to_addr, subject, body):
     """Gerçek e-posta gönderir; SMTP yapılandırılmamışsa veya gönderim başarısız olursa
@@ -473,6 +507,8 @@ class Handler(BaseHTTPRequestHandler):
             }
             data['cases'][case_id] = rec
             _write(data)
+
+        create_jira_issue_async(case_id, rec['merchant'], rec['reason'], rec['note'])
 
         if rec['email']:
             send_email_async(
