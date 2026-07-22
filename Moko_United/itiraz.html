@@ -99,6 +99,23 @@
         <p class="step-sub">Güvenliğiniz için bu oturumda çok fazla başarısız deneme yapıldı. Lütfen bir süre sonra tekrar deneyin ya da doğrudan bankanızla iletişime geçin.</p>
       </div>
 
+      <!-- EKRAN: telefon (OTP) doğrulama — demo amaçlı, gerçek SMS gönderilmez -->
+      <div class="dispute-screen" data-screen="otp">
+        <h3>Telefon Doğrulama</h3>
+        <p class="step-sub"><strong id="otpPhoneDisplay">0555 555 55 55</strong> numarasına gönderilen 6 haneli kodu girin. Bu, işlem bilgisini gerçekten kart/cüzdan sahibine gösterdiğimizi doğrulamak içindir.</p>
+        <div class="form-group">
+          <label class="fld-label">Doğrulama Kodu</label>
+          <input class="form-control only-number" id="otpInput" maxlength="6" inputmode="numeric" placeholder="••••••">
+        </div>
+        <button type="button" class="button button-secondary" id="otpPasteBtn"><span>📋 KODU YAPIŞTIR (DEMO)</span></button>
+        <div class="field-error" id="otpError"></div>
+        <div class="step-nav">
+          <button type="button" class="button button-secondary" id="otpBack"><span>← GERİ</span></button>
+          <span class="spacer"></span>
+          <button type="button" class="button button-primary" id="otpVerify"><span>DOĞRULA →</span></button>
+        </div>
+      </div>
+
       <!-- EKRAN: asgari ifşa / hatırlatma -->
       <div class="dispute-screen" data-screen="disclosure">
         <h3>Bu Harcamayı Hatırlıyor musunuz?</h3>
@@ -175,24 +192,6 @@
           </div>
         </form>
       </div>
-
-      <!-- EKRAN: telefon (OTP) doğrulama — demo amaçlı, gerçek SMS gönderilmez -->
-      <div class="dispute-screen" data-screen="otp">
-        <h3>Telefon Doğrulama</h3>
-        <p class="step-sub"><strong id="otpPhoneDisplay">0555 555 55 55</strong> numarasına gönderilen 6 haneli kodu girin. Bu, itirazı gerçekten kart/cüzdan sahibinin oluşturduğunu doğrulamak içindir.</p>
-        <div class="form-group">
-          <label class="fld-label">Doğrulama Kodu</label>
-          <input class="form-control only-number" id="otpInput" maxlength="6" inputmode="numeric" placeholder="••••••">
-        </div>
-        <button type="button" class="button button-secondary" id="otpPasteBtn"><span>📋 KODU YAPIŞTIR (DEMO)</span></button>
-        <div class="field-error" id="otpError"></div>
-        <div class="step-nav">
-          <button type="button" class="button button-secondary" id="otpBack"><span>← GERİ</span></button>
-          <span class="spacer"></span>
-          <button type="button" class="button button-primary" id="otpVerify"><span>DOĞRULA →</span></button>
-        </div>
-      </div>
-
       <!-- EKRAN: bu işlem için zaten açık bir itiraz var — mükerrer talep engellendi -->
       <div class="dispute-screen" data-screen="already-open">
         <div class="dispute-result-icon info">ℹ</div>
